@@ -18,6 +18,10 @@ const ROOT_DIR = path.resolve(__dirname, "..");
 const DATA_DIR = path.join(ROOT_DIR, "data");
 const QUOTE_FILE = path.join(DATA_DIR, "daily-quote.json");
 
+const WALLPAPER_FILE = path.join(DATA_DIR, "daily-wallpaper.json");
+const IMAGES_DIR = path.join(ROOT_DIR, "images");
+const HERO_DAILY_IMAGE = path.join(IMAGES_DIR, "hero-daily.jpg");
+
 // 精选高质量长青名句兜底库
 const FALLBACK_QUOTES = [
   { text: "“生活不在别处，<br>就在当下的每一个选择里。”", author: "Tan", source: "数字花园" },
@@ -28,6 +32,58 @@ const FALLBACK_QUOTES = [
   { text: "“追光的人，<br>终会身披万丈光芒。”", author: "Tan", source: "成长手记" },
   { text: "“简单是最高级的复杂，<br>极简是对本质最深沉的凝视。”", author: "达·芬奇", source: "艺术随笔" }
 ];
+
+async function fetchWallpaper() {
+  console.log("🌌 正在从 Bing 获取每日 4K 自然风景壁纸...");
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
+    const res = await fetch("https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN", {
+      signal: controller.signal,
+      headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)" }
+    });
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.images && data.images.length > 0) {
+        const img = data.images[0];
+        const imgUrl = `https://cn.bing.com${img.urlbase}_UHD.jpg`;
+        const title = img.title || "今日自然画卷";
+        const copyright = img.copyright || "Bing 每日呈现";
+
+        console.log(`🖼️ 下载高清壁纸: ${title} (${copyright})`);
+        const imgRes = await fetch(imgUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
+        if (imgRes.ok) {
+          const arrayBuffer = await imgRes.arrayBuffer();
+          if (!fs.existsSync(IMAGES_DIR)) fs.mkdirSync(IMAGES_DIR, { recursive: true });
+          fs.writeFileSync(HERO_DAILY_IMAGE, Buffer.from(arrayBuffer));
+          console.log(`✅ 已保存壁纸至 images/hero-daily.jpg (${Math.round(arrayBuffer.byteLength / 1024)} KB)`);
+
+          const meta = {
+            title,
+            copyright,
+            url: imgUrl,
+            updatedAt: new Date().toISOString().slice(0, 10)
+          };
+          fs.writeFileSync(WALLPAPER_FILE, JSON.stringify(meta, null, 2), "utf-8");
+          return meta;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("⚠️ 获取 Bing 每日壁纸失败，启用本地自愈回退:", err.message);
+  }
+
+  // 保证 images/hero-daily.jpg 即使网络异常也存在（复制默认 hero-bg.jpg）
+  if (!fs.existsSync(HERO_DAILY_IMAGE)) {
+    const defaultHero = path.join(IMAGES_DIR, "hero-bg.jpg");
+    if (fs.existsSync(defaultHero)) {
+      fs.copyFileSync(defaultHero, HERO_DAILY_IMAGE);
+    }
+  }
+}
 
 async function fetchQuote() {
   console.log("🌐 正在从开源 API 获取每日金句...");
@@ -80,6 +136,8 @@ async function main() {
   const quoteData = await fetchQuote();
   fs.writeFileSync(QUOTE_FILE, JSON.stringify(quoteData, null, 2), "utf-8");
   console.log(`✨ 今日金句已就绪: ${quoteData.text.replace(/<br>/g, " ")} — ${quoteData.author}`);
+
+  await fetchWallpaper();
 }
 
 main().catch(err => {

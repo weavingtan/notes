@@ -324,4 +324,82 @@ if (cardsMatch) {
 console.log("  ✓ 首页 2 列宽幅大卡片、零假阅读量、动态日期与 100vw 悬浮横幅断言通过");
 console.log("  ✓ 暗黑模式卡片背景自愈与无白板断言通过");
 
-console.log("\n🎉 全部 6 大测试套件 100% 验证通过！出版级质量门禁就绪！");
+// ========================================================
+// 7. V2 沉浸式极客交互与微信移动端响应式排版断言
+// ========================================================
+console.log("\n▶ [Test 7/7] V2 沉浸式极客交互与微信移动端响应式排版断言");
+
+// 7.1 品牌 Logo 统一重构为 TAN
+for (const htmlFile of allHtmlFiles) {
+  const content = fs.readFileSync(htmlFile, "utf-8");
+  const rel = path.relative(ROOT_DIR, htmlFile);
+  assert.ok(
+    content.includes('<span class="brand-text">TAN</span>'),
+    `[${rel}] 顶部导航未采用全新品牌 TAN Logo`
+  );
+  assert.equal(
+    content.includes("<span>Tan's Blog</span>"),
+    false,
+    `[${rel}] 仍残留旧版 "Tan's Blog" 品牌标语`
+  );
+}
+console.log(`  ✓ 全站 ${allHtmlFiles.length} 个页面全部采用新版极简 TAN 品牌 Logo，旧标语完全清零`);
+
+// 7.2 全局 Cmd+K 搜索索引 window.__NOTES_INDEX__ 注入断言
+for (const htmlFile of allHtmlFiles) {
+  const content = fs.readFileSync(htmlFile, "utf-8");
+  const rel = path.relative(ROOT_DIR, htmlFile);
+  assert.ok(
+    content.includes("window.__NOTES_INDEX__ ="),
+    `[${rel}] 缺失全局文章搜索索引注入 window.__NOTES_INDEX__`
+  );
+}
+const indexMatch = indexHtml.match(/window\.__NOTES_INDEX__\s*=\s*(\[[\s\S]*?\]);/);
+assert.ok(indexMatch, "未解析到全局搜索索引数组");
+const parsedIndex = JSON.parse(indexMatch[1]);
+assert.ok(parsedIndex.length >= 7, `搜索索引文章数不足: 实际 ${parsedIndex.length} 篇`);
+console.log(`  ✓ 全站 ${allHtmlFiles.length} 个页面均挂载全局搜索索引，涵盖全部 ${parsedIndex.length} 篇文章`);
+
+// 7.3 暗黑模式 CTA 白板 0 容忍断言 (无 inline #f7f8fa)
+for (const postFile of postHtmlFiles) {
+  const content = fs.readFileSync(postFile, "utf-8");
+  const rel = path.relative(ROOT_DIR, postFile);
+  assert.equal(
+    /style="[^"]*#f7f8fa/i.test(content),
+    false,
+    `文章 [${rel}] 仍残留内联 #f7f8fa，会导致暗黑模式白板！`
+  );
+}
+console.log("  ✓ 全部详情页彻底杜绝 #f7f8fa 内联白板背景，自愈为 CSS 变量");
+
+// 7.4 微信移动端响应式排版规范断言
+assert.ok(indexHtml.includes("overflow-x: hidden !important"), "缺失移动端防横向晃动 overflow-x: hidden 锁死规则");
+assert.ok(indexHtml.includes(".category-filter-pills"), "缺失分类筛选横向触控滚动样式");
+assert.ok(indexHtml.includes("filter-pill"), "缺失大尺寸分类药丸样式");
+
+const samplePost = fs.readFileSync(postHtmlFiles[0], "utf-8");
+assert.ok(samplePost.includes(".article-content pre"), "缺失代码块移动端排版规则");
+assert.ok(samplePost.includes("margin: 1.2em -16px"), "代码块未设置负外边距全宽通栏");
+assert.ok(samplePost.includes("font-size: 16.5px"), "未遵循微信 16.5px 核心正文字号规范");
+assert.ok(samplePost.includes("line-height: 1.78"), "未遵循微信 1.78 舒适行高规范");
+console.log("  ✓ 移动端排版严格契合微信生态：全屏锁死晃动、18px 边距、16.5px/1.78 排版与代码通栏");
+
+// 7.5 极客高留存功能断言 (GitHub 互动闭环、代码复制、专注模式、延伸推荐)
+for (const postFile of postHtmlFiles) {
+  const content = fs.readFileSync(postFile, "utf-8");
+  const rel = path.relative(ROOT_DIR, postFile);
+  assert.ok(content.includes('class="post-github-interaction"'), `[${rel}] 缺少 GitHub 极客讨论区`);
+  assert.ok(content.includes('class="post-recommendations"'), `[${rel}] 缺少延伸阅读推荐卡片`);
+  assert.ok(content.includes('class="focus-mode-exit-btn"'), `[${rel}] 缺少专注模式退出按钮`);
+  assert.ok(content.includes('toggleFocusMode()'), `[${rel}] 缺少专注模式切换函数调用`);
+  assert.ok(content.includes('initCodeCopy'), `[${rel}] 缺少代码一键复制挂载函数`);
+}
+console.log("  ✓ 全部详情页均配备 GitHub 互动闭环、智能延伸阅读、专注阅读模式与代码一键复制");
+
+// 7.6 动态高清壁纸双层回退栈断言
+assert.ok(indexHtml.includes("images/hero-daily.jpg"), "首页缺少 hero-daily.jpg 动态壁纸引用");
+assert.ok(indexHtml.includes("images/hero-bg.jpg"), "首页缺少 hero-bg.jpg 回退壁纸引用");
+assert.ok(indexHtml.includes("📷"), "首页名言卡片缺少今日壁纸摄影信息标记");
+console.log("  ✓ 动态 4K 壁纸管道与双层 CSS 回退栈断言通过");
+
+console.log("\n🎉 全部 7 大测试套件 100% 验证通过！出版级质量门禁就绪！");

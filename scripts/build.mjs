@@ -69,7 +69,7 @@ export function getDailyQuote() {
 
 // 站点元数据配置 (与设计稿视觉体系完全对齐)
 export const SITE_CONFIG = {
-  title: "Tan's Blog",
+  title: "TAN",
   author: "Tan",
   description: "这是我的个人博客，记录技术、产品、生活与成长。希望这些文字，能在某个时刻，给你带来一点启发。",
   siteUrl: "https://weavingtan.github.io/notes",
@@ -126,12 +126,16 @@ export const ICONS = {
   cross: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
   tag: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><circle cx="7" cy="7" r=".5" fill="currentColor"/></svg>`,
   folder: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>`,
-  clock: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`
+  clock: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  bookOpen: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+  star: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  edit: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`
 };
 
 // 探测可用的 obw CLI 路径
 export function findObwCli() {
   const candidates = [
+    path.resolve(ROOT_DIR, "../obw/bin/obw.js"),
     path.resolve(ROOT_DIR, "bin/obw.cjs"),
     path.resolve(ROOT_DIR, "bin/obw.js"),
     path.resolve(ROOT_DIR, "../../bin/obw.js"),
@@ -158,6 +162,140 @@ export const SITE_THEME_TO_OBW = {
   "warm-amber": "autumn-leaf",
   "minimalist-ink": "nordic-minimal",
 };
+
+/**
+ * 获取今日高清自然壁纸元数据 (平滑降级机制)
+ */
+export function getDailyWallpaper() {
+  const wallpaperPath = path.resolve(ROOT_DIR, "data/daily-wallpaper.json");
+  if (fs.existsSync(wallpaperPath)) {
+    try {
+      return JSON.parse(fs.readFileSync(wallpaperPath, "utf-8"));
+    } catch (e) {
+      // fallback below
+    }
+  }
+  return {
+    title: "金色时节",
+    copyright: "瓜兹曼山口附近的秋日山杨林，犹他州，美国",
+    url: "images/hero-daily.jpg",
+    updatedAt: "2026-09-22",
+  };
+}
+
+/**
+ * 组装统一的品牌 TAN Logo HTML
+ */
+export function buildBrandHtml(isSubdir = false) {
+  const href = isSubdir ? "../index.html" : "index.html";
+  return `
+    <a href="${href}" class="site-brand" title="返回首页">
+      <span class="site-brand-icon">${ICONS.mountain}</span>
+      <span class="brand-text">TAN</span>
+      <span class="brand-badge">// NOTES</span>
+    </a>
+  `.trim();
+}
+
+/**
+ * 提取全站文章轻量搜索索引 (用于 Cmd+K 即时全局模糊检索)
+ */
+export function buildSearchIndex(posts) {
+  return posts.map((p) => ({
+    title: p.meta.title,
+    desc: p.meta.description || "",
+    categories: p.meta.categories || [],
+    tags: p.meta.tags || [],
+    slug: p.slug,
+    date: p.meta.date || "",
+  }));
+}
+
+/**
+ * 根据文章分类和标签重合度智能推荐相关文章 (最多 limit 篇)
+ */
+export function getRelatedPosts(currentPost, allPosts, limit = 2) {
+  if (!allPosts || allPosts.length === 0) return [];
+  const currentCats = new Set((currentPost.meta.categories || []).map((c) => c.toLowerCase()));
+  const currentTags = new Set((currentPost.meta.tags || []).map((t) => t.toLowerCase()));
+
+  const candidates = allPosts
+    .filter((p) => p.slug !== currentPost.slug)
+    .map((p) => {
+      let score = 0;
+      (p.meta.categories || []).forEach((c) => {
+        if (currentCats.has(c.toLowerCase())) score += 3;
+      });
+      (p.meta.tags || []).forEach((t) => {
+        if (currentTags.has(t.toLowerCase())) score += 2;
+      });
+      return { post: p, score };
+    })
+    .sort((a, b) => b.score - a.score || (b.post.meta.date || "").localeCompare(a.post.meta.date || ""));
+
+  return candidates.slice(0, limit).map((c) => c.post);
+}
+
+/**
+ * 组装文章底部 GitHub 极客互动操作条
+ */
+export function buildPostGithubInteraction(post) {
+  const issueDiscussUrl = `https://github.com/weavingtan/notes/issues/new?title=${encodeURIComponent('关于《' + post.meta.title + '》的探讨与反馈')}&body=${encodeURIComponent('### 讨论文章\n《' + post.meta.title + '》\n\n### 讨论内容或想法\n')}`;
+  const issueErrataUrl = `https://github.com/weavingtan/notes/issues/new?labels=bug,errata&title=${encodeURIComponent('[勘误] 《' + post.meta.title + '》')}&body=${encodeURIComponent('### 勘误文章\n《' + post.meta.title + '》\n\n### 错误描述与修改建议\n')}`;
+  const repoUrl = `https://github.com/weavingtan/notes`;
+
+  return `
+    <section class="post-github-interaction" style="box-sizing:border-box;">
+      <section class="github-interaction-card" style="box-sizing:border-box;">
+        <section class="interaction-header" style="box-sizing:border-box;">
+          <span class="interaction-icon">${ICONS.github}</span>
+          <section class="interaction-titles" style="box-sizing:border-box;">
+            <h4 class="interaction-title">极客互动与开源探讨</h4>
+            <p class="interaction-desc">本文由 Markdown 驱动并托管在 GitHub 开源仓库。欢迎参与讨论交流、提出修改勘误，或点亮 Star 支持。</p>
+          </section>
+        </section>
+        <section class="interaction-actions" style="box-sizing:border-box;">
+          <a href="${issueDiscussUrl}" target="_blank" rel="noopener" class="interaction-btn primary">
+            ${ICONS.chat} 参与 GitHub 讨论
+          </a>
+          <a href="${issueErrataUrl}" target="_blank" rel="noopener" class="interaction-btn secondary">
+            ${ICONS.edit} 提交勘误
+          </a>
+          <a href="${repoUrl}" target="_blank" rel="noopener" class="interaction-btn star">
+            ${ICONS.star} Star 本项目
+          </a>
+        </section>
+      </section>
+    </section>
+  `.trim();
+}
+
+/**
+ * 组装文章底部智能延伸阅读推荐卡片
+ */
+export function buildPostRecommendations(relatedPosts) {
+  if (!relatedPosts || relatedPosts.length === 0) return "";
+  return `
+    <section class="post-recommendations" style="box-sizing:border-box;">
+      <section class="recommendations-header" style="box-sizing:border-box;">
+        <h3 class="recommendations-title">${ICONS.folder} 延伸阅读推荐</h3>
+      </section>
+      <section class="recommendations-grid" style="box-sizing:border-box;">
+        ${relatedPosts.map((p) => `
+          <a href="${p.slug}.html" class="recommend-card">
+            <span class="recommend-card-badge">${(p.meta.categories && p.meta.categories[0]) || "随笔"}</span>
+            <h4 class="recommend-card-title">${p.meta.title}</h4>
+            <p class="recommend-card-desc">${p.meta.description || ""}</p>
+            <section class="recommend-card-meta" style="box-sizing:border-box;">
+              <span>${ICONS.calendar} ${p.meta.date || ""}</span>
+              <span class="recommend-card-read">阅读全文 ${ICONS.arrowRight}</span>
+            </section>
+          </a>
+        `).join("")}
+      </section>
+    </section>
+  `.trim();
+}
 
 export function renderWithObw(markdownText, theme = SITE_CONFIG.theme) {
   const obwTheme = SITE_THEME_TO_OBW[theme] || theme || "fresh-mint";
@@ -357,16 +495,16 @@ export function adaptObwHtmlForWeb(html) {
   processed = processed.replace(/color:\s*(?:#(?:2b2b2b|1f2937|111111|222222|374151|000000|0f172a)|rgb\(\s*43\s*,\s*43\s*,\s*43\s*\));?/gi, "color: var(--text-main);");
 
   // 2. 将次级暗灰文字替换为 var(--text-muted)
-  processed = processed.replace(/color:\s*(?:#(?:475569|4b5563|64748b|334155));?/gi, "color: var(--text-muted);");
+  processed = processed.replace(/color:\s*(?:#(?:475569|4b5563|64748b|334155|595959|6b7280));?/gi, "color: var(--text-muted);");
 
   // 3. 将硬编码的纯白/近白背景色替换为 var(--bg-card)，根治深色模式白板/反白问题
-  processed = processed.replace(/(?:background|background-color):\s*(?:#(?:ffffff|fff|fafafa|f8fafc)|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\));?/gi, "background-color: var(--bg-card);");
+  processed = processed.replace(/(?:background|background-color):\s*(?:#(?:ffffff|fff|fafafa|f8fafc|f7f8fa|f5f5f7)|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\));?/gi, "background-color: var(--bg-card);");
 
   // 4. 将硬编码的浅灰/微色背景色替换为 var(--bg-subtle)
   processed = processed.replace(/(?:background|background-color):\s*(?:#(?:f1f5f9|f3f4f6|e2e8f0|f0fdf4|f5f3ff|eff6ff));?/gi, "background-color: var(--bg-subtle);");
 
   // 5. 将硬编码浅色边框替换为 var(--border-color)
-  processed = processed.replace(/border:\s*1px\s+solid\s+(?:#(?:e2e8f0|cbd5e1|e5e7eb|f1f5f9));?/gi, "border: 1px solid var(--border-color);");
+  processed = processed.replace(/border:\s*1px\s+solid\s+(?:#(?:e2e8f0|cbd5e1|e5e7eb|f1f5f9|e0e0e0));?/gi, "border: 1px solid var(--border-color);");
 
   return processed;
 }
@@ -1026,16 +1164,31 @@ button {
 .site-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-weight: 700;
-  font-size: 1.15rem;
-  letter-spacing: -0.02em;
+  gap: 8px;
+  text-decoration: none;
   color: inherit;
   transition: opacity 0.2s;
 }
 
 .site-brand:hover {
   opacity: 0.9;
+}
+
+.brand-text {
+  font-family: var(--font-sans);
+  font-weight: 850;
+  font-size: 1.28rem;
+  letter-spacing: 0.08em;
+  color: inherit;
+}
+
+.brand-badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--primary);
+  letter-spacing: 0.05em;
+  opacity: 0.88;
 }
 
 .site-brand-icon {
@@ -2050,7 +2203,8 @@ button {
 [data-mode="dark"] .wechat-module-cards,
 [data-mode="dark"] .wechat-module-quote,
 [data-mode="dark"] .wechat-module-metrics,
-[data-mode="dark"] .wechat-module-notice {
+[data-mode="dark"] .wechat-module-notice,
+[data-mode="dark"] .wechat-module-cta {
   background: var(--bg-card) !important;
   border-color: var(--border-color) !important;
   box-shadow: var(--card-shadow) !important;
@@ -2060,13 +2214,20 @@ button {
 [data-mode="dark"] .article-content section[style*="background:#ffffff"],
 [data-mode="dark"] .article-content section[style*="background: #ffffff"],
 [data-mode="dark"] .article-content section[style*="background:#fff"],
-[data-mode="dark"] .article-content section[style*="background: #fff"] {
+[data-mode="dark"] .article-content section[style*="background: #fff"],
+[data-mode="dark"] .article-content [style*="background:#f7f8fa"],
+[data-mode="dark"] .article-content [style*="background: #f7f8fa"],
+[data-mode="dark"] .article-content [style*="background:#f5f5f7"],
+[data-mode="dark"] .article-content [style*="background: #f5f5f7"],
+[data-mode="dark"] .article-content [style*="background:#fafafa"],
+[data-mode="dark"] .article-content [style*="background: #fafafa"] {
   background-color: var(--bg-card) !important;
   background: var(--bg-card) !important;
   color: var(--text-main) !important;
   border-color: var(--border-color) !important;
 }
 
+[data-mode="dark"] .wechat-module-cta span,
 [data-mode="dark"] section[class*="wechat-module"] span,
 [data-mode="dark"] section[class*="wechat-module"] p,
 [data-mode="dark"] section[class*="wechat-module"] h1,
@@ -2496,7 +2657,367 @@ button {
 }
 
 /* ========================================================
-   响应式断点适配
+   极客互动、专注模式、代码一键复制与壁纸扩展
+   ======================================================== */
+.quote-wallpaper-info {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.88);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quote-wallpaper-info span {
+  font-size: 0.85rem;
+}
+
+/* 专注阅读模式 (Focus Reading Mode) */
+body.focus-reading-mode .site-nav,
+body.focus-reading-mode .article-page-header,
+body.focus-reading-mode .article-toc-sidebar,
+body.focus-reading-mode .back-link,
+body.focus-reading-mode .wechat-promo-card,
+body.focus-reading-mode .post-github-interaction,
+body.focus-reading-mode .post-recommendations,
+body.focus-reading-mode .site-footer {
+  display: none !important;
+}
+
+body.focus-reading-mode .article-wrapper {
+  max-width: 820px;
+  margin: 30px auto 80px;
+  grid-template-columns: 1fr;
+  padding: 0 20px;
+}
+
+body.focus-reading-mode .article-main {
+  box-shadow: none;
+  border-color: transparent;
+  background: transparent;
+  padding: 24px 0;
+}
+
+.focus-mode-exit-btn {
+  display: none;
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.focus-mode-exit-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-2px);
+}
+
+body.focus-reading-mode .focus-mode-exit-btn {
+  display: inline-flex;
+}
+
+/* 代码块一键复制按钮 */
+.article-content pre {
+  position: relative;
+}
+
+.code-copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 10px;
+  font-size: 0.76rem;
+  font-family: var(--font-mono);
+  color: #94a3b8;
+  background: rgba(30, 41, 59, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.code-copy-btn:hover {
+  background: rgba(51, 65, 85, 0.9);
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.code-copy-btn.copied {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+
+/* GitHub 极客互动操作区 */
+.post-github-interaction {
+  margin: 36px 0;
+}
+
+.github-interaction-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px 28px;
+  box-shadow: var(--card-shadow);
+}
+
+.interaction-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.interaction-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--bg-subtle);
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.interaction-title {
+  margin: 0 0 6px 0;
+  font-size: 1.05rem;
+  font-weight: 750;
+  color: var(--text-main);
+}
+
+.interaction-desc {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.interaction-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.interaction-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.interaction-btn.primary {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.interaction-btn.primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.interaction-btn.secondary {
+  background: var(--bg-subtle);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+}
+
+.interaction-btn.secondary:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.interaction-btn.star {
+  background: var(--bg-subtle);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+}
+
+.interaction-btn.star:hover {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: #f59e0b;
+}
+
+[data-mode="dark"] .interaction-btn.star:hover {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border-color: #f59e0b;
+}
+
+/* 延伸阅读推荐 */
+.post-recommendations {
+  margin: 36px 0;
+  padding-top: 28px;
+  border-top: 1px solid var(--border-color);
+}
+
+.recommendations-title {
+  font-size: 1.1rem;
+  font-weight: 750;
+  color: var(--text-main);
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+.recommend-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 18px 20px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.recommend-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary);
+  box-shadow: var(--card-shadow);
+}
+
+.recommend-card-badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--bg-subtle);
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.recommend-card-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 8px 0;
+  line-height: 1.45;
+}
+
+.recommend-card-desc {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0 0 14px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+.recommend-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--text-light);
+  border-top: 1px dashed var(--border-subtle);
+  padding-top: 10px;
+}
+
+.recommend-card-read {
+  color: var(--primary);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 全站搜索结果与高亮 */
+.search-highlight {
+  background: rgba(16, 185, 129, 0.25);
+  color: var(--primary);
+  border-radius: 2px;
+  padding: 0 2px;
+  font-weight: 700;
+}
+
+.search-result-item {
+  display: block;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.search-result-item:hover,
+.search-result-item.selected {
+  background: var(--bg-subtle);
+  border-left: 3px solid var(--primary);
+}
+
+.search-result-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.search-result-snippet {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.search-result-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.76rem;
+  color: var(--text-light);
+  margin-top: 6px;
+}
+
+.search-tag {
+  color: var(--primary);
+  background: var(--bg-subtle);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* ========================================================
+   响应式断点适配 (移动端彻底微信化排版 + 锁死横向晃动)
    ======================================================== */
 @media (max-width: 1024px) {
   .latest-grid-2,
@@ -2512,85 +3033,168 @@ button {
 }
 
 @media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden !important;
+    width: 100%;
+  }
+
+  /* 移动端导航紧凑单行 */
   .nav-container {
-    padding: 0 16px;
+    padding: 0 14px;
+    height: 54px;
+  }
+  .site-nav, .article-page-header {
+    height: 54px;
   }
   .nav-menu {
-    gap: 14px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-  .nav-menu::-webkit-scrollbar {
     display: none;
   }
-  .nav-menu-item {
-    font-size: 0.88rem;
-    white-space: nowrap;
+  .site-brand {
+    gap: 6px;
+  }
+  .brand-text {
+    font-size: 1.15rem;
+  }
+  .brand-badge {
+    display: none;
   }
   .nav-right-actions {
     gap: 6px;
   }
   .nav-action-btn {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
   }
   .nav-avatar-btn {
     display: none;
   }
+
+  /* 分类胶囊按钮大尺寸触控优化 */
   .category-filter-pills {
     overflow-x: auto;
     white-space: nowrap;
-    padding-bottom: 6px;
+    padding: 6px 14px 10px;
+    margin: 0 -14px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    display: flex;
+    gap: 10px;
   }
   .category-filter-pills::-webkit-scrollbar {
     display: none;
   }
   .filter-pill {
     flex-shrink: 0;
+    height: 38px;
+    padding: 8px 18px;
+    font-size: 0.92rem;
+    border-radius: 20px;
   }
+
+  /* 移动端文章详情排版 (严格遵循微信图文排版规范) */
+  .article-wrapper {
+    margin: 12px auto 40px;
+    padding: 0 16px;
+    grid-template-columns: 1fr;
+  }
+  .article-main {
+    border-radius: 12px;
+    padding: 20px 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: none;
+  }
+  .article-header {
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+  }
+  .article-title {
+    font-size: 1.55rem;
+    line-height: 1.4;
+  }
+  .article-digest-desc {
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+  .article-content {
+    font-size: 16.5px;
+    line-height: 1.78;
+    word-break: break-word;
+  }
+  .article-content p {
+    margin: 1.4em 0;
+  }
+  .article-content pre {
+    margin: 1.2em -16px;
+    border-radius: 0;
+    padding: 14px 16px;
+    font-size: 0.85rem;
+    border-left: none;
+    border-right: none;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .article-toc-sidebar {
+    display: none !important;
+  }
+  .recommendations-grid {
+    grid-template-columns: 1fr;
+  }
+  .interaction-actions {
+    flex-direction: column;
+  }
+  .interaction-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .wechat-promo-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px 16px;
+  }
+  .wechat-qr-box {
+    margin-top: 14px;
+  }
+
+  /* 首页卡片单列 */
   .hero-inner-container {
     flex-direction: column;
+    padding: 0;
   }
   .hero-quote-card {
     width: 100%;
+    margin-top: 20px;
   }
   .featured-card {
     grid-template-columns: 1fr;
   }
   .featured-cover-box {
-    min-height: 200px;
-    height: 200px;
+    min-height: 190px;
+    height: 190px;
   }
   .featured-content {
-    padding: 24px 20px;
+    padding: 20px 16px;
   }
   .latest-grid-2,
   .latest-grid-4 {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 18px;
   }
   .card-item-cover-box {
-    height: 190px;
+    height: 180px;
   }
   .bottom-comm-banner {
-    padding: 44px 20px;
-  }
-  .banner-left {
-    max-width: 100%;
+    padding: 36px 16px;
   }
   .footer-inner-container {
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
     text-align: center;
   }
   .categories-grid {
     grid-template-columns: 1fr;
   }
   .about-card {
-    padding: 28px 20px;
+    padding: 24px 16px;
   }
 }
 
@@ -2741,42 +3345,65 @@ function toggleSearchModal(open) {
   }
 }
 
+let searchSelectedIndex = -1;
+
 function onSearchModalInput(e) {
   const q = e.target.value.trim().toLowerCase();
   const resultsBox = document.getElementById("search-results-box");
   if (!resultsBox) return;
+  searchSelectedIndex = -1;
 
   if (!q) {
-    resultsBox.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-light);font-size:0.9rem;">输入关键词搜索全部文章...</div>';
+    resultsBox.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-light);font-size:0.9rem;">输入关键词搜索全部文章 (支持标题、描述、分类与标签)...</div>';
     return;
   }
 
-  const cards = document.querySelectorAll(".card-item-4");
+  const inPosts = window.location.pathname.includes("/posts/");
+  const index = window.__NOTES_INDEX__ || [];
   const matches = [];
-  cards.forEach(card => {
-    const title = (card.getAttribute("data-title") || "").toLowerCase();
-    const desc = (card.getAttribute("data-desc") || "").toLowerCase();
-    const tags = (card.getAttribute("data-tags") || "").toLowerCase();
-    const url = card.getAttribute("data-url");
-    if (title.includes(q) || desc.includes(q) || tags.includes(q)) {
-      matches.push({
-        title: card.getAttribute("data-title"),
-        desc: card.getAttribute("data-desc") || "",
-        url: url
-      });
+
+  for (let i = 0; i < index.length; i++) {
+    const item = index[i];
+    const title = (item.title || "").toLowerCase();
+    const desc = (item.desc || "").toLowerCase();
+    const tags = (item.tags || []).join(" ").toLowerCase();
+    const cats = (item.categories || []).join(" ").toLowerCase();
+
+    if (title.includes(q) || desc.includes(q) || tags.includes(q) || cats.includes(q)) {
+      const url = inPosts ? item.slug + ".html" : "posts/" + item.slug + ".html";
+      matches.push({ ...item, url });
     }
-  });
+  }
 
   if (matches.length === 0) {
-    resultsBox.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-light);font-size:0.9rem;">未找到相关文章</div>';
+    resultsBox.innerHTML = '<div style="padding:28px;text-align:center;color:var(--text-light);font-size:0.9rem;">未找到相关文章</div>';
   } else {
-    resultsBox.innerHTML = matches.map(m => \`
-      <a href="\${m.url}" class="search-result-item">
-        <div class="search-result-title">\${m.title}</div>
-        <div class="search-result-snippet">\${m.desc}</div>
-      </a>
-    \`).join("");
+    resultsBox.innerHTML = matches.map((m, idx) => {
+      const escaped = q.split('').map(function(c){ return '.*+?^$()|{}[]\\\\'.indexOf(c) !== -1 ? '\\\\' + c : c; }).join('');
+      const reg = new RegExp('(' + escaped + ')', 'gi');
+      const highTitle = m.title.replace(reg, '<mark class="search-highlight">$1</mark>');
+      const highDesc = m.desc ? m.desc.replace(reg, '<mark class="search-highlight">$1</mark>') : '';
+      const catBadge = (m.categories && m.categories[0]) ? '<span class="search-tag">' + m.categories[0] + '</span>' : '';
+      const dateText = m.date ? '<span>' + m.date + '</span>' : '';
+
+      return '<a href="' + m.url + '" class="search-result-item" data-index="' + idx + '">' +
+        '<div class="search-result-title">' + highTitle + '</div>' +
+        (highDesc ? '<div class="search-result-snippet">' + highDesc + '</div>' : '') +
+        '<div class="search-result-meta">' + catBadge + dateText + '</div>' +
+        '</a>';
+    }).join("");
   }
+}
+
+function updateSelectedSearchItem(items) {
+  items.forEach((item, i) => {
+    if (i === searchSelectedIndex) {
+      item.classList.add("selected");
+      item.scrollIntoView({ block: "nearest" });
+    } else {
+      item.classList.remove("selected");
+    }
+  });
 }
 
 // 最新文章分类筛选 (支持 data-categories 与 data-tags)
@@ -2784,15 +3411,51 @@ function filterCategory(cat, btn) {
   document.querySelectorAll(".filter-pill").forEach(p => p.classList.remove("active"));
   if (btn) btn.classList.add("active");
 
-  const cards = document.querySelectorAll(".card-item-4");
+  const cards = document.querySelectorAll(".card-item-2, .card-item-4");
   cards.forEach(card => {
-    const cats = (card.getAttribute("data-categories") || "").split(",").map(t => t.trim());
-    const tags = (card.getAttribute("data-tags") || "").split(",").map(t => t.trim());
-    if (cat === "all" || cats.includes(cat) || tags.some(t => t.includes(cat))) {
+    const cats = (card.getAttribute("data-categories") || "").split(",").map(t => t.trim().toLowerCase());
+    const tags = (card.getAttribute("data-tags") || "").split(",").map(t => t.trim().toLowerCase());
+    const target = cat.toLowerCase();
+    if (target === "all" || cats.includes(target) || tags.some(t => t.includes(target))) {
       card.style.display = "flex";
     } else {
       card.style.display = "none";
     }
+  });
+}
+
+// 专注阅读模式切换
+function toggleFocusMode(force) {
+  if (typeof force === "boolean") {
+    document.body.classList.toggle("focus-reading-mode", force);
+  } else {
+    document.body.classList.toggle("focus-reading-mode");
+  }
+}
+
+// 代码块一键复制
+function initCodeCopy() {
+  document.querySelectorAll(".article-content pre").forEach(pre => {
+    if (pre.querySelector(".code-copy-btn")) return;
+    const btn = document.createElement("button");
+    btn.className = "code-copy-btn";
+    btn.type = "button";
+    btn.title = "复制代码";
+    btn.innerHTML = '${ICONS.copy} <span>复制</span>';
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const code = pre.querySelector("code") || pre;
+      const textToCopy = code.innerText.replace(/复制\s*$/, "").trim();
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        btn.classList.add("copied");
+        btn.innerHTML = '${ICONS.check} <span>已复制</span>';
+        setTimeout(() => {
+          btn.classList.remove("copied");
+          btn.innerHTML = '${ICONS.copy} <span>复制</span>';
+        }, 2000);
+      });
+    };
+    pre.appendChild(btn);
   });
 }
 
@@ -2849,8 +3512,36 @@ function scrollToTop() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// 全局快捷键：Cmd+K / Ctrl+K 触发搜索
+// 全局快捷键：Cmd+K / Ctrl+K 触发搜索，ArrowUp/ArrowDown 导航
 window.addEventListener("keydown", (e) => {
+  const modal = document.getElementById("search-modal");
+  const isOpen = modal && modal.classList.contains("open");
+
+  if (isOpen) {
+    const items = document.querySelectorAll(".search-result-item");
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (items.length > 0) {
+        searchSelectedIndex = (searchSelectedIndex + 1) % items.length;
+        updateSelectedSearchItem(items);
+      }
+      return;
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (items.length > 0) {
+        searchSelectedIndex = (searchSelectedIndex - 1 + items.length) % items.length;
+        updateSelectedSearchItem(items);
+      }
+      return;
+    } else if (e.key === "Enter") {
+      if (searchSelectedIndex >= 0 && items[searchSelectedIndex]) {
+        e.preventDefault();
+        items[searchSelectedIndex].click();
+        return;
+      }
+    }
+  }
+
   if ((e.metaKey || e.ctrlKey) && e.key === "k") {
     e.preventDefault();
     toggleSearchModal(true);
@@ -2863,6 +3554,7 @@ window.addEventListener("keydown", (e) => {
 
 document.addEventListener("DOMContentLoaded", () => {
   initSiteTheme();
+  initCodeCopy();
 });
 `;
 
@@ -2946,23 +3638,27 @@ export function buildThemePickerHtml() {
 /**
  * 统一搜索模态框与通用挂件
  */
-export function buildCommonWidgetsHtml() {
+export function buildCommonWidgetsHtml(searchIndex = []) {
+  const indexJson = JSON.stringify(searchIndex);
   return `
     <!-- 回到顶部按钮 -->
     <button id="back-to-top" onclick="scrollToTop()" title="回到顶部">
       ${ICONS.arrowUp}
     </button>
 
+    <!-- 全局文章搜索数据索引 -->
+    <script>window.__NOTES_INDEX__ = ${indexJson};</script>
+
     <!-- 搜索模态框 -->
     <div id="search-modal" class="search-modal-backdrop" onclick="toggleSearchModal(false)">
       <div class="search-modal-box" onclick="event.stopPropagation()">
         <div class="search-modal-input-row">
           ${ICONS.search}
-          <input type="text" id="search-input" class="search-modal-input" placeholder="输入关键词快速搜索文章 (按 Esc 退出)..." oninput="onSearchModalInput(event)">
+          <input type="text" id="search-input" class="search-modal-input" placeholder="输入关键词快速搜索全部文章 (按 Esc 退出)..." oninput="onSearchModalInput(event)">
           <button onclick="toggleSearchModal(false)">${ICONS.cross}</button>
         </div>
         <div id="search-results-box" class="search-results-box">
-          <div style="padding:20px;text-align:center;color:var(--text-light);font-size:0.9rem;">输入关键词搜索全部文章...</div>
+          <div style="padding:24px;text-align:center;color:var(--text-light);font-size:0.9rem;">输入关键词搜索全部文章 (支持标题、描述、分类与标签)...</div>
         </div>
       </div>
     </div>
@@ -2991,7 +3687,7 @@ export function buildZeroFoucScript() {
 /**
  * 组装单个文章页面 HTML
  */
-export function buildPostPageHtml(post, renderedHtml, toc) {
+export function buildPostPageHtml(post, renderedHtml, toc, allPosts = [], searchIndex = []) {
   const tocItemsHtml = toc
     .map(
       (t) => `
@@ -3011,6 +3707,10 @@ export function buildPostPageHtml(post, renderedHtml, toc) {
 
   const coverUrl = post.meta.cover ? (post.meta.cover.startsWith("http") ? post.meta.cover : (post.meta.cover.startsWith("../") ? post.meta.cover : `../${post.meta.cover}`)) : "";
 
+  const relatedPosts = getRelatedPosts(post, allPosts, 2);
+  const githubInteractionHtml = buildPostGithubInteraction(post);
+  const recommendationsHtml = buildPostRecommendations(relatedPosts);
+
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -3022,7 +3722,7 @@ export function buildPostPageHtml(post, renderedHtml, toc) {
   ${buildZeroFoucScript()}
   <style>
 :root {
-  --hero-bg: url('../images/hero-bg.jpg');
+  --hero-bg: url('../images/hero-daily.jpg'), url('../images/hero-bg.jpg');
   --banner-bg: url('../images/bottom-banner-clean.jpg'), url('../images/bottom-banner.jpg');
 }
 ${SITE_STYLES}
@@ -3031,13 +3731,15 @@ ${SITE_STYLES}
 <body>
   <div id="read-progress"></div>
 
+  <!-- 退出专注阅读模式悬浮按钮 -->
+  <button class="focus-mode-exit-btn" onclick="toggleFocusMode(false)">
+    ${ICONS.cross} 退出专注模式
+  </button>
+
   <!-- 顶部导航 -->
   <header class="article-page-header">
     <div class="nav-container">
-      <a href="../index.html" class="site-brand">
-        <span class="site-brand-icon">${ICONS.mountain}</span>
-        <span>${SITE_CONFIG.title}</span>
-      </a>
+      ${buildBrandHtml(true)}
 
       ${buildNavHtml("archives", true)}
 
@@ -3046,6 +3748,9 @@ ${SITE_STYLES}
           ${ICONS.search}
         </button>
         ${buildThemePickerHtml()}
+        <button class="nav-action-btn" onclick="toggleFocusMode()" title="专注阅读模式" id="focus-mode-btn">
+          ${ICONS.bookOpen}
+        </button>
         <button class="nav-action-btn" onclick="toggleTheme()" title="切换日夜模式">
           <span id="theme-toggle-icon">${ICONS.moon}</span>
         </button>
@@ -3089,6 +3794,12 @@ ${SITE_STYLES}
         ${renderedHtml}
       </section>
 
+      <!-- 极客互动与 GitHub 讨论区 -->
+      ${githubInteractionHtml}
+
+      <!-- 智能延伸阅读推荐 -->
+      ${recommendationsHtml}
+
       <!-- 微信公众号订阅卡片 -->
       <section class="wechat-promo-card">
         <div class="wechat-promo-text">
@@ -3123,7 +3834,7 @@ ${SITE_STYLES}
     }
   </main>
 
-  ${buildCommonWidgetsHtml()}
+  ${buildCommonWidgetsHtml(searchIndex)}
 
   <footer class="site-footer">
     <div class="footer-inner-container">
@@ -3163,8 +3874,9 @@ export function buildBottomBannerHtml() {
 /**
  * 组装首页 HTML (1:1 像素级复现用户设计稿 + 纯净 Hero 与动态分类药丸)
  */
-export function buildIndexPageHtml(posts, featuredPost, latestPosts, allCategories) {
+export function buildIndexPageHtml(posts, featuredPost, latestPosts, allCategories, searchIndex = []) {
   const dailyQuote = getDailyQuote();
+  const dailyWallpaper = getDailyWallpaper();
 
   function getTagColorClass(tag) {
     if (tag.includes("技术")) return "teal";
@@ -3216,7 +3928,7 @@ export function buildIndexPageHtml(posts, featuredPost, latestPosts, allCategori
   ${buildZeroFoucScript()}
   <style>
 :root {
-  --hero-bg: url('images/hero-bg.jpg');
+  --hero-bg: url('images/hero-daily.jpg'), url('images/hero-bg.jpg');
   --banner-bg: url('images/bottom-banner-clean.jpg'), url('images/bottom-banner.jpg');
 }
 ${SITE_STYLES}
@@ -3228,10 +3940,7 @@ ${SITE_STYLES}
   <!-- 顶部透明随动导航 -->
   <header class="site-nav" id="main-nav">
     <div class="nav-container">
-      <a href="index.html" class="site-brand">
-        <span class="site-brand-icon">${ICONS.mountain}</span>
-        <span>${SITE_CONFIG.title}</span>
-      </a>
+      ${buildBrandHtml(false)}
 
       ${buildNavHtml("home", false)}
 
@@ -3277,6 +3986,10 @@ ${SITE_STYLES}
           ${dailyQuote.text}
         </div>
         <div class="quote-author">— ${dailyQuote.author}</div>
+        ${dailyWallpaper ? `
+        <div class="quote-wallpaper-info" title="${dailyWallpaper.copyright}">
+          <span>📷</span> 今日壁纸：${dailyWallpaper.title}
+        </div>` : ""}
       </div>
     </div>
   </section>
@@ -3332,7 +4045,7 @@ ${SITE_STYLES}
 
   ${buildBottomBannerHtml()}
 
-  ${buildCommonWidgetsHtml()}
+  ${buildCommonWidgetsHtml(searchIndex)}
 
   <footer class="site-footer">
     <div class="footer-inner-container">
@@ -3349,7 +4062,7 @@ ${SITE_STYLES}
 /**
  * 组装时间线归档页面 HTML (/archives.html)
  */
-export function buildArchivesHtml(posts) {
+export function buildArchivesHtml(posts, searchIndex = []) {
   // 按年份分组
   const yearGroups = {};
   const sorted = [...posts].sort((a, b) => {
@@ -3404,7 +4117,7 @@ export function buildArchivesHtml(posts) {
   ${buildZeroFoucScript()}
   <style>
 :root {
-  --hero-bg: url('images/hero-bg.jpg');
+  --hero-bg: url('images/hero-daily.jpg'), url('images/hero-bg.jpg');
   --banner-bg: url('images/bottom-banner-clean.jpg'), url('images/bottom-banner.jpg');
 }
 ${SITE_STYLES}
@@ -3415,10 +4128,7 @@ ${SITE_STYLES}
 
   <header class="article-page-header">
     <div class="nav-container">
-      <a href="index.html" class="site-brand">
-        <span class="site-brand-icon">${ICONS.mountain}</span>
-        <span>${SITE_CONFIG.title}</span>
-      </a>
+      ${buildBrandHtml(false)}
       ${buildNavHtml("archives", false)}
       <div class="nav-right-actions">
         <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
@@ -3450,7 +4160,7 @@ ${SITE_STYLES}
 
   ${buildBottomBannerHtml()}
 
-  ${buildCommonWidgetsHtml()}
+  ${buildCommonWidgetsHtml(searchIndex)}
 
   <footer class="site-footer">
     <div class="footer-inner-container">
@@ -3467,7 +4177,7 @@ ${SITE_STYLES}
 /**
  * 组装分类探索页面 HTML (/categories.html)
  */
-export function buildCategoriesHtml(posts, categoriesMap) {
+export function buildCategoriesHtml(posts, categoriesMap, searchIndex = []) {
   const categoriesHtml = Object.entries(categoriesMap)
     .sort((a, b) => b[1].length - a[1].length)
     .map(([cat, catPosts]) => {
@@ -3502,7 +4212,7 @@ export function buildCategoriesHtml(posts, categoriesMap) {
   ${buildZeroFoucScript()}
   <style>
 :root {
-  --hero-bg: url('images/hero-bg.jpg');
+  --hero-bg: url('images/hero-daily.jpg'), url('images/hero-bg.jpg');
   --banner-bg: url('images/bottom-banner-clean.jpg'), url('images/bottom-banner.jpg');
 }
 ${SITE_STYLES}
@@ -3513,10 +4223,7 @@ ${SITE_STYLES}
 
   <header class="article-page-header">
     <div class="nav-container">
-      <a href="index.html" class="site-brand">
-        <span class="site-brand-icon">${ICONS.mountain}</span>
-        <span>${SITE_CONFIG.title}</span>
-      </a>
+      ${buildBrandHtml(false)}
       ${buildNavHtml("categories", false)}
       <div class="nav-right-actions">
         <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
@@ -3550,7 +4257,7 @@ ${SITE_STYLES}
 
   ${buildBottomBannerHtml()}
 
-  ${buildCommonWidgetsHtml()}
+  ${buildCommonWidgetsHtml(searchIndex)}
 
   <footer class="site-footer">
     <div class="footer-inner-container">
@@ -3567,7 +4274,7 @@ ${SITE_STYLES}
 /**
  * 组装标签云与检索页面 HTML (/tags.html)
  */
-export function buildTagsHtml(posts, tagsMap) {
+export function buildTagsHtml(posts, tagsMap, searchIndex = []) {
   const sortedTags = Object.entries(tagsMap).sort((a, b) => b[1].length - a[1].length);
 
   const tagChipsHtml = sortedTags
@@ -3612,7 +4319,7 @@ export function buildTagsHtml(posts, tagsMap) {
   ${buildZeroFoucScript()}
   <style>
 :root {
-  --hero-bg: url('images/hero-bg.jpg');
+  --hero-bg: url('images/hero-daily.jpg'), url('images/hero-bg.jpg');
   --banner-bg: url('images/bottom-banner-clean.jpg'), url('images/bottom-banner.jpg');
 }
 ${SITE_STYLES}
@@ -3623,10 +4330,7 @@ ${SITE_STYLES}
 
   <header class="article-page-header">
     <div class="nav-container">
-      <a href="index.html" class="site-brand">
-        <span class="site-brand-icon">${ICONS.mountain}</span>
-        <span>${SITE_CONFIG.title}</span>
-      </a>
+      ${buildBrandHtml(false)}
       ${buildNavHtml("tags", false)}
       <div class="nav-right-actions">
         <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
@@ -3664,7 +4368,7 @@ ${SITE_STYLES}
 
   ${buildBottomBannerHtml()}
 
-  ${buildCommonWidgetsHtml()}
+  ${buildCommonWidgetsHtml(searchIndex)}
 
   <footer class="site-footer">
     <div class="footer-inner-container">
@@ -3681,7 +4385,7 @@ ${SITE_STYLES}
 /**
  * 组装关于我页面 HTML (/about.html)
  */
-export function buildAboutHtml(aboutPost, aboutRenderedHtml, aboutToc) {
+export function buildAboutHtml(aboutPost, aboutRenderedHtml, aboutToc, searchIndex = []) {
   const tocHtml = aboutToc && aboutToc.length > 0
     ? aboutToc.map(t => `<li class="toc-item toc-level-${t.level}"><a href="#${t.id}">${t.text}</a></li>`).join("\n")
     : "";
@@ -3696,7 +4400,7 @@ export function buildAboutHtml(aboutPost, aboutRenderedHtml, aboutToc) {
   ${buildZeroFoucScript()}
   <style>
 :root {
-  --hero-bg: url('images/hero-bg.jpg');
+  --hero-bg: url('images/hero-daily.jpg'), url('images/hero-bg.jpg');
   --banner-bg: url('images/bottom-banner-clean.jpg'), url('images/bottom-banner.jpg');
 }
 ${SITE_STYLES}
@@ -3707,10 +4411,7 @@ ${SITE_STYLES}
 
   <header class="article-page-header">
     <div class="nav-container">
-      <a href="index.html" class="site-brand">
-        <span class="site-brand-icon">${ICONS.mountain}</span>
-        <span>${SITE_CONFIG.title}</span>
-      </a>
+      ${buildBrandHtml(false)}
       ${buildNavHtml("about", false)}
       <div class="nav-right-actions">
         <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
@@ -3765,7 +4466,7 @@ ${SITE_STYLES}
 
   ${buildBottomBannerHtml()}
 
-  ${buildCommonWidgetsHtml()}
+  ${buildCommonWidgetsHtml(searchIndex)}
 
   <footer class="site-footer">
     <div class="footer-inner-container">
@@ -3783,7 +4484,7 @@ ${SITE_STYLES}
  * 站点构建主函数
  */
 export async function main() {
-  console.log("🚀 开始全量构建 Tan's Blog / Weaving's Notes 个人站点...");
+  console.log("🚀 开始全量构建 TAN / Weaving's Notes 个人站点...");
 
   // 1. 初始化并清空目录
   if (!fs.existsSync(DIST_DIR)) fs.mkdirSync(DIST_DIR, { recursive: true });
@@ -3807,33 +4508,26 @@ export async function main() {
 
   for (const file of postFiles) {
     const filePath = path.join(POSTS_DIR, file);
-    const slug = file.replace(/\.md$/, "");
     const rawContent = fs.readFileSync(filePath, "utf-8");
     const { meta, body } = parseFrontmatter(rawContent);
 
-    // 过滤草稿
-    if (meta.draft === true) {
-      console.log(`⏩ 跳过草稿文档: ${file}`);
-      continue;
-    }
+    // 过滤掉草稿文章
+    if (meta.draft === true) continue;
 
+    const slug = path.basename(file, ".md");
     const readingStats = calculateReadingStats(body);
-    const rawExcerpt = body
-      .replace(/:::[\s\S]*?:::/g, "")
-      .replace(/```[\s\S]*?```/g, "")
-      .replace(/<[^>]+>/g, "")
-      .replace(/^[#>\s\-*]+/gm, "")
-      .replace(/\n+/g, " ")
-      .trim()
-      .slice(0, 160);
 
     const postItem = {
-      file,
       slug,
-      meta,
+      meta: {
+        ...meta,
+        title: meta.title || slug,
+        date: meta.date || "2026-09-22",
+        author: meta.author || SITE_CONFIG.author,
+      },
       body,
       readingStats,
-      rawExcerpt,
+      url: `posts/${slug}.html`,
     };
 
     if (slug === "about") {
@@ -3872,6 +4566,9 @@ export async function main() {
 
   const allCategories = Object.keys(categoriesMap).filter((c) => c !== "关于");
 
+  // 生成轻量全局搜索索引 (标题、描述、分类、标签)
+  const searchIndex = buildSearchIndex(posts);
+
   // 6. 生成每篇文章详情页 (dist/posts/*.html)
   for (const post of posts) {
     const preprocessed = preprocessMarkdown(post.body, true);
@@ -3879,7 +4576,7 @@ export async function main() {
     const adaptedHtml = adaptObwHtmlForWeb(rawRenderedHtml);
     const { toc, html: processedHtml } = extractToc(adaptedHtml);
 
-    const postHtml = buildPostPageHtml(post, processedHtml, toc);
+    const postHtml = buildPostPageHtml(post, processedHtml, toc, posts, searchIndex);
     fs.writeFileSync(path.join(DIST_POSTS_DIR, `${post.slug}.html`), postHtml, "utf-8");
     console.log(`✅ 已生成文章页面: dist/posts/${post.slug}.html`);
   }
@@ -3891,22 +4588,22 @@ export async function main() {
   const latestPosts = posts.filter((p) => p.slug !== featuredPost.slug);
 
   // 8. 生成首页 (dist/index.html)
-  const indexHtml = buildIndexPageHtml(posts, featuredPost, latestPosts, allCategories);
+  const indexHtml = buildIndexPageHtml(posts, featuredPost, latestPosts, allCategories, searchIndex);
   fs.writeFileSync(path.join(DIST_DIR, "index.html"), indexHtml, "utf-8");
   console.log(`✅ 已生成首页: dist/index.html`);
 
   // 9. 生成归档页 (dist/archives.html)
-  const archivesHtml = buildArchivesHtml(posts);
+  const archivesHtml = buildArchivesHtml(posts, searchIndex);
   fs.writeFileSync(path.join(DIST_DIR, "archives.html"), archivesHtml, "utf-8");
   console.log(`✅ 已生成归档页: dist/archives.html`);
 
   // 10. 生成分类页 (dist/categories.html)
-  const categoriesHtml = buildCategoriesHtml(posts, categoriesMap);
+  const categoriesHtml = buildCategoriesHtml(posts, categoriesMap, searchIndex);
   fs.writeFileSync(path.join(DIST_DIR, "categories.html"), categoriesHtml, "utf-8");
   console.log(`✅ 已生成分类页: dist/categories.html`);
 
   // 11. 生成标签页 (dist/tags.html)
-  const tagsHtml = buildTagsHtml(posts, tagsMap);
+  const tagsHtml = buildTagsHtml(posts, tagsMap, searchIndex);
   fs.writeFileSync(path.join(DIST_DIR, "tags.html"), tagsHtml, "utf-8");
   console.log(`✅ 已生成标签页: dist/tags.html`);
 
@@ -3916,7 +4613,7 @@ export async function main() {
     const rawRendered = renderWithObw(preprocessed, SITE_CONFIG.theme);
     const adapted = adaptObwHtmlForWeb(rawRendered);
     const { toc, html: processedHtml } = extractToc(adapted);
-    const aboutHtml = buildAboutHtml(aboutPost, processedHtml, toc);
+    const aboutHtml = buildAboutHtml(aboutPost, processedHtml, toc, searchIndex);
     fs.writeFileSync(path.join(DIST_DIR, "about.html"), aboutHtml, "utf-8");
     console.log(`✅ 已从 posts/about.md 生成关于我页面: dist/about.html`);
   } else {
@@ -3939,7 +4636,7 @@ highlight | “生活不在别处，就在当下的每一个选择里。”
     const rawRendered = renderWithObw(defaultAboutBody, SITE_CONFIG.theme);
     const adapted = adaptObwHtmlForWeb(rawRendered);
     const { toc, html: processedHtml } = extractToc(adapted);
-    const aboutHtml = buildAboutHtml({ meta: { title: "关于我" }, readingStats: { totalWords: 300, readingTimeMin: 1 } }, processedHtml, toc);
+    const aboutHtml = buildAboutHtml({ meta: { title: "关于我" }, readingStats: { totalWords: 300, readingTimeMin: 1 } }, processedHtml, toc, searchIndex);
     fs.writeFileSync(path.join(DIST_DIR, "about.html"), aboutHtml, "utf-8");
     console.log(`✅ 已生成默认关于我页面: dist/about.html`);
   }
