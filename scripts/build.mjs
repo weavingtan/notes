@@ -28,6 +28,44 @@ const IMAGES_DIR = path.join(ROOT_DIR, "images");
 const DIST_DIR = path.join(ROOT_DIR, "dist");
 const DIST_POSTS_DIR = path.join(DIST_DIR, "posts");
 const DIST_IMAGES_DIR = path.join(DIST_DIR, "images");
+const DATA_DIR = path.join(ROOT_DIR, "data");
+const QUOTE_FILE = path.join(DATA_DIR, "daily-quote.json");
+
+/**
+ * 动态获取今天日期 (YYYY.MM.DD)
+ */
+export function getTodayFormattedDate() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}.${m}.${d}`;
+}
+
+/**
+ * 读取每日金句（优先读取 GitHub Action 定时抓取的 data/daily-quote.json，带优雅降级）
+ */
+export function getDailyQuote() {
+  try {
+    if (fs.existsSync(QUOTE_FILE)) {
+      const content = JSON.parse(fs.readFileSync(QUOTE_FILE, "utf-8"));
+      if (content && content.text) {
+        return {
+          date: getTodayFormattedDate(),
+          weather: "24° ☀️",
+          text: content.text,
+          author: content.author || SITE_CONFIG.author,
+        };
+      }
+    }
+  } catch (err) {
+    // 优雅降级
+  }
+  return {
+    ...SITE_CONFIG.quote,
+    date: getTodayFormattedDate(),
+  };
+}
 
 // 站点元数据配置 (与设计稿视觉体系完全对齐)
 export const SITE_CONFIG = {
@@ -321,6 +359,15 @@ export function adaptObwHtmlForWeb(html) {
   // 2. 将次级暗灰文字替换为 var(--text-muted)
   processed = processed.replace(/color:\s*(?:#(?:475569|4b5563|64748b|334155));?/gi, "color: var(--text-muted);");
 
+  // 3. 将硬编码的纯白/近白背景色替换为 var(--bg-card)，根治深色模式白板/反白问题
+  processed = processed.replace(/(?:background|background-color):\s*(?:#(?:ffffff|fff|fafafa|f8fafc)|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\));?/gi, "background-color: var(--bg-card);");
+
+  // 4. 将硬编码的浅灰/微色背景色替换为 var(--bg-subtle)
+  processed = processed.replace(/(?:background|background-color):\s*(?:#(?:f1f5f9|f3f4f6|e2e8f0|f0fdf4|f5f3ff|eff6ff));?/gi, "background-color: var(--bg-subtle);");
+
+  // 5. 将硬编码浅色边框替换为 var(--border-color)
+  processed = processed.replace(/border:\s*1px\s+solid\s+(?:#(?:e2e8f0|cbd5e1|e5e7eb|f1f5f9));?/gi, "border: 1px solid var(--border-color);");
+
   return processed;
 }
 
@@ -426,6 +473,7 @@ export const SITE_STYLES = `
   --pill-bg: #e6f7f2;
   --pill-border: rgba(16, 185, 129, 0.28);
   --pill-text: #065f46;
+  --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(16, 185, 129, 0.16) 0%, rgba(5, 150, 105, 0.04) 60%, transparent 100%);
 }
 
 /* ========================================================
@@ -445,6 +493,7 @@ export const SITE_STYLES = `
   --pill-bg: #e6f7f2;
   --pill-border: rgba(16, 185, 129, 0.28);
   --pill-text: #065f46;
+  --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(16, 185, 129, 0.16) 0%, rgba(5, 150, 105, 0.04) 60%, transparent 100%);
 }
 [data-mode="dark"],
 [data-theme="dark"],
@@ -472,6 +521,7 @@ export const SITE_STYLES = `
   --pill-bg: rgba(52, 211, 153, 0.14);
   --pill-border: rgba(52, 211, 153, 0.32);
   --pill-text: #a7f3d0;
+  --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(52, 211, 153, 0.18) 0%, rgba(16, 185, 129, 0.05) 60%, transparent 100%);
 }
 
 /* 2. 🌌 科技深蓝 (Tech Blue) */
@@ -487,6 +537,7 @@ export const SITE_STYLES = `
   --pill-bg: #dbeafe;
   --pill-border: rgba(37, 99, 235, 0.25);
   --pill-text: #1e40af;
+  --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(37, 99, 235, 0.16) 0%, rgba(30, 64, 175, 0.04) 60%, transparent 100%);
 }
 [data-theme="tech-blue"][data-mode="dark"] {
   --bg-page: #0b132b;
@@ -511,6 +562,7 @@ export const SITE_STYLES = `
   --pill-bg: rgba(96, 165, 250, 0.14);
   --pill-border: rgba(96, 165, 250, 0.3);
   --pill-text: #bfdbfe;
+  --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(96, 165, 250, 0.18) 0%, rgba(37, 99, 235, 0.05) 60%, transparent 100%);
 }
 
 /* 3. 🔮 极光鸢尾 (Aurora Violet) */
@@ -526,6 +578,7 @@ export const SITE_STYLES = `
   --pill-bg: #ede9fe;
   --pill-border: rgba(139, 92, 246, 0.25);
   --pill-text: #5b21b6;
+  --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(139, 92, 246, 0.18) 0%, rgba(236, 72, 153, 0.05) 60%, transparent 100%);
 }
 [data-theme="aurora-violet"][data-mode="dark"] {
   --bg-page: #160d27;
@@ -550,6 +603,7 @@ export const SITE_STYLES = `
   --pill-bg: rgba(167, 139, 250, 0.14);
   --pill-border: rgba(167, 139, 250, 0.3);
   --pill-text: #ddd6fe;
+  --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(167, 139, 250, 0.20) 0%, rgba(244, 114, 182, 0.06) 60%, transparent 100%);
 }
 
 /* 4. 🍂 暖阳琥珀 (Warm Amber) */
@@ -565,6 +619,7 @@ export const SITE_STYLES = `
   --pill-bg: #fef3c7;
   --pill-border: rgba(217, 119, 6, 0.28);
   --pill-text: #92400e;
+  --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(217, 119, 6, 0.16) 0%, rgba(234, 88, 12, 0.04) 60%, transparent 100%);
 }
 [data-theme="warm-amber"][data-mode="dark"] {
   --bg-page: #1c1408;
@@ -589,6 +644,7 @@ export const SITE_STYLES = `
   --pill-bg: rgba(251, 191, 36, 0.14);
   --pill-border: rgba(251, 191, 36, 0.3);
   --pill-text: #fde68a;
+  --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(251, 191, 36, 0.18) 0%, rgba(245, 158, 11, 0.05) 60%, transparent 100%);
 }
 
 /* 5. ✒️ 极简水墨 (Minimalist Ink) */
@@ -604,6 +660,7 @@ export const SITE_STYLES = `
   --pill-bg: #f1f5f9;
   --pill-border: rgba(71, 85, 105, 0.2);
   --pill-text: #1e293b;
+  --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(71, 85, 105, 0.14) 0%, rgba(15, 23, 42, 0.03) 60%, transparent 100%);
 }
 [data-theme="minimalist-ink"][data-mode="dark"] {
   --bg-page: #0f172a;
@@ -628,6 +685,7 @@ export const SITE_STYLES = `
   --pill-bg: rgba(148, 163, 184, 0.14);
   --pill-border: rgba(148, 163, 184, 0.28);
   --pill-text: #e2e8f0;
+  --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(148, 163, 184, 0.16) 0%, rgba(30, 41, 59, 0.05) 60%, transparent 100%);
 }
 
 *, *::before, *::after {
@@ -1387,17 +1445,19 @@ button {
   box-shadow: 0 2px 8px var(--primary-faint);
 }
 
+.latest-grid-2,
 .latest-grid-4 {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
   margin-bottom: 56px;
 }
 
+.card-item-2,
 .card-item-4 {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
   box-shadow: var(--card-shadow);
   display: flex;
@@ -1405,6 +1465,7 @@ button {
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s, border-color 0.25s;
 }
 
+.card-item-2:hover,
 .card-item-4:hover {
   transform: translateY(-4px);
   box-shadow: var(--card-shadow-hover);
@@ -1413,7 +1474,7 @@ button {
 
 .card-item-cover-box {
   width: 100%;
-  height: 135px;
+  height: 220px;
   position: relative;
   overflow: hidden;
   background: var(--bg-subtle);
@@ -1426,15 +1487,33 @@ button {
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.card-item-2:hover .card-item-cover-img,
 .card-item-4:hover .card-item-cover-img {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 .card-item-body {
-  padding: 16px 18px 18px;
+  padding: 22px 24px 24px;
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+.tag-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  color: var(--pill-text);
+  margin-bottom: 12px;
+  align-self: flex-start;
+  transition: all 0.2s ease;
 }
 
 .tag-badge-pill.teal {
@@ -1486,11 +1565,11 @@ button {
 }
 
 .card-item-title {
-  font-size: 1.02rem;
-  font-weight: 700;
-  line-height: 1.4;
+  font-size: 1.22rem;
+  font-weight: 750;
+  line-height: 1.45;
   color: var(--text-main);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   transition: color 0.2s;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1498,15 +1577,16 @@ button {
   overflow: hidden;
 }
 
+.card-item-2:hover .card-item-title,
 .card-item-4:hover .card-item-title {
   color: var(--primary);
 }
 
 .card-item-desc {
-  font-size: 0.86rem;
+  font-size: 0.92rem;
   color: var(--text-muted);
-  line-height: 1.6;
-  margin-bottom: 16px;
+  line-height: 1.65;
+  margin-bottom: 20px;
   flex: 1;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1518,67 +1598,75 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   color: var(--text-light);
   border-top: 1px solid var(--border-subtle);
-  padding-top: 12px;
+  padding-top: 14px;
 }
 
 /* ========================================================
-   Section 3: 底部宽幅互动横幅 (月升夜景 - 方案一)
+   Section 3: 底部宽幅互动横幅 (100vw 全屏月升夜景 + 无框悬浮设计)
    ======================================================== */
 .bottom-comm-banner {
   position: relative;
-  min-height: 280px;
-  border-radius: 24px;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  box-sizing: border-box;
+  min-height: 320px;
+  border-radius: 0;
   overflow: hidden;
-  background-image: var(--banner-bg);
+  background-color: #0b132b;
+  background-image: linear-gradient(rgba(11, 19, 43, 0.45), rgba(11, 19, 43, 0.75)), var(--banner-bg);
   background-size: cover;
   background-position: center;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 44px 40px;
+  padding: 64px max(24px, calc((100vw - 1140px) / 2));
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
-  margin-bottom: 30px;
+  margin-top: 48px;
+  margin-bottom: 0;
 }
 
 .banner-left {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  padding: 28px 32px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  max-width: 480px;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  max-width: 520px;
   color: #ffffff;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
 }
 
 .banner-title {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 10px;
+  gap: 10px;
+  font-size: 1.45rem;
+  font-weight: 750;
+  margin-bottom: 12px;
+  color: #ffffff;
 }
 
 .banner-title svg {
   color: var(--primary-light);
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
 }
 
 .banner-desc {
-  font-size: 0.92rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 18px;
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.92);
+  margin-bottom: 22px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
 }
 
 .banner-social-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .social-circle-btn {
@@ -1969,8 +2057,22 @@ button {
 }
 
 [data-mode="dark"] section[class*="wechat-module"] section,
+[data-mode="dark"] .article-content section[style*="background:#ffffff"],
+[data-mode="dark"] .article-content section[style*="background: #ffffff"],
+[data-mode="dark"] .article-content section[style*="background:#fff"],
+[data-mode="dark"] .article-content section[style*="background: #fff"] {
+  background-color: var(--bg-card) !important;
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+}
+
 [data-mode="dark"] section[class*="wechat-module"] span,
-[data-mode="dark"] section[class*="wechat-module"] p {
+[data-mode="dark"] section[class*="wechat-module"] p,
+[data-mode="dark"] section[class*="wechat-module"] h1,
+[data-mode="dark"] section[class*="wechat-module"] h2,
+[data-mode="dark"] section[class*="wechat-module"] h3,
+[data-mode="dark"] section[class*="wechat-module"] h4 {
   color: var(--text-main) !important;
 }
 
@@ -1997,8 +2099,11 @@ button {
    二级页面通用顶部 Header Banner (归档/分类/标签/关于)
    ======================================================== */
 .subpage-hero-banner {
-  padding: 60px 24px 36px;
-  background: radial-gradient(circle at 50% 0%, var(--primary-faint) 0%, transparent 70%);
+  padding: 68px 24px 40px;
+  background-color: var(--bg-page);
+  background-image: var(--theme-hero-gradient);
+  background-size: cover;
+  background-position: center top;
   border-bottom: 1px solid var(--border-subtle);
   text-align: center;
   position: relative;
@@ -2394,6 +2499,7 @@ button {
    响应式断点适配
    ======================================================== */
 @media (max-width: 1024px) {
+  .latest-grid-2,
   .latest-grid-4 {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -2406,6 +2512,45 @@ button {
 }
 
 @media (max-width: 768px) {
+  .nav-container {
+    padding: 0 16px;
+  }
+  .nav-menu {
+    gap: 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav-menu::-webkit-scrollbar {
+    display: none;
+  }
+  .nav-menu-item {
+    font-size: 0.88rem;
+    white-space: nowrap;
+  }
+  .nav-right-actions {
+    gap: 6px;
+  }
+  .nav-action-btn {
+    width: 34px;
+    height: 34px;
+  }
+  .nav-avatar-btn {
+    display: none;
+  }
+  .category-filter-pills {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .category-filter-pills::-webkit-scrollbar {
+    display: none;
+  }
+  .filter-pill {
+    flex-shrink: 0;
+  }
   .hero-inner-container {
     flex-direction: column;
   }
@@ -2422,11 +2567,16 @@ button {
   .featured-content {
     padding: 24px 20px;
   }
+  .latest-grid-2,
   .latest-grid-4 {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .card-item-cover-box {
+    height: 190px;
   }
   .bottom-comm-banner {
-    padding: 28px 20px;
+    padding: 44px 20px;
   }
   .banner-left {
     max-width: 100%;
@@ -2441,6 +2591,22 @@ button {
   }
   .about-card {
     padding: 28px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-brand span:not(.site-brand-icon) {
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .nav-menu {
+    gap: 10px;
+  }
+  .nav-menu-item {
+    font-size: 0.82rem;
+    padding: 6px 2px;
   }
 }
 `;
@@ -2914,8 +3080,7 @@ ${SITE_STYLES}
           <span class="theme-pill author"><span class="pill-dot"></span> ${post.meta.author || SITE_CONFIG.author}</span>
           ${tagsHtml}
           <span class="theme-pill meta">${ICONS.calendar} ${post.meta.date || "最近更新"}</span>
-          <span class="theme-pill meta">${ICONS.eye} ${post.meta.views ? (post.meta.views.includes("阅读") ? post.meta.views : post.meta.views + " 阅读") : "1.2k 阅读"}</span>
-          <span class="theme-pill meta">${ICONS.chat} 约 ${post.readingStats.readingTimeMin} 分钟阅读</span>
+          <span class="theme-pill meta">${ICONS.clock} 约 ${post.readingStats.readingTimeMin} 分钟阅读</span>
         </div>
       </header>
 
@@ -2973,9 +3138,34 @@ ${SITE_STYLES}
 }
 
 /**
+ * 组装底部 100vw 全屏月升夜景互动横幅 HTML（无框纯净悬浮设计）
+ */
+export function buildBottomBannerHtml() {
+  return `
+  <!-- Section 3: 底部宽幅互动横幅 (100vw 全屏月升夜景 + 无框悬浮设计) -->
+  <section class="bottom-comm-banner">
+    <div class="banner-left">
+      <div class="banner-title">
+        ${ICONS.chat} <span>与我交流</span>
+      </div>
+      <p class="banner-desc">
+        如果你对文章有任何想法，或者有技术、产品、生活方面的问题，欢迎在评论区留言，或通过其他方式联系我。
+      </p>
+      <div class="banner-social-row">
+        <a href="mailto:${SITE_CONFIG.email}" class="social-circle-btn" title="发送邮件">${ICONS.mail}</a>
+        <a href="${SITE_CONFIG.githubUrl}" target="_blank" rel="noopener" class="social-circle-btn" title="GitHub 个人主页">${ICONS.github}</a>
+        <a href="about.html" class="social-circle-btn" title="关于我">${ICONS.user}</a>
+      </div>
+    </div>
+  </section>`;
+}
+
+/**
  * 组装首页 HTML (1:1 像素级复现用户设计稿 + 纯净 Hero 与动态分类药丸)
  */
 export function buildIndexPageHtml(posts, featuredPost, latestPosts, allCategories) {
+  const dailyQuote = getDailyQuote();
+
   function getTagColorClass(tag) {
     if (tag.includes("技术")) return "teal";
     if (tag.includes("生活")) return "purple";
@@ -2989,11 +3179,9 @@ export function buildIndexPageHtml(posts, featuredPost, latestPosts, allCategori
       const firstTag = (p.meta.tags && p.meta.tags[0]) ? p.meta.tags[0] : (p.meta.categories && p.meta.categories[0]) || "随笔";
       const colorClass = getTagColorClass(firstTag);
       let coverUrl = p.meta.cover ? p.meta.cover.replace(/^\.\.\//, "") : "images/post-hyperf.jpg";
-      const rawViews = p.meta.views || "856";
-      const views = rawViews.includes("阅读") ? rawViews : `${rawViews} 阅读`;
 
       return `
-      <article class="card-item-4" data-categories="${(p.meta.categories || []).join(",")}" data-tags="${(p.meta.tags || []).join(",")}" data-title="${p.meta.title}" data-desc="${p.meta.description}" data-url="posts/${p.slug}.html">
+      <article class="card-item-2" data-categories="${(p.meta.categories || []).join(",")}" data-tags="${(p.meta.tags || []).join(",")}" data-title="${p.meta.title}" data-desc="${p.meta.description}" data-url="posts/${p.slug}.html">
         <div class="card-item-cover-box">
           <img src="${coverUrl}" alt="${p.meta.title}" class="card-item-cover-img" onerror="this.style.opacity=0.3">
         </div>
@@ -3004,8 +3192,8 @@ export function buildIndexPageHtml(posts, featuredPost, latestPosts, allCategori
           </a>
           <p class="card-item-desc">${p.meta.description || p.rawExcerpt || "点击阅读全文..."}</p>
           <div class="card-item-footer">
-            <span class="meta-item">${ICONS.calendar} ${p.meta.date || "2026-09-22"}</span>
-            <span class="meta-item">${ICONS.eye} ${views}</span>
+            <span class="meta-item">${ICONS.calendar} ${p.meta.date || getTodayFormattedDate().replace(/\./g, "-")}</span>
+            <span class="meta-item">${ICONS.clock} 约 ${p.readingStats.readingTimeMin} 分钟</span>
           </div>
         </div>
       </article>`;
@@ -3016,7 +3204,6 @@ export function buildIndexPageHtml(posts, featuredPost, latestPosts, allCategori
   const feat = featuredPost || posts[0];
   const featCover = feat.meta.cover ? feat.meta.cover.replace(/^\.\.\//, "") : "images/featured-fuji.jpg";
   const featTag = (feat.meta.tags && feat.meta.tags[0]) ? feat.meta.tags[0] : ((feat.meta.categories && feat.meta.categories[0]) || "产品思考");
-  const featViews = feat.meta.views ? (feat.meta.views.includes("阅读") ? feat.meta.views : feat.meta.views + " 阅读") : "1.2k 阅读";
   const featComments = feat.meta.comments ? (feat.meta.comments.includes("评论") ? feat.meta.comments : feat.meta.comments + " 评论") : "32 评论";
 
   return `<!DOCTYPE html>
@@ -3061,7 +3248,7 @@ ${SITE_STYLES}
     </div>
   </header>
 
-  <!-- 晨曦全景 Hero 区域 (方案一：画作自含行楷书法，HTML 专注交互与名言卡片) -->
+  <!-- 晨曦全景 Hero 区域 (画作自含行楷书法，HTML 专注交互与名言卡片) -->
   <section class="home-hero-wrapper">
     <div class="hero-inner-container">
       <div class="hero-left-content">
@@ -3080,16 +3267,16 @@ ${SITE_STYLES}
         </div>
       </div>
 
-      <!-- 右上角悬浮名言日历卡片 -->
+      <!-- 右上角悬浮名言日历卡片 (动态读取开源金句 API 与今天真实日期) -->
       <div class="hero-quote-card">
         <div class="quote-header">
-          <span>${SITE_CONFIG.quote.date}</span>
-          <span>${SITE_CONFIG.quote.weather}</span>
+          <span>${dailyQuote.date}</span>
+          <span>${dailyQuote.weather}</span>
         </div>
         <div class="quote-body">
-          ${SITE_CONFIG.quote.text}
+          ${dailyQuote.text}
         </div>
-        <div class="quote-author">— ${SITE_CONFIG.quote.author}</div>
+        <div class="quote-author">— ${dailyQuote.author}</div>
       </div>
     </div>
   </section>
@@ -3115,8 +3302,8 @@ ${SITE_STYLES}
           </a>
           <p class="featured-desc">${feat.meta.description || feat.rawExcerpt || "点击探索深度阅读全文..."}</p>
           <div class="post-meta-row">
-            <span class="meta-item">${ICONS.calendar} ${feat.meta.date || "2026-09-22"}</span>
-            <span class="meta-item">${ICONS.eye} ${featViews}</span>
+            <span class="meta-item">${ICONS.calendar} ${feat.meta.date || getTodayFormattedDate().replace(/\./g, "-")}</span>
+            <span class="meta-item">${ICONS.clock} 约 ${feat.readingStats.readingTimeMin} 分钟阅读</span>
             <span class="meta-item">${ICONS.chat} ${featComments}</span>
           </div>
         </div>
@@ -3137,28 +3324,13 @@ ${SITE_STYLES}
         </div>
       </div>
 
-      <div class="latest-grid-4">
+      <div class="latest-grid-2">
         ${latestCardsHtml}
       </div>
     </section>
-
-    <!-- Section 3: 底部宽幅互动交流横幅 (月升夜景 - 方案一：左侧毛玻璃卡片，右侧纯净画作) -->
-    <section class="bottom-comm-banner">
-      <div class="banner-left">
-        <div class="banner-title">
-          ${ICONS.chat} <span>与我交流</span>
-        </div>
-        <p class="banner-desc">
-          如果你对文章有任何想法，或者有技术、产品、生活方面的问题，欢迎在评论区留言，或通过其他方式联系我。
-        </p>
-        <div class="banner-social-row">
-          <a href="mailto:${SITE_CONFIG.email}" class="social-circle-btn" title="发送邮件">${ICONS.mail}</a>
-          <a href="${SITE_CONFIG.githubUrl}" target="_blank" rel="noopener" class="social-circle-btn" title="GitHub 个人主页">${ICONS.github}</a>
-          <a href="about.html" class="social-circle-btn" title="关于我">${ICONS.user}</a>
-        </div>
-      </div>
-    </section>
   </main>
+
+  ${buildBottomBannerHtml()}
 
   ${buildCommonWidgetsHtml()}
 
@@ -3276,6 +3448,8 @@ ${SITE_STYLES}
     ${yearsHtml}
   </main>
 
+  ${buildBottomBannerHtml()}
+
   ${buildCommonWidgetsHtml()}
 
   <footer class="site-footer">
@@ -3373,6 +3547,8 @@ ${SITE_STYLES}
       ${categoriesHtml}
     </div>
   </main>
+
+  ${buildBottomBannerHtml()}
 
   ${buildCommonWidgetsHtml()}
 
@@ -3486,6 +3662,8 @@ ${SITE_STYLES}
     </div>
   </main>
 
+  ${buildBottomBannerHtml()}
+
   ${buildCommonWidgetsHtml()}
 
   <footer class="site-footer">
@@ -3584,6 +3762,8 @@ ${SITE_STYLES}
       </section>
     </article>
   </main>
+
+  ${buildBottomBannerHtml()}
 
   ${buildCommonWidgetsHtml()}
 

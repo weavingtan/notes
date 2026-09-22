@@ -81,14 +81,16 @@ assert.equal(meta3.title, "自动提取的一级标题", "缺失 Frontmatter 时
 assert.deepEqual(meta3.categories, ["未分类"], "缺失分类时兜底未分类失败");
 console.log("  ✓ 缺失 Frontmatter 容错与 H1 提取通过");
 
-// 1.4 测试 Web Content Adaptor 深色清洗
-const rawObwSample = `<section style="color: #2b2b2b; font-size: 15px;"><p style="color: #1f2937;">深度长文</p><span style="color: #475569;">副标题</span></section>`;
+// 1.4 测试 Web Content Adaptor 深色清洗与白板自愈
+const rawObwSample = `<section style="color: #2b2b2b; font-size: 15px; background: #ffffff;"><p style="color: #1f2937;">深度长文</p><span style="color: #475569;">副标题</span></section>`;
 const adapted = adaptObwHtmlForWeb(rawObwSample);
 assert.equal(adapted.includes("#2b2b2b"), false, "Web Content Adaptor 未能清除 #2b2b2b");
 assert.equal(adapted.includes("#1f2937"), false, "Web Content Adaptor 未能清除 #1f2937");
+assert.equal(adapted.includes("#ffffff"), false, "Web Content Adaptor 未能清除 #ffffff 白板背景");
+assert.equal(adapted.includes("var(--bg-card)"), true, "Web Content Adaptor 未替换纯白背景为 var(--bg-card)");
 assert.equal(adapted.includes("var(--text-main)"), true, "Web Content Adaptor 未替换为 var(--text-main)");
 assert.equal(adapted.includes("var(--text-muted)"), true, "Web Content Adaptor 未替换为 var(--text-muted)");
-console.log("  ✓ Web Content Adaptor 样式清洗自愈通过");
+console.log("  ✓ Web Content Adaptor 样式清洗与白板防塌陷自愈通过");
 
 // ========================================================
 // 2. 全站 404 死链深度扫描 (Zero 404s)
@@ -286,4 +288,40 @@ for (const postFile of postHtmlFiles) {
 }
 console.log(`  ✓ 全部 ${postHtmlFiles.length} 篇详情页 article-content 均无 <div>，完全免疫微信粘贴塌陷！`);
 
-console.log("\n🎉 全部 5 大测试套件 100% 验证通过！出版级质量门禁就绪！");
+// ========================================================
+// 6. V2 视觉体验升级与暗黑模式白板免疫断言
+// ========================================================
+console.log("\n▶ [Test 6/6] V2 视觉体验升级与暗黑模式白板免疫断言");
+
+// 6.1 首页 2 列宽幅杂志卡片与 100vw 全宽横幅断言
+const indexHtml = fs.readFileSync(path.join(DIST_DIR, "index.html"), "utf-8");
+assert.ok(indexHtml.includes('class="latest-grid-2"'), "首页未采用 2 列卡片布局 .latest-grid-2");
+assert.ok(indexHtml.includes('class="card-item-2"'), "首页文章未采用 .card-item-2 样式");
+assert.ok(indexHtml.includes('class="bottom-comm-banner"'), "首页缺少底部横幅 .bottom-comm-banner");
+assert.ok(!indexHtml.includes(' 阅读</span>'), "首页仍残留虚假阅读量字段");
+assert.ok(!indexHtml.includes('1.2k 阅读'), "精选文章卡片仍残留 1.2k 阅读量");
+
+// 6.2 交流横幅无框悬浮断言
+assert.ok(indexHtml.includes('.bottom-comm-banner'), "首页缺少 .bottom-comm-banner 样式");
+assert.ok(indexHtml.includes('.banner-left'), "首页缺少 .banner-left 样式");
+
+// 6.3 今日日期动态化断言 (YYYY.MM.DD)
+const todayRegex = /\d{4}\.\d{2}\.\d{2}/;
+assert.ok(todayRegex.test(indexHtml), "名言日历卡片未包含动态今天日期 (YYYY.MM.DD)");
+
+// 6.4 关于我页面暗黑模式白板免疫断言
+const aboutHtml = fs.readFileSync(path.join(DIST_DIR, "about.html"), "utf-8");
+const cardsMatch = aboutHtml.match(/<section class="wechat-module wechat-module-cards"[^>]*>([\s\S]*?)<\/section>\s*<h2/);
+if (cardsMatch) {
+  const cardsHtml = cardsMatch[1];
+  assert.equal(
+    /background:\s*#ffffff/i.test(cardsHtml),
+    false,
+    "关于我页面 cards 模块内仍残留内联 background: #ffffff，会导致深色模式白板！"
+  );
+  assert.ok(cardsHtml.includes("var(--bg-card)"), "cards 模块未自愈替换为 var(--bg-card)");
+}
+console.log("  ✓ 首页 2 列宽幅大卡片、零假阅读量、动态日期与 100vw 悬浮横幅断言通过");
+console.log("  ✓ 暗黑模式卡片背景自愈与无白板断言通过");
+
+console.log("\n🎉 全部 6 大测试套件 100% 验证通过！出版级质量门禁就绪！");
