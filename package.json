@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node scripts/build.mjs && node scripts/test-theme-build.mjs",
+    "test": "node scripts/build.mjs && node scripts/test-site.mjs",
     "serve": "npx serve dist"
   }
 }

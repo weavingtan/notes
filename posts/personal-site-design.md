@@ -1,9 +1,10 @@
 ---
 title: 个人网站的设计思路与实现
 date: 2025-09-12
-tags: [产品, 前端]
+categories: [产品]
+tags: [独立博客, 界面设计, 前端工程]
 author: Tan
-cover: ../images/post-design.jpg
+cover: images/post-design.jpg
 views: 1.8k
 description: 从 0 到 1 搭建一个高颜值的个人博客，记录整个过程和思考。
 ---

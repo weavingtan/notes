@@ -4,12 +4,15 @@
  * Tan's Blog / Weaving's Notes 出版级排版静态站点构建引擎
  * 严格按照用户提供的设计视觉稿 1:1 像素级复现：
  * - 顶部透明/毛玻璃随动导航 + 标志性双峰山岳 Logo
- * - 晨曦云海全景 Hero + 毛笔行楷大标题 ("记录思考 也记录生活") + 悬浮日历名言卡片
+ * - 晨曦云海全景 Hero + 毛笔行楷大标题 ("记录思考 也记录生活") + 悬浮日历名言卡片 (纯净无重叠文字)
  * - 精选文章 (FEATURED) 宽幅双栏杂志大卡片
- * - 最新文章 (LATEST) 4 列流体响应式卡片网格 + 分类药丸联动筛选
- * - 底部月升夜景互动横幅 ("与我交流" + "总有一些思考 值得被认真记录")
- * - 完备的日间/夜间深色模式 (Zero-FOUC 零闪烁)
- * - 顶部阅读进度条 + 桌面端/移动端双模目录 ScrollSpy + 代码一键复制
+ * - 最新文章 (LATEST) 4 列流体响应式卡片网格 + 全动态分类药丸联动筛选 (零硬编码)
+ * - 底部月升夜景互动横幅 (方案一: 左侧毛玻璃互动卡片 + 右侧原生画作留白)
+ * - 完备的日间/夜间深色模式 (Zero-FOUC 零闪烁，WCAG AA 高对比度保障)
+ * - 独立二级页面体系：/index.html, /archives.html, /categories.html, /tags.html, /about.html
+ * - 健壮的 YAML Frontmatter 解析器 (支持多行列表、内联数组、标量、Draft、排序权重)
+ * - Web Content Adaptor (消除 obw 微信内联深色，暗黑模式文字水晶般通透)
+ * - Obsidian 双向链接 (Wikilinks) 与特殊页面 (about.md) 自动化渲染管线
  */
 
 import fs from "node:fs";
@@ -27,7 +30,7 @@ const DIST_POSTS_DIR = path.join(DIST_DIR, "posts");
 const DIST_IMAGES_DIR = path.join(DIST_DIR, "images");
 
 // 站点元数据配置 (与设计稿视觉体系完全对齐)
-const SITE_CONFIG = {
+export const SITE_CONFIG = {
   title: "Tan's Blog",
   author: "Tan",
   description: "这是我的个人博客，记录技术、产品、生活与成长。希望这些文字，能在某个时刻，给你带来一点启发。",
@@ -36,7 +39,7 @@ const SITE_CONFIG = {
   githubUrl: "https://github.com/weavingtan",
   email: "weavingtan@gmail.com",
   wechatName: "Weaving Notes",
-  wechatQrUrl: "../images/wechat-qr.png",
+  wechatQrUrl: "images/wechat-qr.png",
   quote: {
     date: "2026.09.22",
     weather: "24° ☀️",
@@ -54,7 +57,7 @@ const SITE_CONFIG = {
 };
 
 // 5 款精选全站风格定义
-const SITE_THEMES = [
+export const SITE_THEMES = [
   { id: "mint-emerald", name: "薄荷翡翠", desc: "默认首选 · 清新微质感与护眼呼吸感", color: "#10B981" },
   { id: "tech-blue", name: "科技深蓝", desc: "现代极客 · 沉稳海蓝与电青冷光", color: "#2563EB" },
   { id: "aurora-violet", name: "极光鸢尾", desc: "先锋灵动 · 紫粉梦幻渐变与艺术沙龙", color: "#8B5CF6" },
@@ -63,7 +66,7 @@ const SITE_THEMES = [
 ];
 
 // 纯矢量 SVG 图标库
-const ICONS = {
+export const ICONS = {
   palette: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>`,
   mountain: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 19 6-12 5 9 3-4 4 7H3Z"/></svg>`,
   sun: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`,
@@ -82,11 +85,14 @@ const ICONS = {
   copy: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`,
   check: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>`,
   toc: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="21" x2="3" y1="6" y2="6"/><line x1="15" x2="3" y1="12" y2="12"/><line x1="17" x2="3" y1="18" y2="18"/></svg>`,
-  cross: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`
+  cross: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
+  tag: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><circle cx="7" cy="7" r=".5" fill="currentColor"/></svg>`,
+  folder: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>`,
+  clock: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`
 };
 
 // 探测可用的 obw CLI 路径
-function findObwCli() {
+export function findObwCli() {
   const candidates = [
     path.resolve(ROOT_DIR, "bin/obw.cjs"),
     path.resolve(ROOT_DIR, "bin/obw.js"),
@@ -107,7 +113,7 @@ if (obwCliPath) {
   console.warn("⚠️ 未找到本地 obw CLI，构建时将尝试系统 npx obw。");
 }
 
-const SITE_THEME_TO_OBW = {
+export const SITE_THEME_TO_OBW = {
   "mint-emerald": "fresh-mint",
   "tech-blue": "tech-blue",
   "aurora-violet": "cyberpunk",
@@ -115,7 +121,7 @@ const SITE_THEME_TO_OBW = {
   "minimalist-ink": "nordic-minimal",
 };
 
-function renderWithObw(markdownText, theme = SITE_CONFIG.theme) {
+export function renderWithObw(markdownText, theme = SITE_CONFIG.theme) {
   const obwTheme = SITE_THEME_TO_OBW[theme] || theme || "fresh-mint";
   try {
     if (obwCliPath) {
@@ -137,9 +143,16 @@ function renderWithObw(markdownText, theme = SITE_CONFIG.theme) {
 }
 
 /**
- * 提取 YAML Frontmatter 和正文
+ * 健壮的 YAML Frontmatter 解析器
+ * 支持：
+ * - 多行列表 (tags:\n  - a\n  - b)
+ * - 内联数组 (tags: [a, b])
+ * - 标量、布尔、数字、引号与注释剥离
+ * - category / categories 统一归一化
+ * - 缺失标题时自动提取首个 H1
+ * - 缺失分类时自动 fallback 到首个 tag 或「未分类」
  */
-function parseFrontmatter(rawContent) {
+export function parseFrontmatter(rawContent) {
   const meta = {
     title: "",
     date: "",
@@ -149,6 +162,8 @@ function parseFrontmatter(rawContent) {
     description: "",
     author: SITE_CONFIG.author,
     featured: false,
+    draft: false,
+    order: undefined,
     views: "",
     comments: "",
   };
@@ -168,51 +183,151 @@ function parseFrontmatter(rawContent) {
       }
     }
     meta.title = title;
+    meta.categories = ["未分类"];
     return { meta, body };
   }
 
   const yamlBlock = fmMatch[1];
   const body = fmMatch[2];
 
-  yamlBlock.split(/\r?\n/).forEach((line) => {
-    const colonIdx = line.indexOf(":");
-    if (colonIdx === -1) return;
-    const key = line.slice(0, colonIdx).trim();
-    let val = line.slice(colonIdx + 1).trim();
+  const lines = yamlBlock.split(/\r?\n/);
+  let activeListKey = null;
 
+  for (let i = 0; i < lines.length; i++) {
+    const rawLine = lines[i];
+    const trimmed = rawLine.trim();
+
+    // 跳过纯空行与全注释行
+    if (!trimmed || trimmed.startsWith("#")) continue;
+
+    // 检查是否为处于活跃多行列表中的子项 (- item)
+    if (activeListKey && trimmed.startsWith("- ")) {
+      const itemVal = trimmed.slice(2).trim().replace(/^['"]|['"]$/g, "");
+      if (itemVal) {
+        meta[activeListKey].push(itemVal);
+      }
+      continue;
+    }
+
+    // 键值行判定 (key: val)
+    const colonIdx = rawLine.indexOf(":");
+    if (colonIdx === -1) {
+      continue;
+    }
+
+    const key = rawLine.slice(0, colonIdx).trim();
+    let val = rawLine.slice(colonIdx + 1).trim();
+
+    // 剥离行末注释 (需确保不在引号内)
+    if (!val.startsWith('"') && !val.startsWith("'") && val.includes(" #")) {
+      val = val.slice(0, val.indexOf(" #")).trim();
+    }
+
+    // 去除外层引号
     if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
       val = val.slice(1, -1);
     }
 
-    if (key === "tags" || key === "categories") {
+    // 标签与分类归一化处理
+    if (key === "tags" || key === "tag" || key === "categories" || key === "category") {
+      const targetField = (key === "tags" || key === "tag") ? "tags" : "categories";
+
       if (val.startsWith("[") && val.endsWith("]")) {
-        meta[key] = val
+        // 内联数组形式: [a, b, c]
+        const items = val
           .slice(1, -1)
           .split(",")
           .map((s) => s.trim().replace(/^['"]|['"]$/g, ""))
           .filter(Boolean);
+        meta[targetField] = Array.from(new Set([...meta[targetField], ...items]));
+        activeListKey = null;
       } else if (val) {
-        meta[key] = [val];
+        // 单个内联字符串值: tags: 前端工程
+        meta[targetField] = Array.from(new Set([...meta[targetField], val]));
+        activeListKey = null;
+      } else {
+        // 多行列表即将开始: tags:\n  - 前端工程
+        activeListKey = targetField;
       }
     } else if (key === "featured") {
       meta.featured = val === "true" || val === true;
+      activeListKey = null;
+    } else if (key === "draft") {
+      meta.draft = val === "true" || val === true;
+      activeListKey = null;
+    } else if (key === "order") {
+      const num = parseInt(val, 10);
+      if (!isNaN(num)) meta.order = num;
+      activeListKey = null;
     } else {
       meta[key] = val;
+      activeListKey = null;
     }
-  });
+  }
 
+  // 标题兜底
   if (!meta.title) {
     const firstH1 = body.match(/^#\s+(.+)$/m);
     meta.title = firstH1 ? firstH1[1].trim() : "未命名笔记";
+  }
+
+  // 分类兜底：若未显式指定分类，自动使用首个 tag，否则归为「未分类」
+  if (!meta.categories || meta.categories.length === 0) {
+    if (meta.tags && meta.tags.length > 0) {
+      meta.categories = [meta.tags[0]];
+    } else {
+      meta.categories = ["未分类"];
+    }
   }
 
   return { meta, body };
 }
 
 /**
+ * Obsidian Markdown 语法预处理器
+ * 支持：
+ * - 双链转换 [[article-slug|显示的文本]] -> [显示的文本](posts/article-slug.html)
+ * - 简单双链 [[article-slug]] -> [article-slug](posts/article-slug.html)
+ */
+export function preprocessMarkdown(markdown, isSubdir = false) {
+  if (!markdown) return "";
+  const prefix = isSubdir ? "" : "posts/";
+
+  let processed = markdown.replace(/\[\[([^|\]\n]+)\|([^\]\n]+)\]\]/g, (match, slug, text) => {
+    return `[${text.trim()}](${prefix}${slug.trim()}.html)`;
+  });
+
+  processed = processed.replace(/\[\[([^\]\n]+)\]\]/g, (match, slug) => {
+    return `[${slug.trim()}](${prefix}${slug.trim()}.html)`;
+  });
+
+  return processed;
+}
+
+/**
+ * Web Content Adaptor (Web 页面内容适配器)
+ * 解决问题：
+ * 1. 微信排版引擎 inlined 的硬编码深色文字 (#2b2b2b, #1f2937) 在深色模式下导致看不清
+ * 2. 保证全站主题无论在日间还是深色模式下，正文字体对比度均达到 WCAG 2.1 AA (>= 4.5:1)
+ */
+export function adaptObwHtmlForWeb(html) {
+  if (!html) return "";
+
+  let processed = html;
+
+  // 1. 将硬编码的纯深色正文颜色替换为 CSS 动态变量 var(--text-main)
+  processed = processed.replace(/color:\s*(?:#(?:2b2b2b|1f2937|111111|222222|374151|000000|0f172a)|rgb\(\s*43\s*,\s*43\s*,\s*43\s*\));?/gi, "color: var(--text-main);");
+
+  // 2. 将次级暗灰文字替换为 var(--text-muted)
+  processed = processed.replace(/color:\s*(?:#(?:475569|4b5563|64748b|334155));?/gi, "color: var(--text-muted);");
+
+  return processed;
+}
+
+/**
  * 统计汉字与单词量，估算阅读时间
  */
-function calculateReadingStats(text) {
+export function calculateReadingStats(text) {
   const clean = text.replace(/```[\s\S]*?```/g, "").replace(/<[^>]+>/g, "");
   const cjkCount = (clean.match(/[\u4e00-\u9fa5]/g) || []).length;
   const wordCount = (clean.match(/[a-zA-Z0-9_\-]+/g) || []).length;
@@ -224,7 +339,7 @@ function calculateReadingStats(text) {
 /**
  * 从 HTML 中提取目录结构（H1~H4）
  */
-function extractToc(html) {
+export function extractToc(html) {
   const headingRegex = /<h([1-4])\b([^>]*)>([\s\S]*?)<\/h\1>/gi;
   const toc = [];
   let match;
@@ -270,9 +385,9 @@ function extractToc(html) {
 }
 
 /**
- * 全站顶层 CSS 样式系统 (1:1 像素级复现用户设计稿)
+ * 全站顶层 CSS 样式系统 (1:1 像素级复现用户设计稿 + 独立二级页面扩展)
  */
-const SITE_STYLES = `
+export const SITE_STYLES = `
 @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,600&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
@@ -378,6 +493,9 @@ const SITE_STYLES = `
   --bg-card: rgba(16, 27, 59, 0.88);
   --bg-subtle: #16244d;
   --bg-hover: #1e3168;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
   --border-color: rgba(96, 165, 250, 0.18);
   --border-subtle: rgba(96, 165, 250, 0.08);
   --primary: #60a5fa;
@@ -414,6 +532,9 @@ const SITE_STYLES = `
   --bg-card: rgba(34, 21, 61, 0.88);
   --bg-subtle: #2b1a4d;
   --bg-hover: #382264;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
   --border-color: rgba(167, 139, 250, 0.18);
   --border-subtle: rgba(167, 139, 250, 0.08);
   --primary: #a78bfa;
@@ -450,6 +571,9 @@ const SITE_STYLES = `
   --bg-card: rgba(42, 30, 13, 0.88);
   --bg-subtle: #33240e;
   --bg-hover: #453114;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
   --border-color: rgba(251, 191, 36, 0.18);
   --border-subtle: rgba(251, 191, 36, 0.08);
   --primary: #fbbf24;
@@ -486,6 +610,9 @@ const SITE_STYLES = `
   --bg-card: rgba(30, 41, 59, 0.88);
   --bg-subtle: #253347;
   --bg-hover: #33445d;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
   --border-color: rgba(148, 163, 184, 0.18);
   --border-subtle: rgba(148, 163, 184, 0.08);
   --primary: #94a3b8;
@@ -749,80 +876,14 @@ button {
 }
 
 .theme-desc {
-  font-size: 0.7rem;
+  font-size: 0.74rem;
   color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
-.theme-check {
-  color: var(--primary);
-  opacity: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.15s;
-}
-
-.theme-dropdown-item.active .theme-check {
-  opacity: 1;
-}
-
-/* 文章详情页头部强化 */
-.article-badge-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 14px;
-}
-
-.article-tags-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-subtle);
-}
-
-.article-cover-card {
-  margin: 24px 0 32px;
-  border-radius: 18px;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-  box-shadow: var(--card-shadow);
-  max-height: 480px;
-  background: var(--bg-subtle);
-}
-
-.article-cover-card img {
-  width: 100%;
-  height: auto;
-  max-height: 480px;
-  object-fit: cover;
-  display: block;
-}
-
-.article-digest-desc {
-  font-size: 1.02rem;
-  line-height: 1.7;
-  color: var(--text-muted);
-  margin: 12px 0 16px;
-}
-
-.article-content blockquote {
-  background: var(--primary-faint);
-  border-left: 4px solid var(--primary);
-  border-radius: 0 12px 12px 0;
-  padding: 14px 18px;
-  margin: 20px 0;
-  color: var(--text-main);
-}
-
-/* 顶部透明/毛玻璃导航 */
+/* ========================================================
+   导航条系统 (支持透明与毛玻璃悬浮)
+   ======================================================== */
 .site-nav {
   position: absolute;
   top: 0;
@@ -851,23 +912,47 @@ button {
 }
 
 .site-nav.scrolled .nav-menu-item.active::after {
-  background: var(--text-main);
+  background: var(--primary);
 }
 
+[data-mode="dark"] .site-nav.scrolled,
 [data-theme="dark"] .site-nav.scrolled {
-  background: rgba(11, 15, 25, 0.92);
+  background: rgba(15, 23, 42, 0.92);
   border-bottom-color: rgba(255, 255, 255, 0.1);
   color: #f8fafc;
 }
 
-[data-theme="dark"] .site-nav.scrolled .site-brand,
-[data-theme="dark"] .site-nav.scrolled .nav-menu-item,
-[data-theme="dark"] .site-nav.scrolled .nav-action-btn {
+[data-mode="dark"] .site-nav.scrolled .site-brand,
+[data-mode="dark"] .site-nav.scrolled .nav-menu-item,
+[data-mode="dark"] .site-nav.scrolled .nav-action-btn {
   color: #f8fafc;
 }
 
-[data-theme="dark"] .site-nav.scrolled .nav-menu-item.active::after {
-  background: #f8fafc;
+[data-mode="dark"] .site-nav.scrolled .nav-menu-item.active::after {
+  background: var(--primary);
+}
+
+/* 文章详情页与二级页面专用导航头 */
+.article-page-header {
+  position: sticky;
+  top: 0;
+  height: var(--header-height);
+  z-index: 80;
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.article-page-header .site-brand,
+.article-page-header .nav-menu-item,
+.article-page-header .nav-action-btn {
+  color: var(--text-main);
+}
+
+.article-page-header .nav-menu-item.active::after {
+  background: var(--primary);
 }
 
 .nav-container {
@@ -887,7 +972,7 @@ button {
   font-weight: 700;
   font-size: 1.15rem;
   letter-spacing: -0.02em;
-  color: #ffffff;
+  color: inherit;
   transition: opacity 0.2s;
 }
 
@@ -898,95 +983,119 @@ button {
 .site-brand-icon {
   display: flex;
   align-items: center;
-  justify-content: center;
+  color: var(--primary);
 }
 
-.nav-center-menu {
+.nav-menu {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 28px;
 }
 
 .nav-menu-item {
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 500;
   position: relative;
-  padding: 4px 0;
-  transition: color 0.2s;
+  font-size: 0.93rem;
+  font-weight: 500;
+  color: inherit;
+  opacity: 0.88;
+  padding: 8px 0;
+  transition: opacity 0.2s ease, color 0.2s ease;
 }
 
-.nav-menu-item:hover, .nav-menu-item.active {
-  color: #ffffff;
+.nav-menu-item:hover {
+  opacity: 1;
+  color: var(--primary);
+}
+
+.nav-menu-item.active {
+  font-weight: 650;
+  opacity: 1;
+  color: var(--primary);
 }
 
 .nav-menu-item.active::after {
   content: "";
   position: absolute;
-  bottom: -4px;
+  bottom: 0;
   left: 0;
   right: 0;
   height: 2px;
-  background: #ffffff;
+  background: currentColor;
   border-radius: 999px;
 }
 
 .nav-right-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .nav-action-btn {
-  color: rgba(255, 255, 255, 0.9);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  transition: all 0.2s;
+  color: inherit;
+  opacity: 0.85;
+  transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.15s ease;
 }
 
 .nav-action-btn:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.18);
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.site-nav.scrolled .nav-action-btn:hover,
+.article-page-header .nav-action-btn:hover {
+  background: var(--bg-subtle);
 }
 
 .nav-avatar-btn {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: var(--accent-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  font-size: 0.88rem;
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px var(--primary-faint);
+  cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
-/* 晨曦全景 Hero 区域 */
+.nav-avatar-btn:hover {
+  transform: scale(1.06);
+}
+
+/* ========================================================
+   晨曦全景 Hero 区域 (1:1 像素级复现用户设计稿)
+   ======================================================== */
 .home-hero-wrapper {
   position: relative;
-  width: 100%;
-  min-height: 480px;
+  min-height: 560px;
   background-image: var(--hero-bg);
   background-size: cover;
-  background-position: center 25%;
-  background-repeat: no-repeat;
+  background-position: center top;
   display: flex;
   align-items: center;
-  padding: 100px 0 60px;
+  padding: 110px 24px 70px;
+  color: #ffffff;
 }
 
-.home-hero-wrapper::before {
+.home-hero-wrapper::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background: linear-gradient(to right, rgba(15, 23, 42, 0.45) 0%, rgba(15, 23, 42, 0.15) 50%, transparent 100%);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  background: linear-gradient(to bottom, transparent, var(--bg-page));
   pointer-events: none;
 }
 
@@ -994,47 +1103,24 @@ button {
   max-width: 1140px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 24px;
   position: relative;
   z-index: 10;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 32px;
+  gap: 40px;
 }
 
 .hero-left-content {
-  max-width: 540px;
-  color: #ffffff;
-}
-
-.hero-calligraphy-title {
-  font-family: var(--font-calligraphy);
-  font-size: clamp(2.4rem, 5vw, 3.4rem);
-  font-weight: 400;
-  line-height: 1.25;
-  color: #ffffff;
-  letter-spacing: 0.04em;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
-  margin-bottom: 10px;
-}
-
-.hero-cursive-sub {
-  font-family: var(--font-cursive);
-  font-style: italic;
-  font-size: 1.25rem;
-  color: rgba(255, 255, 255, 0.92);
-  letter-spacing: 0.04em;
-  margin-bottom: 18px;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+  max-width: 580px;
 }
 
 .hero-bio-desc {
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   line-height: 1.7;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(255, 255, 255, 0.92);
   margin-bottom: 28px;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
 .hero-btn-row {
@@ -1047,103 +1133,91 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 24px;
-  border-radius: 999px;
-  background: #ffffff;
-  color: #0f172a;
-  font-size: 0.9rem;
+  padding: 12px 24px;
+  background: var(--accent-gradient);
+  color: #ffffff;
+  font-size: 0.95rem;
   font-weight: 600;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 999px;
+  box-shadow: 0 4px 14px var(--primary-faint);
+  transition: all 0.2s ease;
 }
 
 .btn-hero-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
-  background: #f8fafc;
+  box-shadow: 0 6px 20px var(--primary-faint);
+  color: #ffffff;
 }
 
 .btn-hero-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 9px 24px;
-  border-radius: 999px;
+  padding: 12px 24px;
   background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   color: #ffffff;
-  font-size: 0.9rem;
-  font-weight: 550;
-  backdrop-filter: blur(8px);
-  transition: all 0.2s;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 999px;
+  transition: all 0.2s ease;
 }
 
 .btn-hero-secondary:hover {
   background: rgba(255, 255, 255, 0.28);
   transform: translateY(-2px);
+  color: #ffffff;
 }
 
-/* 悬浮日历名言卡片 (右上角) */
 .hero-quote-card {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 20px;
-  padding: 22px 24px;
-  width: 290px;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
-  color: #1e293b;
-  margin-top: 8px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.hero-quote-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.18);
-}
-
-[data-theme="dark"] .hero-quote-card {
-  background: rgba(17, 24, 39, 0.82);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #f8fafc;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+  padding: 24px 26px;
+  width: 320px;
+  color: #ffffff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
 }
 
 .quote-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  font-size: 0.82rem;
-  color: var(--text-light);
+  align-items: center;
+  font-size: 0.85rem;
+  opacity: 0.85;
   margin-bottom: 14px;
-  font-family: var(--font-mono);
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .quote-body {
-  font-size: 0.93rem;
-  line-height: 1.68;
-  color: var(--text-main);
-  margin-bottom: 12px;
-  font-weight: 500;
+  font-size: 1.02rem;
+  line-height: 1.6;
+  margin-bottom: 14px;
+  font-weight: 450;
 }
 
 .quote-author {
   text-align: right;
-  font-size: 0.84rem;
-  color: var(--text-muted);
+  font-size: 0.88rem;
+  opacity: 0.85;
+  font-style: italic;
 }
 
-/* 主体内容包裹 */
+/* ========================================================
+   页面主内容包裹器
+   ======================================================== */
 .main-content-wrapper {
   max-width: 1140px;
   width: 100%;
   margin: 0 auto;
-  padding: 48px 24px 80px;
+  padding: 40px 24px 60px;
   flex: 1;
 }
 
-/* 区域标题通用栏 */
 .section-header-bar {
   display: flex;
   align-items: center;
@@ -1152,63 +1226,47 @@ button {
 }
 
 .section-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--text-main);
   display: flex;
   align-items: baseline;
   gap: 10px;
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: var(--text-main);
   letter-spacing: -0.02em;
 }
 
 .section-subtitle {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
+  text-transform: uppercase;
   color: var(--text-light);
   letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.section-more-link {
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  transition: color 0.2s, gap 0.2s;
-}
-
-.section-more-link:hover {
-  color: var(--accent-blue);
-  gap: 8px;
 }
 
 /* ========================================================
    Section 1: 精选文章 (FEATURED) 宽幅双栏大卡片
    ======================================================== */
 .featured-card {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 20px;
   overflow: hidden;
   box-shadow: var(--card-shadow);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s, border-color 0.25s;
-  margin-bottom: 56px;
+  margin-bottom: 60px;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s, border-color 0.3s;
 }
 
 .featured-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--card-shadow-hover);
-  border-color: rgba(59, 130, 246, 0.3);
+  border-color: var(--card-border-hover);
 }
 
 .featured-cover-box {
   width: 100%;
-  height: 100%;
-  min-height: 270px;
+  min-height: 320px;
   position: relative;
   overflow: hidden;
   background: var(--bg-subtle);
@@ -1218,30 +1276,31 @@ button {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .featured-card:hover .featured-cover-img {
-  transform: scale(1.03);
+  transform: scale(1.04);
 }
 
 .featured-content {
-  padding: 36px 38px;
+  padding: 36px 36px 32px;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.tag-badge-pill {
+.featured-tag-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 12px;
+  gap: 6px;
+  padding: 4px 12px;
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 600;
-  width: fit-content;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
+  align-self: flex-start;
 }
 
 .tag-badge-pill.blue {
@@ -1250,7 +1309,8 @@ button {
   border: 1px solid #dbeafe;
 }
 
-[data-theme="dark"] .tag-badge-pill.blue {
+[data-theme="dark"] .tag-badge-pill.blue,
+[data-mode="dark"] .tag-badge-pill.blue {
   background: rgba(37, 99, 235, 0.15);
   color: #60a5fa;
   border-color: rgba(37, 99, 235, 0.3);
@@ -1267,7 +1327,7 @@ button {
 }
 
 .featured-card:hover .featured-title {
-  color: var(--accent-blue);
+  color: var(--primary);
 }
 
 .featured-desc {
@@ -1302,6 +1362,7 @@ button {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .filter-pill {
@@ -1321,9 +1382,9 @@ button {
 }
 
 .filter-pill.active {
-  background: var(--accent-primary);
-  color: var(--bg-page);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px var(--primary-faint);
 }
 
 .latest-grid-4 {
@@ -1347,7 +1408,7 @@ button {
 .card-item-4:hover {
   transform: translateY(-4px);
   box-shadow: var(--card-shadow-hover);
-  border-color: rgba(59, 130, 246, 0.3);
+  border-color: var(--card-border-hover);
 }
 
 .card-item-cover-box {
@@ -1381,7 +1442,8 @@ button {
   color: #0ca678;
   border: 1px solid #c3fae8;
 }
-[data-theme="dark"] .tag-badge-pill.teal {
+[data-theme="dark"] .tag-badge-pill.teal,
+[data-mode="dark"] .tag-badge-pill.teal {
   background: rgba(12, 166, 120, 0.15);
   color: #38d9a9;
   border-color: rgba(12, 166, 120, 0.3);
@@ -1392,7 +1454,8 @@ button {
   color: #9333ea;
   border: 1px solid #e9d5ff;
 }
-[data-theme="dark"] .tag-badge-pill.purple {
+[data-theme="dark"] .tag-badge-pill.purple,
+[data-mode="dark"] .tag-badge-pill.purple {
   background: rgba(147, 51, 234, 0.15);
   color: #c084fc;
   border-color: rgba(147, 51, 234, 0.3);
@@ -1403,7 +1466,8 @@ button {
   color: #ea580c;
   border: 1px solid #ffedd5;
 }
-[data-theme="dark"] .tag-badge-pill.amber {
+[data-theme="dark"] .tag-badge-pill.amber,
+[data-mode="dark"] .tag-badge-pill.amber {
   background: rgba(234, 88, 12, 0.15);
   color: #fb923c;
   border-color: rgba(234, 88, 12, 0.3);
@@ -1414,7 +1478,8 @@ button {
   color: #0284c7;
   border: 1px solid #bae6fd;
 }
-[data-theme="dark"] .tag-badge-pill.cyan {
+[data-theme="dark"] .tag-badge-pill.cyan,
+[data-mode="dark"] .tag-badge-pill.cyan {
   background: rgba(2, 132, 199, 0.15);
   color: #38bdf8;
   border-color: rgba(2, 132, 199, 0.3);
@@ -1434,7 +1499,7 @@ button {
 }
 
 .card-item-4:hover .card-item-title {
-  color: var(--accent-blue);
+  color: var(--primary);
 }
 
 .card-item-desc {
@@ -1460,54 +1525,53 @@ button {
 }
 
 /* ========================================================
-   Section 3: 底部宽幅交流互动横幅 (月升夜景 Banner)
+   Section 3: 底部宽幅互动横幅 (月升夜景 - 方案一)
    ======================================================== */
 .bottom-comm-banner {
-  width: 100%;
-  min-height: 160px;
-  border-radius: 20px;
+  position: relative;
+  min-height: 280px;
+  border-radius: 24px;
   overflow: hidden;
   background-image: var(--banner-bg);
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 34px 44px;
-  color: #ffffff;
-  position: relative;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-  margin-bottom: 40px;
-}
-
-.bottom-comm-banner::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to right, rgba(9, 13, 22, 0.88) 0%, rgba(9, 13, 22, 0.45) 50%, rgba(9, 13, 22, 0.2) 100%);
-  pointer-events: none;
+  justify-content: flex-start;
+  padding: 44px 40px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+  margin-bottom: 30px;
 }
 
 .banner-left {
-  position: relative;
-  z-index: 10;
-  max-width: 500px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 28px 32px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  max-width: 480px;
+  color: #ffffff;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
 }
 
 .banner-title {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-size: 1.25rem;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.banner-title svg {
+  color: var(--primary-light);
 }
 
 .banner-desc {
-  font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.92rem;
   line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
   margin-bottom: 18px;
 }
 
@@ -1518,51 +1582,43 @@ button {
 }
 
 .social-circle-btn {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  color: #ffffff;
+  transition: all 0.2s ease;
 }
 
 .social-circle-btn:hover {
-  background: #ffffff;
-  color: #0f172a;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--primary-faint);
 }
 
-.banner-right {
-  position: relative;
-  z-index: 10;
-  text-align: right;
-}
-
-.banner-calligraphy-text {
-  font-family: var(--font-calligraphy);
-  font-size: 1.45rem;
-  color: rgba(255, 255, 255, 0.95);
-  letter-spacing: 0.08em;
-  line-height: 1.5;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-}
-
-/* 页脚 */
+/* ========================================================
+   页脚 Footer
+   ======================================================== */
 .site-footer {
   border-top: 1px solid var(--border-color);
-  padding: 32px 24px;
-  background: var(--bg-page);
-  color: var(--text-light);
-  font-size: 0.86rem;
+  background: var(--bg-card);
+  padding: 28px 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
 }
 
 .footer-inner-container {
   max-width: 1140px;
   margin: 0 auto;
+  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1576,33 +1632,227 @@ button {
 
 .footer-nav-link {
   color: var(--text-muted);
-  transition: color 0.2s;
+  transition: color 0.2s ease;
 }
 
-.footer-nav-link:hover {
-  color: var(--text-main);
+.footer-nav-link:hover,
+.footer-nav-link.active {
+  color: var(--primary);
 }
 
 /* ========================================================
-   全局实时搜索模态框 (Modal)
+   文章详情页排版与随动目录 (TOC)
    ======================================================== */
+.article-wrapper {
+  max-width: 1140px;
+  margin: 40px auto 80px;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 48px;
+  align-items: start;
+}
+
+.article-main {
+  min-width: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 40px 48px;
+  box-shadow: var(--card-shadow);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 20px;
+  transition: transform 0.2s ease;
+}
+
+.back-link:hover {
+  transform: translateX(-3px);
+}
+
+.article-header {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.article-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.article-title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--text-main);
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+
+.article-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.article-toc-sidebar {
+  position: sticky;
+  top: 90px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: var(--card-shadow);
+}
+
+.toc-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.toc-list {
+  list-style: none;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.toc-item {
+  margin: 6px 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.toc-item.toc-level-1 { font-weight: 600; }
+.toc-item.toc-level-2 { padding-left: 12px; }
+.toc-item.toc-level-3 { padding-left: 24px; font-size: 0.82rem; }
+
+.toc-item a {
+  color: var(--text-muted);
+  display: block;
+  border-radius: 6px;
+  padding: 3px 6px;
+  transition: all 0.15s ease;
+}
+
+.toc-item a:hover {
+  color: var(--primary);
+  background: var(--bg-subtle);
+}
+
+.toc-item.active a {
+  color: var(--primary);
+  font-weight: 600;
+  background: var(--primary-faint);
+}
+
+/* 微信公众号推广卡片 */
+.wechat-promo-card {
+  margin-top: 48px;
+  padding: 24px 28px;
+  border-radius: 16px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.wechat-promo-text h4 {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+.wechat-promo-text p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.wechat-qr-box img {
+  width: 96px;
+  height: 96px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  display: block;
+}
+
+/* 回到顶部 */
+#back-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.2s ease;
+  z-index: 90;
+}
+
+#back-to-top.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+#back-to-top:hover {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+/* 搜索模态框 */
 .search-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(8px);
-  z-index: 200;
-  display: none;
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 80px 24px 24px;
+  padding-top: 100px;
+  z-index: 2000;
   opacity: 0;
-  transition: opacity 0.2s ease;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
 .search-modal-backdrop.open {
-  display: flex;
   opacity: 1;
+  visibility: visible;
 }
 
 .search-modal-box {
@@ -1610,46 +1860,46 @@ button {
   max-width: 600px;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 20px;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+  border-radius: 18px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3);
   overflow: hidden;
-  animation: modalSlideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: modalScale 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes modalSlideDown {
-  from { transform: translateY(-16px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+@keyframes modalScale {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .search-modal-input-row {
   display: flex;
   align-items: center;
+  gap: 12px;
   padding: 16px 20px;
   border-bottom: 1px solid var(--border-color);
-  gap: 12px;
+  color: var(--text-main);
 }
 
 .search-modal-input {
   flex: 1;
-  font-size: 1.05rem;
   border: none;
   background: none;
-  outline: none;
+  font-size: 1.05rem;
   color: var(--text-main);
-  font-family: var(--font-sans);
+  outline: none;
 }
 
 .search-results-box {
   max-height: 420px;
   overflow-y: auto;
-  padding: 12px;
+  padding: 8px 0;
 }
 
 .search-result-item {
-  padding: 12px 16px;
-  border-radius: 12px;
   display: block;
-  transition: background 0.15s;
+  padding: 12px 20px;
+  transition: background-color 0.15s ease;
+  color: var(--text-main);
 }
 
 .search-result-item:hover {
@@ -1657,9 +1907,8 @@ button {
 }
 
 .search-result-title {
-  font-size: 0.98rem;
   font-weight: 600;
-  color: var(--text-main);
+  font-size: 0.98rem;
   margin-bottom: 4px;
 }
 
@@ -1670,332 +1919,498 @@ button {
 }
 
 /* ========================================================
-   文章详情页排版与随动目录 (TOC)
+   Web Content Adaptor & Dark Mode 深度对比度强化 (WCAG AA)
    ======================================================== */
-.article-page-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  height: var(--header-height);
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border-color);
+.article-content {
   color: var(--text-main);
+  line-height: 1.85;
 }
 
-.article-page-header .site-brand,
-.article-page-header .nav-menu-item {
-  color: var(--text-main);
+.article-content p,
+.article-content li,
+.article-content td,
+.article-content th,
+.article-content span {
+  transition: color 0.2s ease;
 }
 
-.article-wrapper {
-  max-width: 1140px;
-  margin: 36px auto 80px;
+[data-mode="dark"] .article-content,
+[data-mode="dark"] .article-content p,
+[data-mode="dark"] .article-content li,
+[data-mode="dark"] .article-content td,
+[data-mode="dark"] .article-content th,
+[data-mode="dark"] .article-content strong,
+[data-mode="dark"] .article-content em {
+  color: var(--text-main) !important;
+}
+
+[data-mode="dark"] .article-content h1,
+[data-mode="dark"] .article-content h2,
+[data-mode="dark"] .article-content h3,
+[data-mode="dark"] .article-content h4 {
+  color: var(--primary-light) !important;
+}
+
+[data-mode="dark"] .wechat-article {
+  background: transparent !important;
+  color: var(--text-main) !important;
+}
+
+[data-mode="dark"] section[class*="wechat-module"],
+[data-mode="dark"] .wechat-module-hero,
+[data-mode="dark"] .wechat-module-summary,
+[data-mode="dark"] .wechat-module-cards,
+[data-mode="dark"] .wechat-module-quote,
+[data-mode="dark"] .wechat-module-metrics,
+[data-mode="dark"] .wechat-module-notice {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: var(--card-shadow) !important;
+}
+
+[data-mode="dark"] section[class*="wechat-module"] section,
+[data-mode="dark"] section[class*="wechat-module"] span,
+[data-mode="dark"] section[class*="wechat-module"] p {
+  color: var(--text-main) !important;
+}
+
+[data-mode="dark"] .article-content pre,
+[data-mode="dark"] .article-content code {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ========================================================
+   二级页面通用顶部 Header Banner (归档/分类/标签/关于)
+   ======================================================== */
+.subpage-hero-banner {
+  padding: 60px 24px 36px;
+  background: radial-gradient(circle at 50% 0%, var(--primary-faint) 0%, transparent 70%);
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: center;
+  position: relative;
+}
+
+.subpage-hero-container {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.subpage-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  color: var(--pill-text);
+  margin-bottom: 14px;
+}
+
+.subpage-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.subpage-subtitle {
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+.subpage-desc {
+  font-size: 1.02rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.68;
+}
+
+/* ========================================================
+   时间线归档页面 (Archives)
+   ======================================================== */
+.archives-container {
+  max-width: 860px;
+  margin: 40px auto 80px;
   padding: 0 24px;
-  display: flex;
-  gap: 40px;
-  align-items: flex-start;
 }
 
-.article-main {
+.timeline-year-group {
+  margin-bottom: 48px;
+  position: relative;
+}
+
+.timeline-year-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.timeline-year-number {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--primary);
+  font-family: var(--font-sans);
+}
+
+.timeline-year-count {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-weight: 550;
+}
+
+.timeline-list {
+  position: relative;
+  padding-left: 28px;
+}
+
+.timeline-list::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 7px;
+  width: 2px;
+  background: var(--border-color);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  transition: transform 0.2s ease;
+}
+
+.timeline-item:hover {
+  transform: translateX(4px);
+}
+
+.timeline-bullet {
+  position: absolute;
+  left: -28px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 3px solid var(--primary);
+  box-shadow: 0 0 0 3px var(--bg-page);
+  transition: all 0.2s ease;
+}
+
+.timeline-item:hover .timeline-bullet {
+  background: var(--primary);
+  transform: scale(1.2);
+}
+
+.timeline-date {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-light);
+  width: 52px;
+  flex-shrink: 0;
+}
+
+.timeline-title-link {
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--text-main);
   flex: 1;
-  max-width: 800px;
-  min-width: 0;
+  transition: color 0.2s ease;
+}
+
+.timeline-title-link:hover {
+  color: var(--primary);
+}
+
+.timeline-meta {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  white-space: nowrap;
+}
+
+/* ========================================================
+   分类探索页面 (Categories)
+   ======================================================== */
+.categories-container {
+  max-width: 1080px;
+  margin: 40px auto 80px;
+  padding: 0 24px;
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.category-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: var(--card-shadow);
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.category-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover);
+  border-color: var(--card-border-hover);
+}
+
+.category-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.category-card-title {
+  font-size: 1.25rem;
+  font-weight: 750;
+  color: var(--text-main);
+}
+
+.category-card-count {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: var(--primary-faint);
+  color: var(--primary);
+  border: 1px solid var(--pill-border);
+}
+
+.category-post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.category-post-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  color: var(--text-main);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.category-post-item:hover {
+  background: var(--bg-subtle);
+  color: var(--primary);
+}
+
+.category-post-title {
+  font-weight: 550;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.category-post-date {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-light);
+  white-space: nowrap;
+}
+
+/* ========================================================
+   标签云与索引页面 (Tags)
+   ======================================================== */
+.tags-container {
+  max-width: 960px;
+  margin: 40px auto 80px;
+  padding: 0 24px;
+}
+
+.tags-cloud-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 20px;
-  padding: 44px 40px;
+  padding: 32px 28px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 50px;
+}
+
+.tag-cloud-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  font-weight: 600;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.tag-cloud-chip:hover {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--primary-faint);
+}
+
+.tag-cloud-count {
+  font-size: 0.75rem;
+  opacity: 0.75;
+  background: rgba(0, 0, 0, 0.08);
+  padding: 2px 7px;
+  border-radius: 9999px;
+}
+
+[data-mode="dark"] .tag-cloud-count {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.tag-sections-container {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.tag-group-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px 24px;
   box-shadow: var(--card-shadow);
 }
 
-.article-header {
+.tag-group-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.15rem;
+  font-weight: 750;
+  color: var(--text-main);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* ========================================================
+   关于我独立页面 (About)
+   ======================================================== */
+.about-wrapper {
+  max-width: 900px;
+  margin: 40px auto 80px;
+  padding: 0 24px;
+}
+
+.about-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 44px 48px;
+  box-shadow: var(--card-shadow);
+}
+
+.about-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
   margin-bottom: 32px;
   padding-bottom: 24px;
   border-bottom: 1px solid var(--border-color);
 }
 
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.88rem;
-  color: var(--text-muted);
-  font-weight: 550;
-  margin-bottom: 18px;
-  transition: color 0.2s, transform 0.2s;
-}
-
-.back-link:hover {
-  color: var(--accent-blue);
-  transform: translateX(-3px);
-}
-
-.article-title {
-  font-size: clamp(1.8rem, 3.5vw, 2.3rem);
-  font-weight: 800;
-  line-height: 1.32;
-  margin-bottom: 16px;
-  letter-spacing: -0.02em;
-  color: var(--text-main);
-}
-
-.article-meta-bar {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  font-size: 0.85rem;
-  color: var(--text-light);
-}
-
-.article-toc-sidebar {
-  width: 280px;
-  position: sticky;
-  top: 88px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 20px;
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
-  box-shadow: var(--card-shadow);
-}
-
-.toc-title {
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: var(--text-main);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.toc-list { list-style: none; }
-.toc-item { margin-bottom: 6px; line-height: 1.45; }
-.toc-item a {
-  display: block;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  padding: 4px 8px;
-  border-left: 2px solid transparent;
-  border-radius: 0 4px 4px 0;
-  transition: all 0.2s;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.toc-item a:hover {
-  color: var(--accent-blue);
-  background: var(--bg-subtle);
-}
-.toc-item.active a {
-  color: var(--accent-blue);
-  border-left-color: var(--accent-blue);
-  background: var(--bg-subtle);
-  font-weight: 600;
-}
-.toc-level-3 { padding-left: 14px; font-size: 0.82rem; }
-
-/* 微信公众号订阅引流卡片 */
-.wechat-promo-card {
-  margin-top: 48px;
-  background: var(--bg-subtle);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.wechat-promo-text h4 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text-main);
-  margin-bottom: 6px;
-}
-
-.wechat-promo-text p {
-  font-size: 0.88rem;
-  color: var(--text-muted);
-  line-height: 1.5;
-}
-
-.wechat-qr-box {
-  width: 96px;
-  height: 96px;
-  background: #fff;
-  border-radius: 10px;
-  padding: 4px;
-  border: 1px solid var(--border-color);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.wechat-qr-box img { width: 100%; height: 100%; object-fit: contain; }
-
-/* 回到顶部按钮 */
-#back-to-top {
-  position: fixed;
-  bottom: 32px;
-  right: 32px;
-  width: 44px;
-  height: 44px;
+.about-avatar {
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  background: var(--accent-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 90;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.25s ease;
-}
-
-#back-to-top.show {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-#back-to-top:hover {
-  transform: translateY(-3px);
-  background: var(--accent-primary);
-  color: var(--bg-page);
-}
-
-/* 提示 Toast */
-#site-toast {
-  position: fixed;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: #18181b;
+  font-size: 2rem;
+  font-weight: 800;
   color: #ffffff;
-  padding: 9px 18px;
-  border-radius: 999px;
-  font-size: 0.86rem;
-  font-weight: 550;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.25s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  box-shadow: 0 4px 16px var(--primary-faint);
+  flex-shrink: 0;
 }
 
-#site-toast.show {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
+.about-name-block {
+  flex: 1;
+}
+
+.about-name {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.about-title-tag {
+  font-size: 0.92rem;
+  color: var(--text-muted);
 }
 
 /* ========================================================
-   obw 微信排版组件在暗黑模式下的深度适配
+   响应式断点适配
    ======================================================== */
-[data-theme="dark"] .wechat-article {
-  color: #cbd5e1 !important;
-}
-[data-theme="dark"] .wechat-article [leaf] {
-  color: inherit !important;
-}
-[data-theme="dark"] .wechat-article strong {
-  color: #f8fafc !important;
-}
-[data-theme="dark"] .wechat-article h1,
-[data-theme="dark"] .wechat-article h2,
-[data-theme="dark"] .wechat-article h3,
-[data-theme="dark"] .wechat-article h4 {
-  color: #60a5fa !important;
-  background: rgba(59, 130, 246, 0.12) !important;
-  border-left-color: #60a5fa !important;
-}
-[data-theme="dark"] .wechat-module-hero {
-  background: linear-gradient(180deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-}
-[data-theme="dark"] .hero-title {
-  color: #f8fafc !important;
-}
-[data-theme="dark"] .hero-subtitle {
-  color: #94a3b8 !important;
-}
-[data-theme="dark"] .wechat-module-summary {
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.12) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
-  border-color: rgba(59, 130, 246, 0.3) !important;
-  border-left-color: #3b82f6 !important;
-}
-[data-theme="dark"] .wechat-module-summary span[leaf] {
-  color: #f8fafc !important;
-}
-[data-theme="dark"] .wechat-module-metrics {
-  background: rgba(15, 23, 42, 0.8) !important;
-}
-[data-theme="dark"] .metric-card {
-  background: #111827 !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-}
-[data-theme="dark"] .metric-val {
-  color: #60a5fa !important;
-}
-[data-theme="dark"] .metric-label {
-  color: #94a3b8 !important;
-}
-[data-theme="dark"] .wechat-module-cards > section > section {
-  background: #111827 !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-}
-[data-theme="dark"] .wechat-module-cards span {
-  color: #e2e8f0 !important;
-}
-[data-theme="dark"] .wechat-module-quote {
-  border-left-color: #3b82f6 !important;
-}
-[data-theme="dark"] .wechat-module-quote span[leaf] {
-  color: #e2e8f0 !important;
-}
-[data-theme="dark"] .wechat-module-cta {
-  background: #111827 !important;
-  border-color: rgba(59, 130, 246, 0.25) !important;
-}
-[data-theme="dark"] .wechat-module-cta span {
-  color: #e2e8f0 !important;
-}
-
-/* 响应式断点适配 */
 @media (max-width: 1024px) {
   .latest-grid-4 {
     grid-template-columns: repeat(2, 1fr);
   }
+  .article-wrapper {
+    grid-template-columns: 1fr;
+  }
   .article-toc-sidebar {
     display: none;
-  }
-  .article-main {
-    max-width: 100%;
-    padding: 32px 20px;
   }
 }
 
 @media (max-width: 768px) {
-  .nav-center-menu {
-    display: none;
-  }
   .hero-inner-container {
     flex-direction: column;
   }
   .hero-quote-card {
     width: 100%;
-    max-width: 100%;
   }
   .featured-card {
     grid-template-columns: 1fr;
@@ -2011,21 +2426,21 @@ button {
     grid-template-columns: 1fr;
   }
   .bottom-comm-banner {
-    flex-direction: column;
-    text-align: center;
     padding: 28px 20px;
-    gap: 20px;
   }
-  .banner-social-row {
-    justify-content: center;
-  }
-  .banner-right {
-    text-align: center;
+  .banner-left {
+    max-width: 100%;
   }
   .footer-inner-container {
     flex-direction: column;
     gap: 16px;
     text-align: center;
+  }
+  .categories-grid {
+    grid-template-columns: 1fr;
+  }
+  .about-card {
+    padding: 28px 20px;
   }
 }
 `;
@@ -2033,7 +2448,7 @@ button {
 /**
  * 客户端核心交互脚本
  */
-const CLIENT_SCRIPTS = `
+export const CLIENT_SCRIPTS = `
 // 全局多风格与深浅模式管理
 function initSiteTheme() {
   var savedTheme = localStorage.getItem("obw-site-theme") || "mint-emerald";
@@ -2112,13 +2527,16 @@ function showToast(msg) {
   if (!toast) {
     toast = document.createElement("div");
     toast.id = "site-toast";
+    toast.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,0.92);color:#fff;padding:10px 20px;border-radius:999px;font-size:0.88rem;box-shadow:0 8px 24px rgba(0,0,0,0.25);z-index:9999;transition:all 0.25s ease;display:flex;align-items:center;gap:8px;";
     document.body.appendChild(toast);
   }
   toast.innerHTML = \`${ICONS.check} <span>\${msg}</span>\`;
-  toast.classList.add("show");
+  toast.style.opacity = "1";
+  toast.style.transform = "translateX(-50%) translateY(0)";
   clearTimeout(window._toastTimer);
   window._toastTimer = setTimeout(() => {
-    toast.classList.remove("show");
+    toast.style.opacity = "0";
+    toast.style.transform = "translateX(-50%) translateY(10px)";
   }, 2200);
 }
 
@@ -2148,30 +2566,38 @@ function toggleSearchModal(open) {
   if (open) {
     modal.classList.add("open");
     const input = document.getElementById("search-input");
-    if (input) setTimeout(() => input.focus(), 100);
+    if (input) {
+      input.value = "";
+      setTimeout(() => input.focus(), 50);
+    }
   } else {
     modal.classList.remove("open");
   }
 }
 
 function onSearchModalInput(e) {
-  const val = (e.target.value || "").trim().toLowerCase();
+  const q = e.target.value.trim().toLowerCase();
   const resultsBox = document.getElementById("search-results-box");
   if (!resultsBox) return;
 
-  if (!val) {
+  if (!q) {
     resultsBox.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-light);font-size:0.9rem;">输入关键词搜索全部文章...</div>';
     return;
   }
 
-  const cards = document.querySelectorAll(".card-item-4, .featured-card");
+  const cards = document.querySelectorAll(".card-item-4");
   const matches = [];
   cards.forEach(card => {
-    const title = (card.getAttribute("data-title") || "");
-    const desc = (card.getAttribute("data-desc") || "");
-    const url = card.getAttribute("data-url") || "";
-    if (title.toLowerCase().includes(val) || desc.toLowerCase().includes(val)) {
-      matches.push({ title, desc, url });
+    const title = (card.getAttribute("data-title") || "").toLowerCase();
+    const desc = (card.getAttribute("data-desc") || "").toLowerCase();
+    const tags = (card.getAttribute("data-tags") || "").toLowerCase();
+    const url = card.getAttribute("data-url");
+    if (title.includes(q) || desc.includes(q) || tags.includes(q)) {
+      matches.push({
+        title: card.getAttribute("data-title"),
+        desc: card.getAttribute("data-desc") || "",
+        url: url
+      });
     }
   });
 
@@ -2187,15 +2613,16 @@ function onSearchModalInput(e) {
   }
 }
 
-// 最新文章分类筛选
+// 最新文章分类筛选 (支持 data-categories 与 data-tags)
 function filterCategory(cat, btn) {
   document.querySelectorAll(".filter-pill").forEach(p => p.classList.remove("active"));
   if (btn) btn.classList.add("active");
 
   const cards = document.querySelectorAll(".card-item-4");
   cards.forEach(card => {
+    const cats = (card.getAttribute("data-categories") || "").split(",").map(t => t.trim());
     const tags = (card.getAttribute("data-tags") || "").split(",").map(t => t.trim());
-    if (cat === "all" || tags.some(t => t.includes(cat))) {
+    if (cat === "all" || cats.includes(cat) || tags.some(t => t.includes(cat))) {
       card.style.display = "flex";
     } else {
       card.style.display = "none";
@@ -2264,6 +2691,7 @@ window.addEventListener("keydown", (e) => {
   }
   if (e.key === "Escape") {
     toggleSearchModal(false);
+    toggleThemeDropdown(false);
   }
 });
 
@@ -2273,9 +2701,131 @@ document.addEventListener("DOMContentLoaded", () => {
 `;
 
 /**
+ * 统一导航栏组件生成器
+ */
+export function buildNavHtml(activeKey, isSubdir = false) {
+  const prefix = isSubdir ? "../" : "";
+  const navItems = [
+    { key: "home", label: "首页", href: `${prefix}index.html` },
+    { key: "archives", label: "归档", href: `${prefix}archives.html` },
+    { key: "categories", label: "分类", href: `${prefix}categories.html` },
+    { key: "tags", label: "标签", href: `${prefix}tags.html` },
+    { key: "about", label: "关于", href: `${prefix}about.html` },
+  ];
+
+  return `
+    <nav class="nav-menu">
+      ${navItems
+        .map(
+          (item) => `
+        <a href="${item.href}" class="nav-menu-item ${item.key === activeKey ? "active" : ""}">${item.label}</a>`
+        )
+        .join("")}
+    </nav>
+  `;
+}
+
+/**
+ * 统一页脚导航链接生成器
+ */
+export function buildFooterNavHtml(activeKey, isSubdir = false) {
+  const prefix = isSubdir ? "../" : "";
+  const navItems = [
+    { key: "home", label: "首页", href: `${prefix}index.html` },
+    { key: "archives", label: "归档", href: `${prefix}archives.html` },
+    { key: "categories", label: "分类", href: `${prefix}categories.html` },
+    { key: "tags", label: "标签", href: `${prefix}tags.html` },
+    { key: "about", label: "关于", href: `${prefix}about.html` },
+  ];
+
+  return `
+    <div class="footer-nav-links">
+      ${navItems
+        .map(
+          (item) => `
+        <a href="${item.href}" class="footer-nav-link ${item.key === activeKey ? "active" : ""}">${item.label}</a>`
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+/**
+ * 统一调色盘切换组件
+ */
+export function buildThemePickerHtml() {
+  return `
+    <div class="theme-picker-wrapper">
+      <button class="nav-action-btn theme-picker-trigger" id="theme-picker-btn" onclick="toggleThemeDropdown()" title="选择全站风格主题" aria-haspopup="true">
+        ${ICONS.palette}
+        <span class="theme-active-indicator"></span>
+      </button>
+      <div class="theme-dropdown-menu" id="theme-picker-dropdown" role="menu">
+        <div class="theme-dropdown-header">全站视觉风格 (THEMES)</div>
+        ${SITE_THEMES.map(
+          (t) => `
+          <div class="theme-dropdown-item" data-theme-id="${t.id}" onclick="selectSiteTheme('${t.id}')" role="menuitem">
+            <span class="theme-swatch" style="background: ${t.color};"></span>
+            <div class="theme-info">
+              <div class="theme-name">${t.name}</div>
+              <div class="theme-desc">${t.desc}</div>
+            </div>
+          </div>`
+        ).join("")}
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * 统一搜索模态框与通用挂件
+ */
+export function buildCommonWidgetsHtml() {
+  return `
+    <!-- 回到顶部按钮 -->
+    <button id="back-to-top" onclick="scrollToTop()" title="回到顶部">
+      ${ICONS.arrowUp}
+    </button>
+
+    <!-- 搜索模态框 -->
+    <div id="search-modal" class="search-modal-backdrop" onclick="toggleSearchModal(false)">
+      <div class="search-modal-box" onclick="event.stopPropagation()">
+        <div class="search-modal-input-row">
+          ${ICONS.search}
+          <input type="text" id="search-input" class="search-modal-input" placeholder="输入关键词快速搜索文章 (按 Esc 退出)..." oninput="onSearchModalInput(event)">
+          <button onclick="toggleSearchModal(false)">${ICONS.cross}</button>
+        </div>
+        <div id="search-results-box" class="search-results-box">
+          <div style="padding:20px;text-align:center;color:var(--text-light);font-size:0.9rem;">输入关键词搜索全部文章...</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Zero-FOUC 零闪烁 Head 脚本
+ */
+export function buildZeroFoucScript() {
+  return `
+    <script>
+      (function(){
+        try {
+          var savedTheme = localStorage.getItem("obw-site-theme") || "mint-emerald";
+          document.documentElement.setAttribute("data-theme", savedTheme);
+          var savedMode = localStorage.getItem("obw-site-mode") || localStorage.getItem("tan-blog-theme") || 
+            (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+          document.documentElement.setAttribute("data-mode", savedMode);
+        } catch(e) {}
+      })();
+    </script>
+  `;
+}
+
+/**
  * 组装单个文章页面 HTML
  */
-function buildPostPageHtml(post, renderedHtml, toc) {
+export function buildPostPageHtml(post, renderedHtml, toc) {
   const tocItemsHtml = toc
     .map(
       (t) => `
@@ -2286,8 +2836,14 @@ function buildPostPageHtml(post, renderedHtml, toc) {
     .join("\n");
 
   const tagsHtml = (post.meta.tags || [])
-    .map((t) => `<span class="tag-badge-pill blue">${t}</span>`)
+    .map((t) => `<span class="theme-pill tag">${t}</span>`)
     .join(" ");
+
+  const categoryPill = (post.meta.categories && post.meta.categories[0])
+    ? `<span class="theme-pill primary"><span class="pill-dot"></span> ${post.meta.categories[0]}</span>`
+    : `<span class="theme-pill primary"><span class="pill-dot"></span> 博客文章</span>`;
+
+  const coverUrl = post.meta.cover ? (post.meta.cover.startsWith("http") ? post.meta.cover : (post.meta.cover.startsWith("../") ? post.meta.cover : `../${post.meta.cover}`)) : "";
 
   return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -2297,18 +2853,7 @@ function buildPostPageHtml(post, renderedHtml, toc) {
   <title>${post.meta.title} - ${SITE_CONFIG.title}</title>
   <meta name="description" content="${post.meta.description || post.meta.title}">
   <meta name="referrer" content="no-referrer">
-  <!-- 零闪烁风格与暗黑模式优先注入 -->
-  <script>
-    (function(){
-      try {
-        var savedTheme = localStorage.getItem("obw-site-theme") || "mint-emerald";
-        document.documentElement.setAttribute("data-theme", savedTheme);
-        var savedMode = localStorage.getItem("obw-site-mode") || localStorage.getItem("tan-blog-theme") || 
-          (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-        document.documentElement.setAttribute("data-mode", savedMode);
-      } catch(e) {}
-    })();
-  </script>
+  ${buildZeroFoucScript()}
   <style>
 :root {
   --hero-bg: url('../images/hero-bg.jpg');
@@ -2328,41 +2873,17 @@ ${SITE_STYLES}
         <span>${SITE_CONFIG.title}</span>
       </a>
 
-      <nav class="nav-center-menu">
-        <a href="../index.html" class="nav-menu-item">首页</a>
-        <a href="../index.html#latest" class="nav-menu-item active">文章</a>
-        <a href="../index.html#latest" class="nav-menu-item">分类</a>
-        <a href="../index.html#about" class="nav-menu-item">关于</a>
-        <a href="../index.html#about" class="nav-menu-item">标签</a>
-      </nav>
+      ${buildNavHtml("archives", true)}
 
       <div class="nav-right-actions">
         <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
           ${ICONS.search}
         </button>
-        <div class="theme-picker-wrapper">
-          <button id="theme-picker-btn" class="nav-action-btn theme-picker-trigger" onclick="toggleThemeDropdown()" title="切换全站风格">
-            ${ICONS.palette}
-            <span class="theme-active-indicator"></span>
-          </button>
-          <div id="theme-picker-dropdown" class="theme-dropdown-menu">
-            <div class="theme-dropdown-header">选择全站风格</div>
-            ${SITE_THEMES.map(t => `
-              <div class="theme-dropdown-item" onclick="selectSiteTheme('${t.id}')" data-theme-id="${t.id}">
-                <span class="theme-swatch" style="background: ${t.color};"></span>
-                <div class="theme-info">
-                  <div class="theme-name">${t.name}</div>
-                  <div class="theme-desc">${t.desc}</div>
-                </div>
-                <span class="theme-check">${ICONS.check}</span>
-              </div>
-            `).join("")}
-          </div>
-        </div>
+        ${buildThemePickerHtml()}
         <button class="nav-action-btn" onclick="toggleTheme()" title="切换日夜模式">
           <span id="theme-toggle-icon">${ICONS.moon}</span>
         </button>
-        <div class="nav-avatar-btn" title="${SITE_CONFIG.author}">T</div>
+        <a href="../about.html" class="nav-avatar-btn" title="关于 ${SITE_CONFIG.author}">T</a>
       </div>
     </div>
   </header>
@@ -2375,7 +2896,7 @@ ${SITE_STYLES}
           ${ICONS.arrowLeft} 返回博客首页
         </a>
         <div class="article-badge-row">
-          <span class="theme-pill primary"><span class="pill-dot"></span> 博客文章 · 深度思考</span>
+          ${categoryPill}
           <span class="theme-pill status">2026 · Pro</span>
         </div>
         <h1 class="article-title">${post.meta.title}</h1>
@@ -2385,21 +2906,21 @@ ${SITE_STYLES}
           <span class="dash-dot"></span>
         </div>
         ${post.meta.description ? `<p class="article-digest-desc">${post.meta.description}</p>` : ""}
-        ${post.meta.cover ? `
-        <div class="article-cover-card">
-          <img src="${post.meta.cover}" alt="${post.meta.title}" onerror="this.parentElement.style.display='none'">
+        ${coverUrl ? `
+        <div class="article-cover-card" style="border-radius:14px;overflow:hidden;margin:18px 0 24px;border:1px solid var(--border-color);">
+          <img src="${coverUrl}" alt="${post.meta.title}" style="width:100%;max-height:420px;object-fit:cover;display:block;" onerror="this.parentElement.style.display='none'">
         </div>` : ""}
         <div class="article-tags-row">
           <span class="theme-pill author"><span class="pill-dot"></span> ${post.meta.author || SITE_CONFIG.author}</span>
-          ${(post.meta.tags || []).map(t => `<span class="theme-pill tag">${t}</span>`).join(" ")}
+          ${tagsHtml}
           <span class="theme-pill meta">${ICONS.calendar} ${post.meta.date || "最近更新"}</span>
           <span class="theme-pill meta">${ICONS.eye} ${post.meta.views ? (post.meta.views.includes("阅读") ? post.meta.views : post.meta.views + " 阅读") : "1.2k 阅读"}</span>
           <span class="theme-pill meta">${ICONS.chat} 约 ${post.readingStats.readingTimeMin} 分钟阅读</span>
         </div>
       </header>
 
-      <!-- 正文内容 (保留 obw 微信出版级排版全部组件) -->
-      <section class="article-content" style="line-height: 1.85;">
+      <!-- 正文内容 (Web Adaptor 自愈与高对比度排版) -->
+      <section class="article-content">
         ${renderedHtml}
       </section>
 
@@ -2410,7 +2931,7 @@ ${SITE_STYLES}
           <p>本文由 Obsidian WeChat Publisher (obw) 出版级排版引擎生成并同步发布。深度技术实战与原创思考第一时间直达。</p>
         </div>
         <div class="wechat-qr-box">
-          <img src="${SITE_CONFIG.wechatQrUrl}" alt="二维码" onerror="this.parentElement.style.display='none'">
+          <img src="../${SITE_CONFIG.wechatQrUrl}" alt="公众号二维码" onerror="this.parentElement.style.display='none'">
         </div>
       </section>
     </article>
@@ -2419,44 +2940,30 @@ ${SITE_STYLES}
     ${
       toc.length > 0
         ? `<aside class="article-toc-sidebar" aria-label="文章目录">
-      <div class="toc-title">${ICONS.toc} <span>本文目录</span></div>
-      <ul class="toc-list">
-        ${tocItemsHtml}
-      </ul>
-    </aside>`
-        : ""
+        <div class="toc-header">
+          ${ICONS.toc} <span>本文目录</span>
+        </div>
+        <ul class="toc-list">
+          ${tocItemsHtml}
+        </ul>
+      </aside>`
+        : `<aside class="article-toc-sidebar">
+        <div class="toc-header">${ICONS.toc} <span>文章信息</span></div>
+        <div style="font-size:0.88rem;color:var(--text-muted);line-height:1.6;">
+          作者：${post.meta.author || SITE_CONFIG.author}<br>
+          分类：${(post.meta.categories && post.meta.categories.join(", ")) || "随笔"}<br>
+          字数：约 ${post.readingStats.totalWords} 字
+        </div>
+      </aside>`
     }
   </main>
 
-  <!-- 回到顶部按钮 -->
-  <button id="back-to-top" onclick="scrollToTop()" title="回到顶部">
-    ${ICONS.arrowUp}
-  </button>
-
-  <!-- 搜索模态框 -->
-  <div id="search-modal" class="search-modal-backdrop" onclick="toggleSearchModal(false)">
-    <div class="search-modal-box" onclick="event.stopPropagation()">
-      <div class="search-modal-input-row">
-        ${ICONS.search}
-        <input type="text" id="search-input" class="search-modal-input" placeholder="输入关键词快速搜索文章..." oninput="onSearchModalInput(event)">
-        <button onclick="toggleSearchModal(false)">${ICONS.cross}</button>
-      </div>
-      <div id="search-results-box" class="search-results-box">
-        <div style="padding:20px;text-align:center;color:var(--text-light);font-size:0.9rem;">输入关键词搜索全部文章...</div>
-      </div>
-    </div>
-  </div>
+  ${buildCommonWidgetsHtml()}
 
   <footer class="site-footer">
     <div class="footer-inner-container">
-      <div>© 2025 ${SITE_CONFIG.title}. All rights reserved.</div>
-      <div class="footer-nav-links">
-        <a href="../index.html" class="footer-nav-link">首页</a>
-        <a href="../index.html#latest" class="footer-nav-link">文章</a>
-        <a href="../index.html#latest" class="footer-nav-link">分类</a>
-        <a href="../index.html#about" class="footer-nav-link">关于</a>
-        <a href="../index.html#about" class="footer-nav-link">标签</a>
-      </div>
+      <div>© 2026 ${SITE_CONFIG.title}. All rights reserved.</div>
+      ${buildFooterNavHtml("archives", true)}
     </div>
   </footer>
 
@@ -2466,9 +2973,9 @@ ${SITE_STYLES}
 }
 
 /**
- * 组装首页 HTML (1:1 像素级复现用户设计稿)
+ * 组装首页 HTML (1:1 像素级复现用户设计稿 + 纯净 Hero 与动态分类药丸)
  */
-function buildIndexPageHtml(posts, featuredPost, latestPosts) {
+export function buildIndexPageHtml(posts, featuredPost, latestPosts, allCategories) {
   function getTagColorClass(tag) {
     if (tag.includes("技术")) return "teal";
     if (tag.includes("生活")) return "purple";
@@ -2479,14 +2986,14 @@ function buildIndexPageHtml(posts, featuredPost, latestPosts) {
 
   const latestCardsHtml = latestPosts
     .map((p) => {
-      const firstTag = (p.meta.tags && p.meta.tags[0]) ? p.meta.tags[0] : "随笔";
+      const firstTag = (p.meta.tags && p.meta.tags[0]) ? p.meta.tags[0] : (p.meta.categories && p.meta.categories[0]) || "随笔";
       const colorClass = getTagColorClass(firstTag);
-      const coverUrl = p.meta.cover ? p.meta.cover.replace(/^\.\.\//, "") : "images/post-hyperf.jpg";
+      let coverUrl = p.meta.cover ? p.meta.cover.replace(/^\.\.\//, "") : "images/post-hyperf.jpg";
       const rawViews = p.meta.views || "856";
       const views = rawViews.includes("阅读") ? rawViews : `${rawViews} 阅读`;
 
       return `
-      <article class="card-item-4" data-tags="${(p.meta.tags || []).join(",")}" data-title="${p.meta.title}" data-desc="${p.meta.description}" data-url="posts/${p.slug}.html">
+      <article class="card-item-4" data-categories="${(p.meta.categories || []).join(",")}" data-tags="${(p.meta.tags || []).join(",")}" data-title="${p.meta.title}" data-desc="${p.meta.description}" data-url="posts/${p.slug}.html">
         <div class="card-item-cover-box">
           <img src="${coverUrl}" alt="${p.meta.title}" class="card-item-cover-img" onerror="this.style.opacity=0.3">
         </div>
@@ -2497,7 +3004,7 @@ function buildIndexPageHtml(posts, featuredPost, latestPosts) {
           </a>
           <p class="card-item-desc">${p.meta.description || p.rawExcerpt || "点击阅读全文..."}</p>
           <div class="card-item-footer">
-            <span class="meta-item">${ICONS.calendar} ${p.meta.date || "2025-09-18"}</span>
+            <span class="meta-item">${ICONS.calendar} ${p.meta.date || "2026-09-22"}</span>
             <span class="meta-item">${ICONS.eye} ${views}</span>
           </div>
         </div>
@@ -2508,7 +3015,7 @@ function buildIndexPageHtml(posts, featuredPost, latestPosts) {
   // 精选文章卡片
   const feat = featuredPost || posts[0];
   const featCover = feat.meta.cover ? feat.meta.cover.replace(/^\.\.\//, "") : "images/featured-fuji.jpg";
-  const featTag = (feat.meta.tags && feat.meta.tags[0]) ? feat.meta.tags[0] : "产品思考";
+  const featTag = (feat.meta.tags && feat.meta.tags[0]) ? feat.meta.tags[0] : ((feat.meta.categories && feat.meta.categories[0]) || "产品思考");
   const featViews = feat.meta.views ? (feat.meta.views.includes("阅读") ? feat.meta.views : feat.meta.views + " 阅读") : "1.2k 阅读";
   const featComments = feat.meta.comments ? (feat.meta.comments.includes("评论") ? feat.meta.comments : feat.meta.comments + " 评论") : "32 评论";
 
@@ -2519,18 +3026,7 @@ function buildIndexPageHtml(posts, featuredPost, latestPosts) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${SITE_CONFIG.title} - ${SITE_CONFIG.hero.calligraphy.join("，")}</title>
   <meta name="description" content="${SITE_CONFIG.description}">
-  <!-- 零闪烁风格与暗黑模式优先注入 -->
-  <script>
-    (function(){
-      try {
-        var savedTheme = localStorage.getItem("obw-site-theme") || "mint-emerald";
-        document.documentElement.setAttribute("data-theme", savedTheme);
-        var savedMode = localStorage.getItem("obw-site-mode") || localStorage.getItem("tan-blog-theme") || 
-          (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-        document.documentElement.setAttribute("data-mode", savedMode);
-      } catch(e) {}
-    })();
-  </script>
+  ${buildZeroFoucScript()}
   <style>
 :root {
   --hero-bg: url('images/hero-bg.jpg');
@@ -2542,76 +3038,43 @@ ${SITE_STYLES}
 <body>
   <div id="read-progress"></div>
 
-  <!-- 顶部导航 -->
-  <header id="main-nav" class="site-nav">
+  <!-- 顶部透明随动导航 -->
+  <header class="site-nav" id="main-nav">
     <div class="nav-container">
       <a href="index.html" class="site-brand">
         <span class="site-brand-icon">${ICONS.mountain}</span>
         <span>${SITE_CONFIG.title}</span>
       </a>
 
-      <nav class="nav-center-menu">
-        <a href="index.html" class="nav-menu-item active">首页</a>
-        <a href="#latest" class="nav-menu-item">文章</a>
-        <a href="#latest" class="nav-menu-item">分类</a>
-        <a href="#about" class="nav-menu-item">关于</a>
-        <a href="#about" class="nav-menu-item">标签</a>
-      </nav>
+      ${buildNavHtml("home", false)}
 
       <div class="nav-right-actions">
         <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
           ${ICONS.search}
         </button>
-        <div class="theme-picker-wrapper">
-          <button id="theme-picker-btn" class="nav-action-btn theme-picker-trigger" onclick="toggleThemeDropdown()" title="切换全站风格">
-            ${ICONS.palette}
-            <span class="theme-active-indicator"></span>
-          </button>
-          <div id="theme-picker-dropdown" class="theme-dropdown-menu">
-            <div class="theme-dropdown-header">选择全站风格</div>
-            ${SITE_THEMES.map(t => `
-              <div class="theme-dropdown-item" onclick="selectSiteTheme('${t.id}')" data-theme-id="${t.id}">
-                <span class="theme-swatch" style="background: ${t.color};"></span>
-                <div class="theme-info">
-                  <div class="theme-name">${t.name}</div>
-                  <div class="theme-desc">${t.desc}</div>
-                </div>
-                <span class="theme-check">${ICONS.check}</span>
-              </div>
-            `).join("")}
-          </div>
-        </div>
+        ${buildThemePickerHtml()}
         <button class="nav-action-btn" onclick="toggleTheme()" title="切换日夜模式">
           <span id="theme-toggle-icon">${ICONS.moon}</span>
         </button>
-        <div class="nav-avatar-btn" title="${SITE_CONFIG.author}">T</div>
+        <a href="about.html" class="nav-avatar-btn" title="关于 ${SITE_CONFIG.author}">T</a>
       </div>
     </div>
   </header>
 
-  <!-- 晨曦全景 Hero 区域 -->
+  <!-- 晨曦全景 Hero 区域 (方案一：画作自含行楷书法，HTML 专注交互与名言卡片) -->
   <section class="home-hero-wrapper">
     <div class="hero-inner-container">
       <div class="hero-left-content">
         <div class="home-hero-badge">
           <span class="pill-dot"></span> 个人数字花园 · 思考与沉淀
         </div>
-        <h1 class="hero-calligraphy-title">
-          ${SITE_CONFIG.hero.calligraphy[0]}<br>
-          ${SITE_CONFIG.hero.calligraphy[1]}
-        </h1>
-        <div class="theme-accent-dash">
-          <span class="dash-long"></span>
-          <span class="dash-dot"></span>
-          <span class="dash-dot"></span>
-        </div>
-        <div class="hero-cursive-sub">${SITE_CONFIG.hero.cursive}</div>
+        <h1 class="sr-only">记录思考 也记录生活 - Better Me, Better Life</h1>
         <p class="hero-bio-desc">${SITE_CONFIG.hero.bio}</p>
         <div class="hero-btn-row">
           <a href="#featured" class="btn-hero-primary">
             探索文章 ${ICONS.arrowRight}
           </a>
-          <a href="#about" class="btn-hero-secondary">
+          <a href="about.html" class="btn-hero-secondary">
             关于我
           </a>
         </div>
@@ -2639,23 +3102,20 @@ ${SITE_STYLES}
         <h2 class="section-title">
           精选文章 <span class="section-subtitle">FEATURED</span>
         </h2>
-        <a href="#latest" class="section-more-link">
-          查看全部 ${ICONS.arrowRight}
-        </a>
       </div>
 
-      <article class="featured-card" data-title="${feat.meta.title}" data-desc="${feat.meta.description}" data-url="posts/${feat.slug}.html">
+      <article class="featured-card">
         <div class="featured-cover-box">
           <img src="${featCover}" alt="${feat.meta.title}" class="featured-cover-img" onerror="this.style.opacity=0.3">
         </div>
         <div class="featured-content">
-          <span class="tag-badge-pill blue">${featTag}</span>
+          <span class="featured-tag-badge tag-badge-pill blue">${featTag}</span>
           <a href="posts/${feat.slug}.html">
             <h3 class="featured-title">${feat.meta.title}</h3>
           </a>
-          <p class="featured-desc">${feat.meta.description}</p>
+          <p class="featured-desc">${feat.meta.description || feat.rawExcerpt || "点击探索深度阅读全文..."}</p>
           <div class="post-meta-row">
-            <span class="meta-item">${ICONS.calendar} ${feat.meta.date || "2025-09-20"}</span>
+            <span class="meta-item">${ICONS.calendar} ${feat.meta.date || "2026-09-22"}</span>
             <span class="meta-item">${ICONS.eye} ${featViews}</span>
             <span class="meta-item">${ICONS.chat} ${featComments}</span>
           </div>
@@ -2663,7 +3123,7 @@ ${SITE_STYLES}
       </article>
     </section>
 
-    <!-- Section 2: 最新文章 (LATEST) -->
+    <!-- Section 2: 最新文章 (LATEST) 全动态分类联动筛选 -->
     <section id="latest">
       <div class="section-header-bar">
         <h2 class="section-title">
@@ -2671,10 +3131,9 @@ ${SITE_STYLES}
         </h2>
         <div class="category-filter-pills">
           <button class="filter-pill active" onclick="filterCategory('all', this)">全部</button>
-          <button class="filter-pill" onclick="filterCategory('技术', this)">技术</button>
-          <button class="filter-pill" onclick="filterCategory('产品', this)">产品</button>
-          <button class="filter-pill" onclick="filterCategory('生活', this)">生活</button>
-          <button class="filter-pill" onclick="filterCategory('成长', this)">成长</button>
+          ${allCategories
+            .map((cat) => `<button class="filter-pill" onclick="filterCategory('${cat}', this)">${cat}</button>`)
+            .join("\n          ")}
         </div>
       </div>
 
@@ -2683,8 +3142,8 @@ ${SITE_STYLES}
       </div>
     </section>
 
-    <!-- Section 3: 底部宽幅互动交流横幅 (月升夜景) -->
-    <section id="about" class="bottom-comm-banner">
+    <!-- Section 3: 底部宽幅互动交流横幅 (月升夜景 - 方案一：左侧毛玻璃卡片，右侧纯净画作) -->
+    <section class="bottom-comm-banner">
       <div class="banner-left">
         <div class="banner-title">
           ${ICONS.chat} <span>与我交流</span>
@@ -2695,48 +3154,18 @@ ${SITE_STYLES}
         <div class="banner-social-row">
           <a href="mailto:${SITE_CONFIG.email}" class="social-circle-btn" title="发送邮件">${ICONS.mail}</a>
           <a href="${SITE_CONFIG.githubUrl}" target="_blank" rel="noopener" class="social-circle-btn" title="GitHub 个人主页">${ICONS.github}</a>
-          <a href="https://github.com/weavingtan/obw" target="_blank" rel="noopener" class="social-circle-btn" title="个人博客 / 排版项目">${ICONS.globe}</a>
-        </div>
-      </div>
-
-      <div class="banner-right">
-        <div class="banner-calligraphy-text">
-          ${SITE_CONFIG.banner.calligraphy[0]}<br>
-          ${SITE_CONFIG.banner.calligraphy[1]}
+          <a href="about.html" class="social-circle-btn" title="关于我">${ICONS.user}</a>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- 回到顶部按钮 -->
-  <button id="back-to-top" onclick="scrollToTop()" title="回到顶部">
-    ${ICONS.arrowUp}
-  </button>
-
-  <!-- 全局搜索模态框 -->
-  <div id="search-modal" class="search-modal-backdrop" onclick="toggleSearchModal(false)">
-    <div class="search-modal-box" onclick="event.stopPropagation()">
-      <div class="search-modal-input-row">
-        ${ICONS.search}
-        <input type="text" id="search-input" class="search-modal-input" placeholder="输入关键词快速搜索文章 (按 Esc 退出)..." oninput="onSearchModalInput(event)">
-        <button onclick="toggleSearchModal(false)" style="color:var(--text-light);">${ICONS.cross}</button>
-      </div>
-      <div id="search-results-box" class="search-results-box">
-        <div style="padding:20px;text-align:center;color:var(--text-light);font-size:0.9rem;">输入关键词搜索全部文章...</div>
-      </div>
-    </div>
-  </div>
+  ${buildCommonWidgetsHtml()}
 
   <footer class="site-footer">
     <div class="footer-inner-container">
-      <div>© 2025 ${SITE_CONFIG.title}. All rights reserved.</div>
-      <div class="footer-nav-links">
-        <a href="index.html" class="footer-nav-link">首页</a>
-        <a href="#latest" class="footer-nav-link">文章</a>
-        <a href="#latest" class="footer-nav-link">分类</a>
-        <a href="#about" class="footer-nav-link">关于</a>
-        <a href="#about" class="footer-nav-link">标签</a>
-      </div>
+      <div>© 2026 ${SITE_CONFIG.title}. All rights reserved.</div>
+      ${buildFooterNavHtml("home", false)}
     </div>
   </footer>
 
@@ -2746,103 +3175,602 @@ ${SITE_STYLES}
 }
 
 /**
- * 主执行函数
+ * 组装时间线归档页面 HTML (/archives.html)
  */
-async function main() {
-  console.log(`🚀 开始构建 ${SITE_CONFIG.title} 静态站点...`);
+export function buildArchivesHtml(posts) {
+  // 按年份分组
+  const yearGroups = {};
+  const sorted = [...posts].sort((a, b) => {
+    const dateA = a.meta.date ? new Date(a.meta.date).getTime() : 0;
+    const dateB = b.meta.date ? new Date(b.meta.date).getTime() : 0;
+    return dateB - dateA;
+  });
+
+  for (const p of sorted) {
+    const year = (p.meta.date || "2026").slice(0, 4);
+    if (!yearGroups[year]) yearGroups[year] = [];
+    yearGroups[year].push(p);
+  }
+
+  const yearsHtml = Object.keys(yearGroups)
+    .sort((a, b) => parseInt(b, 10) - parseInt(a, 10))
+    .map((year) => {
+      const yearPosts = yearGroups[year];
+      return `
+      <section class="timeline-year-group">
+        <div class="timeline-year-header">
+          <span class="timeline-year-number">${year}</span>
+          <span class="timeline-year-count">共 ${yearPosts.length} 篇</span>
+        </div>
+        <div class="timeline-list">
+          ${yearPosts
+            .map((p) => {
+              const dateStr = p.meta.date ? p.meta.date.slice(5) : "01-01";
+              const cat = (p.meta.categories && p.meta.categories[0]) || "随笔";
+              return `
+            <div class="timeline-item">
+              <div class="timeline-bullet"></div>
+              <span class="timeline-date">${dateStr}</span>
+              <span class="theme-pill" style="padding:2px 8px;font-size:0.75rem;">${cat}</span>
+              <a href="posts/${p.slug}.html" class="timeline-title-link">${p.meta.title}</a>
+              <span class="timeline-meta">${ICONS.clock} 约 ${p.readingStats.readingTimeMin} 分钟</span>
+            </div>`;
+            })
+            .join("\n")}
+        </div>
+      </section>`;
+    })
+    .join("\n");
+
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文章归档 (Archives) - ${SITE_CONFIG.title}</title>
+  <meta name="description" content="${SITE_CONFIG.title} 历年全部文章时间线归档索引">
+  ${buildZeroFoucScript()}
+  <style>
+:root {
+  --hero-bg: url('images/hero-bg.jpg');
+  --banner-bg: url('images/bottom-banner-clean.jpg'), url('images/bottom-banner.jpg');
+}
+${SITE_STYLES}
+  </style>
+</head>
+<body>
+  <div id="read-progress"></div>
+
+  <header class="article-page-header">
+    <div class="nav-container">
+      <a href="index.html" class="site-brand">
+        <span class="site-brand-icon">${ICONS.mountain}</span>
+        <span>${SITE_CONFIG.title}</span>
+      </a>
+      ${buildNavHtml("archives", false)}
+      <div class="nav-right-actions">
+        <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
+          ${ICONS.search}
+        </button>
+        ${buildThemePickerHtml()}
+        <button class="nav-action-btn" onclick="toggleTheme()" title="切换日夜模式">
+          <span id="theme-toggle-icon">${ICONS.moon}</span>
+        </button>
+        <a href="about.html" class="nav-avatar-btn" title="关于 ${SITE_CONFIG.author}">T</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="subpage-hero-banner">
+    <div class="subpage-hero-container">
+      <div class="subpage-badge">
+        <span class="pill-dot"></span> 时间线索引 · 岁月留痕
+      </div>
+      <h1 class="subpage-title">全部文章归档</h1>
+      <div class="subpage-subtitle">TIMELINE ARCHIVES</div>
+      <p class="subpage-desc">按时间脉络记录的每篇思考、架构实践与生活随笔，共累计收录 ${posts.length} 篇文章。</p>
+    </div>
+  </div>
+
+  <main class="archives-container">
+    ${yearsHtml}
+  </main>
+
+  ${buildCommonWidgetsHtml()}
+
+  <footer class="site-footer">
+    <div class="footer-inner-container">
+      <div>© 2026 ${SITE_CONFIG.title}. All rights reserved.</div>
+      ${buildFooterNavHtml("archives", false)}
+    </div>
+  </footer>
+
+  <script>${CLIENT_SCRIPTS}</script>
+</body>
+</html>`;
+}
+
+/**
+ * 组装分类探索页面 HTML (/categories.html)
+ */
+export function buildCategoriesHtml(posts, categoriesMap) {
+  const categoriesHtml = Object.entries(categoriesMap)
+    .sort((a, b) => b[1].length - a[1].length)
+    .map(([cat, catPosts]) => {
+      return `
+      <div class="category-card" id="cat-${encodeURIComponent(cat)}">
+        <div class="category-card-header">
+          <h3 class="category-card-title">${cat}</h3>
+          <span class="category-card-count">${catPosts.length} 篇</span>
+        </div>
+        <div class="category-post-list">
+          ${catPosts
+            .map(
+              (p) => `
+            <a href="posts/${p.slug}.html" class="category-post-item">
+              <span class="category-post-title">${p.meta.title}</span>
+              <span class="category-post-date">${p.meta.date || ""}</span>
+            </a>`
+            )
+            .join("\n")}
+        </div>
+      </div>`;
+    })
+    .join("\n");
+
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分类探索 (Categories) - ${SITE_CONFIG.title}</title>
+  <meta name="description" content="${SITE_CONFIG.title} 全部分类聚合与主题探索">
+  ${buildZeroFoucScript()}
+  <style>
+:root {
+  --hero-bg: url('images/hero-bg.jpg');
+  --banner-bg: url('images/bottom-banner-clean.jpg'), url('images/bottom-banner.jpg');
+}
+${SITE_STYLES}
+  </style>
+</head>
+<body>
+  <div id="read-progress"></div>
+
+  <header class="article-page-header">
+    <div class="nav-container">
+      <a href="index.html" class="site-brand">
+        <span class="site-brand-icon">${ICONS.mountain}</span>
+        <span>${SITE_CONFIG.title}</span>
+      </a>
+      ${buildNavHtml("categories", false)}
+      <div class="nav-right-actions">
+        <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
+          ${ICONS.search}
+        </button>
+        ${buildThemePickerHtml()}
+        <button class="nav-action-btn" onclick="toggleTheme()" title="切换日夜模式">
+          <span id="theme-toggle-icon">${ICONS.moon}</span>
+        </button>
+        <a href="about.html" class="nav-avatar-btn" title="关于 ${SITE_CONFIG.author}">T</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="subpage-hero-banner">
+    <div class="subpage-hero-container">
+      <div class="subpage-badge">
+        <span class="pill-dot"></span> 结构化知识库 · 主题导航
+      </div>
+      <h1 class="subpage-title">文章分类聚合</h1>
+      <div class="subpage-subtitle">CATEGORIES DIRECTORY</div>
+      <p class="subpage-desc">按技术、产品、生活、成长等维度聚类的长文脉络，帮你快速定位感兴趣的知识领域。</p>
+    </div>
+  </div>
+
+  <main class="categories-container">
+    <div class="categories-grid">
+      ${categoriesHtml}
+    </div>
+  </main>
+
+  ${buildCommonWidgetsHtml()}
+
+  <footer class="site-footer">
+    <div class="footer-inner-container">
+      <div>© 2026 ${SITE_CONFIG.title}. All rights reserved.</div>
+      ${buildFooterNavHtml("categories", false)}
+    </div>
+  </footer>
+
+  <script>${CLIENT_SCRIPTS}</script>
+</body>
+</html>`;
+}
+
+/**
+ * 组装标签云与检索页面 HTML (/tags.html)
+ */
+export function buildTagsHtml(posts, tagsMap) {
+  const sortedTags = Object.entries(tagsMap).sort((a, b) => b[1].length - a[1].length);
+
+  const tagChipsHtml = sortedTags
+    .map(([tag, tagPosts]) => {
+      return `
+      <a href="#tag-${encodeURIComponent(tag)}" class="tag-cloud-chip">
+        <span># ${tag}</span>
+        <span class="tag-cloud-count">${tagPosts.length}</span>
+      </a>`;
+    })
+    .join("\n");
+
+  const tagSectionsHtml = sortedTags
+    .map(([tag, tagPosts]) => {
+      return `
+      <div class="tag-group-box" id="tag-${encodeURIComponent(tag)}">
+        <div class="tag-group-title">
+          ${ICONS.tag} <span>${tag}</span> <span class="subpage-badge" style="margin:0 0 0 auto;font-size:0.75rem;">${tagPosts.length} 篇</span>
+        </div>
+        <div class="category-post-list">
+          ${tagPosts
+            .map(
+              (p) => `
+            <a href="posts/${p.slug}.html" class="category-post-item">
+              <span class="category-post-title">${p.meta.title}</span>
+              <span class="category-post-date">${p.meta.date || ""}</span>
+            </a>`
+            )
+            .join("\n")}
+        </div>
+      </div>`;
+    })
+    .join("\n");
+
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>标签索引 (Tags) - ${SITE_CONFIG.title}</title>
+  <meta name="description" content="${SITE_CONFIG.title} 全部文章标签云与细分检索">
+  ${buildZeroFoucScript()}
+  <style>
+:root {
+  --hero-bg: url('images/hero-bg.jpg');
+  --banner-bg: url('images/bottom-banner-clean.jpg'), url('images/bottom-banner.jpg');
+}
+${SITE_STYLES}
+  </style>
+</head>
+<body>
+  <div id="read-progress"></div>
+
+  <header class="article-page-header">
+    <div class="nav-container">
+      <a href="index.html" class="site-brand">
+        <span class="site-brand-icon">${ICONS.mountain}</span>
+        <span>${SITE_CONFIG.title}</span>
+      </a>
+      ${buildNavHtml("tags", false)}
+      <div class="nav-right-actions">
+        <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
+          ${ICONS.search}
+        </button>
+        ${buildThemePickerHtml()}
+        <button class="nav-action-btn" onclick="toggleTheme()" title="切换日夜模式">
+          <span id="theme-toggle-icon">${ICONS.moon}</span>
+        </button>
+        <a href="about.html" class="nav-avatar-btn" title="关于 ${SITE_CONFIG.author}">T</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="subpage-hero-banner">
+    <div class="subpage-hero-container">
+      <div class="subpage-badge">
+        <span class="pill-dot"></span> 灵感词云 · 颗粒度检索
+      </div>
+      <h1 class="subpage-title">标签词云索引</h1>
+      <div class="subpage-subtitle">TAGS DIRECTORY</div>
+      <p class="subpage-desc">按细分技术点与关键词交叉索引，点击标签即可跳转查看关联的所有深度文章。</p>
+    </div>
+  </div>
+
+  <main class="tags-container">
+    <div class="tags-cloud-card">
+      ${tagChipsHtml}
+    </div>
+
+    <div class="tag-sections-container">
+      ${tagSectionsHtml}
+    </div>
+  </main>
+
+  ${buildCommonWidgetsHtml()}
+
+  <footer class="site-footer">
+    <div class="footer-inner-container">
+      <div>© 2026 ${SITE_CONFIG.title}. All rights reserved.</div>
+      ${buildFooterNavHtml("tags", false)}
+    </div>
+  </footer>
+
+  <script>${CLIENT_SCRIPTS}</script>
+</body>
+</html>`;
+}
+
+/**
+ * 组装关于我页面 HTML (/about.html)
+ */
+export function buildAboutHtml(aboutPost, aboutRenderedHtml, aboutToc) {
+  const tocHtml = aboutToc && aboutToc.length > 0
+    ? aboutToc.map(t => `<li class="toc-item toc-level-${t.level}"><a href="#${t.id}">${t.text}</a></li>`).join("\n")
+    : "";
+
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>关于我 (About Me) - ${SITE_CONFIG.title}</title>
+  <meta name="description" content="关于 ${SITE_CONFIG.author}，全栈开发者与独立创造者，记录技术、产品、生活与成长。">
+  ${buildZeroFoucScript()}
+  <style>
+:root {
+  --hero-bg: url('images/hero-bg.jpg');
+  --banner-bg: url('images/bottom-banner-clean.jpg'), url('images/bottom-banner.jpg');
+}
+${SITE_STYLES}
+  </style>
+</head>
+<body>
+  <div id="read-progress"></div>
+
+  <header class="article-page-header">
+    <div class="nav-container">
+      <a href="index.html" class="site-brand">
+        <span class="site-brand-icon">${ICONS.mountain}</span>
+        <span>${SITE_CONFIG.title}</span>
+      </a>
+      ${buildNavHtml("about", false)}
+      <div class="nav-right-actions">
+        <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
+          ${ICONS.search}
+        </button>
+        ${buildThemePickerHtml()}
+        <button class="nav-action-btn" onclick="toggleTheme()" title="切换日夜模式">
+          <span id="theme-toggle-icon">${ICONS.moon}</span>
+        </button>
+        <a href="about.html" class="nav-avatar-btn" title="关于 ${SITE_CONFIG.author}">T</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="subpage-hero-banner">
+    <div class="subpage-hero-container">
+      <div class="subpage-badge">
+        <span class="pill-dot"></span> 创造者档案 · 思考原点
+      </div>
+      <h1 class="subpage-title">关于作者与本站</h1>
+      <div class="subpage-subtitle">ABOUT THE CREATOR</div>
+      <p class="subpage-desc">“生活不在别处，就在当下的每一个选择里。” 记录技术、产品、生活与成长。</p>
+    </div>
+  </div>
+
+  <main class="about-wrapper">
+    <article class="about-card">
+      <div class="about-profile-header">
+        <div class="about-avatar">T</div>
+        <div class="about-name-block">
+          <h2 class="about-name">${SITE_CONFIG.author} (Weaving)</h2>
+          <div class="about-title-tag">全栈架构开发者 · 独立创造者 · 微信出版级排版倡导者</div>
+        </div>
+      </div>
+
+      <section class="article-content">
+        ${aboutRenderedHtml}
+      </section>
+
+      <!-- 微信公众号订阅卡片 -->
+      <section class="wechat-promo-card">
+        <div class="wechat-promo-text">
+          <h4>关注作者公众号「${SITE_CONFIG.wechatName}」</h4>
+          <p>本文由 Obsidian WeChat Publisher (obw) 出版级排版引擎生成并同步发布。深度技术实战与原创思考第一时间直达。</p>
+        </div>
+        <div class="wechat-qr-box">
+          <img src="${SITE_CONFIG.wechatQrUrl}" alt="公众号二维码" onerror="this.parentElement.style.display='none'">
+        </div>
+      </section>
+    </article>
+  </main>
+
+  ${buildCommonWidgetsHtml()}
+
+  <footer class="site-footer">
+    <div class="footer-inner-container">
+      <div>© 2026 ${SITE_CONFIG.title}. All rights reserved.</div>
+      ${buildFooterNavHtml("about", false)}
+    </div>
+  </footer>
+
+  <script>${CLIENT_SCRIPTS}</script>
+</body>
+</html>`;
+}
+
+/**
+ * 站点构建主函数
+ */
+export async function main() {
+  console.log("🚀 开始全量构建 Tan's Blog / Weaving's Notes 个人站点...");
 
   // 1. 初始化并清空目录
-  fs.mkdirSync(DIST_DIR, { recursive: true });
-  fs.mkdirSync(DIST_POSTS_DIR, { recursive: true });
-  fs.mkdirSync(DIST_IMAGES_DIR, { recursive: true });
+  if (!fs.existsSync(DIST_DIR)) fs.mkdirSync(DIST_DIR, { recursive: true });
+  if (!fs.existsSync(DIST_POSTS_DIR)) fs.mkdirSync(DIST_POSTS_DIR, { recursive: true });
+  if (!fs.existsSync(DIST_IMAGES_DIR)) fs.mkdirSync(DIST_IMAGES_DIR, { recursive: true });
 
-  // 2. 拷贝图片目录
+  // 2. 拷贝静态图片资源
   if (fs.existsSync(IMAGES_DIR)) {
-    fs.cpSync(IMAGES_DIR, DIST_IMAGES_DIR, { recursive: true });
-    console.log(`🖼️  已同步本地图片资源至 dist/images/`);
+    const images = fs.readdirSync(IMAGES_DIR);
+    for (const img of images) {
+      if (img.startsWith(".")) continue;
+      fs.copyFileSync(path.join(IMAGES_DIR, img), path.join(DIST_IMAGES_DIR, img));
+    }
+    console.log(`🖼️ 已同步 ${images.length} 个图片资源至 dist/images/`);
   }
 
-  // 3. 扫描并解析 posts 目录
-  if (!fs.existsSync(POSTS_DIR)) {
-    fs.mkdirSync(POSTS_DIR, { recursive: true });
-  }
-
-  const files = fs.readdirSync(POSTS_DIR).filter((f) => f.endsWith(".md"));
+  // 3. 扫描并解析文章
+  const postFiles = fs.readdirSync(POSTS_DIR).filter((f) => f.endsWith(".md"));
   const posts = [];
+  let aboutPost = null;
 
-  for (const filename of files) {
-    const slug = path.basename(filename, ".md");
-    const filePath = path.join(POSTS_DIR, filename);
+  for (const file of postFiles) {
+    const filePath = path.join(POSTS_DIR, file);
+    const slug = file.replace(/\.md$/, "");
     const rawContent = fs.readFileSync(filePath, "utf-8");
-
     const { meta, body } = parseFrontmatter(rawContent);
+
+    // 过滤草稿
+    if (meta.draft === true) {
+      console.log(`⏩ 跳过草稿文档: ${file}`);
+      continue;
+    }
+
     const readingStats = calculateReadingStats(body);
-
-    const cleanExcerpt = body
+    const rawExcerpt = body
       .replace(/:::[\s\S]*?:::/g, "")
-      .replace(/#+\s+.+/g, "")
-      .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1")
+      .replace(/```[\s\S]*?```/g, "")
+      .replace(/<[^>]+>/g, "")
+      .replace(/^[#>\s\-*]+/gm, "")
+      .replace(/\n+/g, " ")
       .trim()
-      .slice(0, 140)
-      .replace(/\s+/g, " ");
-
-    const renderedHtml = renderWithObw(body, SITE_CONFIG.theme);
-    const { toc, html: htmlWithAnchors } = extractToc(renderedHtml);
+      .slice(0, 160);
 
     const postItem = {
+      file,
       slug,
-      filename,
       meta,
+      body,
       readingStats,
-      rawExcerpt: cleanExcerpt,
-      toc,
-      html: htmlWithAnchors,
+      rawExcerpt,
     };
 
-    posts.push(postItem);
+    if (slug === "about") {
+      aboutPost = postItem;
+    } else {
+      posts.push(postItem);
+    }
   }
 
-  // 生成每篇文章详情页
+  // 4. 排序文章：优先考虑手动权重 order，其次按日期倒序
+  posts.sort((a, b) => {
+    if (a.meta.order !== undefined && b.meta.order !== undefined) {
+      return a.meta.order - b.meta.order;
+    }
+    if (a.meta.order !== undefined) return -1;
+    if (b.meta.order !== undefined) return 1;
+    const dateA = a.meta.date ? new Date(a.meta.date).getTime() : 0;
+    const dateB = b.meta.date ? new Date(b.meta.date).getTime() : 0;
+    return dateB - dateA;
+  });
+
+  // 5. 动态收集全部分类与标签
+  const categoriesMap = {};
+  const tagsMap = {};
+
   for (const post of posts) {
-    const postHtml = buildPostPageHtml(post, post.html, post.toc);
+    for (const cat of post.meta.categories || ["未分类"]) {
+      if (!categoriesMap[cat]) categoriesMap[cat] = [];
+      categoriesMap[cat].push(post);
+    }
+    for (const tag of post.meta.tags || []) {
+      if (!tagsMap[tag]) tagsMap[tag] = [];
+      tagsMap[tag].push(post);
+    }
+  }
+
+  const allCategories = Object.keys(categoriesMap).filter((c) => c !== "关于");
+
+  // 6. 生成每篇文章详情页 (dist/posts/*.html)
+  for (const post of posts) {
+    const preprocessed = preprocessMarkdown(post.body, true);
+    const rawRenderedHtml = renderWithObw(preprocessed, SITE_CONFIG.theme);
+    const adaptedHtml = adaptObwHtmlForWeb(rawRenderedHtml);
+    const { toc, html: processedHtml } = extractToc(adaptedHtml);
+
+    const postHtml = buildPostPageHtml(post, processedHtml, toc);
     fs.writeFileSync(path.join(DIST_POSTS_DIR, `${post.slug}.html`), postHtml, "utf-8");
     console.log(`✅ 已生成文章页面: dist/posts/${post.slug}.html`);
   }
 
-  // 分离精选文章与最新文章
-  let featuredPost = posts.find((p) => p.meta.featured === true || p.slug === "product-with-warmth");
+  // 7. 分离精选文章与最新文章
+  let featuredPost = posts.find((p) => p.meta.featured === true);
   if (!featuredPost) featuredPost = posts[0];
 
-  // 按照设计稿严格优先排列 4 篇最新文章
-  const designatedOrder = [
-    "hyperf-3-1-upgrade",
-    "solo-travel-seaside",
-    "personal-site-design",
-    "learning-motivation"
-  ];
+  const latestPosts = posts.filter((p) => p.slug !== featuredPost.slug);
 
-  const latestPosts = posts
-    .filter((p) => p.slug !== featuredPost.slug)
-    .sort((a, b) => {
-      const idxA = designatedOrder.indexOf(a.slug);
-      const idxB = designatedOrder.indexOf(b.slug);
-      if (idxA !== -1 && idxB !== -1) return idxA - idxB;
-      if (idxA !== -1) return -1;
-      if (idxB !== -1) return 1;
-      const dateA = a.meta.date ? new Date(a.meta.date).getTime() : 0;
-      const dateB = b.meta.date ? new Date(b.meta.date).getTime() : 0;
-      return dateB - dateA;
-    });
-
-  // 生成首页 index.html
-  const indexHtml = buildIndexPageHtml(posts, featuredPost, latestPosts);
+  // 8. 生成首页 (dist/index.html)
+  const indexHtml = buildIndexPageHtml(posts, featuredPost, latestPosts, allCategories);
   fs.writeFileSync(path.join(DIST_DIR, "index.html"), indexHtml, "utf-8");
-  console.log(`✅ 已生成首页归档: dist/index.html`);
+  console.log(`✅ 已生成首页: dist/index.html`);
+
+  // 9. 生成归档页 (dist/archives.html)
+  const archivesHtml = buildArchivesHtml(posts);
+  fs.writeFileSync(path.join(DIST_DIR, "archives.html"), archivesHtml, "utf-8");
+  console.log(`✅ 已生成归档页: dist/archives.html`);
+
+  // 10. 生成分类页 (dist/categories.html)
+  const categoriesHtml = buildCategoriesHtml(posts, categoriesMap);
+  fs.writeFileSync(path.join(DIST_DIR, "categories.html"), categoriesHtml, "utf-8");
+  console.log(`✅ 已生成分类页: dist/categories.html`);
+
+  // 11. 生成标签页 (dist/tags.html)
+  const tagsHtml = buildTagsHtml(posts, tagsMap);
+  fs.writeFileSync(path.join(DIST_DIR, "tags.html"), tagsHtml, "utf-8");
+  console.log(`✅ 已生成标签页: dist/tags.html`);
+
+  // 12. 生成关于我页面 (dist/about.html)
+  if (aboutPost) {
+    const preprocessed = preprocessMarkdown(aboutPost.body, false);
+    const rawRendered = renderWithObw(preprocessed, SITE_CONFIG.theme);
+    const adapted = adaptObwHtmlForWeb(rawRendered);
+    const { toc, html: processedHtml } = extractToc(adapted);
+    const aboutHtml = buildAboutHtml(aboutPost, processedHtml, toc);
+    fs.writeFileSync(path.join(DIST_DIR, "about.html"), aboutHtml, "utf-8");
+    console.log(`✅ 已从 posts/about.md 生成关于我页面: dist/about.html`);
+  } else {
+    // 默认关于我页面
+    const defaultAboutBody = `
+:::hero[关于 Tan · 数字花园主人]
+subtitle | 全栈开发者 · 独立创造者 · 终身学习者
+badge | 2026 个人画像
+:::
+
+:::summary[核心信条]
+highlight | “生活不在别处，就在当下的每一个选择里。”
+这里是我的个人数字花园与深度长文空间。在快节奏的技术迭代与碎片化信息中，我希望通过持续的阅读、动手与写作，沉淀真正具有长青价值的思考。
+:::
+
+## 👨‍💻 我是谁？
+你好！我是 Tan（在网络上也常以 Weaving 活跃）。一名热爱创造、专注细节的前端架构与全栈开发者。
+在日常工作中，我专注于现代前端工程体系、全端跨平台架构与高性能服务设计；在工作之余，我喜欢探索人机交互美学、排版艺术以及如何用技术提升日常工作与生活的幸福感。
+`;
+    const rawRendered = renderWithObw(defaultAboutBody, SITE_CONFIG.theme);
+    const adapted = adaptObwHtmlForWeb(rawRendered);
+    const { toc, html: processedHtml } = extractToc(adapted);
+    const aboutHtml = buildAboutHtml({ meta: { title: "关于我" }, readingStats: { totalWords: 300, readingTimeMin: 1 } }, processedHtml, toc);
+    fs.writeFileSync(path.join(DIST_DIR, "about.html"), aboutHtml, "utf-8");
+    console.log(`✅ 已生成默认关于我页面: dist/about.html`);
+  }
 
   console.log(`🎉 站点构建全部完成！输出目录：${DIST_DIR}`);
 }
 
-main().catch((err) => {
-  console.error("构建失败:", err);
-  process.exit(1);
-});
+// 若直接运行此脚本则执行 main
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    console.error("构建失败:", err);
+    process.exit(1);
+  });
+}

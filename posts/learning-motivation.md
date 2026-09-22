@@ -1,9 +1,10 @@
 ---
 title: 如何保持长期的学习动力
 date: 2025-09-10
-tags: [成长, 思考]
+categories: [成长]
+tags: [学习方法, 思考, 习惯养成]
 author: Tan
-cover: ../images/post-study.jpg
+cover: images/post-study.jpg
 views: 1.1k
 description: 分享我在学习过程中的一些方法和工具，以及如何克服拖延。
 ---

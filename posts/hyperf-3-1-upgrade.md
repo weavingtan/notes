@@ -1,9 +1,10 @@
 ---
 title: Hyperf 3.1 升级踩坑记录
 date: 2025-09-18
-tags: [技术, 后端]
+categories: [技术]
+tags: [后端, 微服务, 踩坑实录]
 author: Tan
-cover: ../images/post-hyperf.jpg
+cover: images/post-hyperf.jpg
 views: 856
 description: 从 2.2 升级到 3.1 过程中遇到的一些问题和解决方案，供大家参考。
 ---

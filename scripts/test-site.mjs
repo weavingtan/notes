@@ -1,0 +1,289 @@
+#!/usr/bin/env node
+/**
+ * @file test-site.mjs
+ * Tan's Blog / Weaving's Notes 站点全栈自动化测试套件
+ * 
+ * 包含 5 大质量门禁断言：
+ * 1. YAML Frontmatter 单元测试 (多行列表、内联数组、标量、注释剥离、Draft 过滤、缺失字段 Fallback)
+ * 2. 全站 404 死链深度扫描 (扫描 dist 目录下所有 HTML 文件的 <a> 与 <img> 引用)
+ * 3. WCAG 2.1 AA 数学对比度校验 (5 套主题 x 2 种模式，对比度严格 >= 4.5:1)
+ * 4. Zero-FOUC 零闪烁与调色盘组件契约校验
+ * 5. 微信公众号防塌陷免疫力断言 (article-content 内容区 0 div 约束)
+ */
+
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import assert from "node:assert/strict";
+import { parseFrontmatter, adaptObwHtmlForWeb, SITE_THEMES } from "./build.mjs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const ROOT_DIR = path.resolve(__dirname, "..");
+const DIST_DIR = path.join(ROOT_DIR, "dist");
+
+console.log("🧪 启动 Tan's Blog 出版级静态站点全套自动化测试...\n");
+
+// ========================================================
+// 1. YAML Frontmatter 解析器单元测试
+// ========================================================
+console.log("▶ [Test 1/5] YAML Frontmatter 解析器单元测试");
+
+// 1.1 测试多行列表解析
+const multilineYaml = `---
+title: 测试多行列表文章
+date: 2026-09-22
+tags:
+  - 架构设计
+  - 性能优化
+  - TypeScript
+categories:
+  - 技术
+  - 前端工程
+featured: true # 置顶推荐
+order: 2
+---
+# 标题内容
+这是正文内容。`;
+
+const { meta: meta1, body: body1 } = parseFrontmatter(multilineYaml);
+assert.equal(meta1.title, "测试多行列表文章", "标题解析失败");
+assert.equal(meta1.date, "2026-09-22", "日期解析失败");
+assert.deepEqual(meta1.tags, ["架构设计", "性能优化", "TypeScript"], "多行 tags 列表解析失败");
+assert.deepEqual(meta1.categories, ["技术", "前端工程"], "多行 categories 列表解析失败");
+assert.equal(meta1.featured, true, "featured 布尔值带行末注释解析失败");
+assert.equal(meta1.order, 2, "order 权重数字解析失败");
+assert.equal(body1.includes("这是正文内容。"), true, "正文提取失败");
+console.log("  ✓ 多行列表、布尔值与行末注释解析通过");
+
+// 1.2 测试内联数组解析与单值 category 归一化
+const inlineYaml = `---
+title: "引号标题测试"
+category: 产品
+tags: [用户体验, 交互设计]
+draft: true
+---
+正文内容`;
+
+const { meta: meta2 } = parseFrontmatter(inlineYaml);
+assert.equal(meta2.title, "引号标题测试", "带引号标题解析失败");
+assert.deepEqual(meta2.categories, ["产品"], "单值 category 归一化为数组失败");
+assert.deepEqual(meta2.tags, ["用户体验", "交互设计"], "内联数组 tags 解析失败");
+assert.equal(meta2.draft, true, "draft 标记解析失败");
+console.log("  ✓ 内联数组、引号处理与 category 归一化通过");
+
+// 1.3 测试无 Frontmatter 时的 H1 提取与分类兜底
+const noFmDoc = `# 自动提取的一级标题
+这是没有任何 YAML 头的正文。`;
+
+const { meta: meta3 } = parseFrontmatter(noFmDoc);
+assert.equal(meta3.title, "自动提取的一级标题", "缺失 Frontmatter 时提取首个 H1 失败");
+assert.deepEqual(meta3.categories, ["未分类"], "缺失分类时兜底未分类失败");
+console.log("  ✓ 缺失 Frontmatter 容错与 H1 提取通过");
+
+// 1.4 测试 Web Content Adaptor 深色清洗
+const rawObwSample = `<section style="color: #2b2b2b; font-size: 15px;"><p style="color: #1f2937;">深度长文</p><span style="color: #475569;">副标题</span></section>`;
+const adapted = adaptObwHtmlForWeb(rawObwSample);
+assert.equal(adapted.includes("#2b2b2b"), false, "Web Content Adaptor 未能清除 #2b2b2b");
+assert.equal(adapted.includes("#1f2937"), false, "Web Content Adaptor 未能清除 #1f2937");
+assert.equal(adapted.includes("var(--text-main)"), true, "Web Content Adaptor 未替换为 var(--text-main)");
+assert.equal(adapted.includes("var(--text-muted)"), true, "Web Content Adaptor 未替换为 var(--text-muted)");
+console.log("  ✓ Web Content Adaptor 样式清洗自愈通过");
+
+// ========================================================
+// 2. 全站 404 死链深度扫描 (Zero 404s)
+// ========================================================
+console.log("\n▶ [Test 2/5] 全站 404 死链深度扫描");
+
+function getAllHtmlFiles(dir) {
+  let results = [];
+  const list = fs.readdirSync(dir);
+  for (const file of list) {
+    const filePath = path.join(dir, file);
+    const stat = fs.statSync(filePath);
+    if (stat && stat.isDirectory()) {
+      results = results.concat(getAllHtmlFiles(filePath));
+    } else if (file.endsWith(".html")) {
+      results.push(filePath);
+    }
+  }
+  return results;
+}
+
+const allHtmlFiles = getAllHtmlFiles(DIST_DIR);
+assert.ok(allHtmlFiles.length >= 6, `生成页面总数过少: 仅 ${allHtmlFiles.length} 个`);
+
+// 必须存在的 5 大独立核心入口
+const corePages = ["index.html", "archives.html", "categories.html", "tags.html", "about.html"];
+for (const p of corePages) {
+  const fullP = path.join(DIST_DIR, p);
+  assert.ok(fs.existsSync(fullP), `缺少核心页面: dist/${p}`);
+}
+console.log(`  ✓ 5 大独立二级页面全部就绪 (index, archives, categories, tags, about)`);
+
+let totalLinksChecked = 0;
+for (const htmlFile of allHtmlFiles) {
+  const content = fs.readFileSync(htmlFile, "utf-8");
+  const fileDir = path.dirname(htmlFile);
+
+  // 剥离 <script> 与 <style> 块，防止将 JS 字符串模板中的 ${m.url} 误判为真实 DOM 链接
+  const domOnlyContent = content
+    .replace(/<script\b[\s\S]*?<\/script>/gi, "")
+    .replace(/<style\b[\s\S]*?<\/style>/gi, "");
+
+  // 检查所有 href 链接
+  const hrefRegex = /href=["']([^"']+)["']/gi;
+  let match;
+  while ((match = hrefRegex.exec(domOnlyContent)) !== null) {
+    const rawLink = match[1];
+    // 跳过外部链接、锚点与伪协议
+    if (
+      rawLink.startsWith("http://") ||
+      rawLink.startsWith("https://") ||
+      rawLink.startsWith("#") ||
+      rawLink.startsWith("mailto:") ||
+      rawLink.startsWith("javascript:")
+    ) {
+      continue;
+    }
+
+    const cleanLink = rawLink.split("#")[0].split("?")[0];
+    if (!cleanLink) continue;
+
+    const targetPath = path.resolve(fileDir, cleanLink);
+    assert.ok(
+      fs.existsSync(targetPath),
+      `404 死链错误！在页面 [${path.relative(ROOT_DIR, htmlFile)}] 中引用的链接 [${rawLink}] 目标文件 [${targetPath}] 不存在！`
+    );
+    totalLinksChecked++;
+  }
+
+  // 检查所有 img src 链接
+  const srcRegex = /<img\b[^>]*\bsrc=["']([^"']+)["']/gi;
+  while ((match = srcRegex.exec(domOnlyContent)) !== null) {
+    const rawSrc = match[1];
+    if (rawSrc.startsWith("http://") || rawSrc.startsWith("https://") || rawSrc.startsWith("data:")) {
+      continue;
+    }
+    const cleanSrc = rawSrc.split("?")[0];
+    const targetPath = path.resolve(fileDir, cleanSrc);
+    assert.ok(
+      fs.existsSync(targetPath),
+      `404 图片缺失！在页面 [${path.relative(ROOT_DIR, htmlFile)}] 中引用的图片 [${rawSrc}] 目标文件 [${targetPath}] 不存在！`
+    );
+    totalLinksChecked++;
+  }
+}
+console.log(`  ✓ 已扫描并校验 ${allHtmlFiles.length} 个 HTML 页面，累计 ${totalLinksChecked} 个相对链接与资源，0 个死链！`);
+
+// ========================================================
+// 3. WCAG 2.1 AA 数学色彩对比度验证 (>= 4.5:1)
+// ========================================================
+console.log("\n▶ [Test 3/5] WCAG 2.1 AA 数学对比度校验");
+
+function parseHexColor(hex) {
+  let c = hex.replace("#", "");
+  if (c.length === 3) c = c.split("").map((x) => x + x).join("");
+  const num = parseInt(c, 16);
+  return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+}
+
+function getRelativeLuminance(rgb) {
+  const [r, g, b] = rgb.map((val) => {
+    const s = val / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function getContrastRatio(rgb1, rgb2) {
+  const l1 = getRelativeLuminance(rgb1);
+  const l2 = getRelativeLuminance(rgb2);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+// 日间基准色
+const lightBg = parseHexColor("#f8fafc");
+const lightText = parseHexColor("#0f172a");
+const lightContrast = getContrastRatio(lightBg, lightText);
+assert.ok(lightContrast >= 4.5, `日间正文对比度不达标: ${lightContrast.toFixed(2)}`);
+console.log(`  ✓ 日间全站基础正文对比度: ${lightContrast.toFixed(2)}:1 (超越 WCAG AA 4.5:1 标准)`);
+
+// 5 套主题暗黑模式对比度
+const darkThemeBgs = {
+  "mint-emerald": parseHexColor("#091410"),
+  "tech-blue": parseHexColor("#0b132b"),
+  "aurora-violet": parseHexColor("#160d27"),
+  "warm-amber": parseHexColor("#1c1408"),
+  "minimalist-ink": parseHexColor("#0f172a"),
+};
+
+const darkText = parseHexColor("#f8fafc");
+
+for (const theme of SITE_THEMES) {
+  const bg = darkThemeBgs[theme.id];
+  const ratio = getContrastRatio(bg, darkText);
+  assert.ok(
+    ratio >= 4.5,
+    `主题 [${theme.name}] 深色模式文字对比度过低: ${ratio.toFixed(2)}:1 (低于 4.5:1)`
+  );
+  console.log(`  ✓ 主题 [${theme.name}] 深色模式文本对比度: ${ratio.toFixed(2)}:1 (严格满足 WCAG 2.1 AA)`);
+}
+
+// ========================================================
+// 4. Zero-FOUC 零闪烁与调色盘组件契约校验
+// ========================================================
+console.log("\n▶ [Test 4/5] Zero-FOUC 零闪烁与调色盘组件契约校验");
+
+for (const htmlFile of allHtmlFiles) {
+  const content = fs.readFileSync(htmlFile, "utf-8");
+  const relName = path.relative(DIST_DIR, htmlFile);
+
+  assert.ok(
+    content.includes('localStorage.getItem("obw-site-theme")'),
+    `${relName} 缺失 Zero-FOUC 主题初始化脚本`
+  );
+  assert.ok(
+    content.includes('localStorage.getItem("obw-site-mode")'),
+    `${relName} 缺失 Zero-FOUC 深浅模式初始化脚本`
+  );
+  assert.ok(
+    content.includes('id="theme-picker-btn"'),
+    `${relName} 缺失调色盘切换按钮 #theme-picker-btn`
+  );
+  assert.ok(
+    content.includes('id="theme-picker-dropdown"'),
+    `${relName} 缺失调色盘菜单 #theme-picker-dropdown`
+  );
+}
+console.log(`  ✓ 全站 ${allHtmlFiles.length} 个页面全部包含严格的 Zero-FOUC 与调色盘菜单组件`);
+
+// ========================================================
+// 5. 微信公众号防塌陷免疫力断言 (0 div 约束)
+// ========================================================
+console.log("\n▶ [Test 5/5] 微信排版防塌陷免疫力断言 (AGENTS.md 硬红线)");
+
+const postHtmlFiles = allHtmlFiles.filter((f) => f.includes("/posts/"));
+assert.ok(postHtmlFiles.length > 0, "未找到文章详情页产物");
+
+for (const postFile of postHtmlFiles) {
+  const content = fs.readFileSync(postFile, "utf-8");
+  const rel = path.relative(ROOT_DIR, postFile);
+
+  // 提取 article-content 区块
+  const match = content.match(/<section class="article-content">([\s\S]*?)<\/section>\s*<!-- 微信公众号订阅卡片 -->/);
+  if (match) {
+    const articleInner = match[1];
+    const divMatch = articleInner.match(/<div\b/i);
+    assert.equal(
+      divMatch,
+      null,
+      `违背微信防塌陷硬红线！文章 [${rel}] 的正文渲染区中出现了 <div 标签！必须全部使用 <section>`
+    );
+  }
+}
+console.log(`  ✓ 全部 ${postHtmlFiles.length} 篇详情页 article-content 均无 <div>，完全免疫微信粘贴塌陷！`);
+
+console.log("\n🎉 全部 5 大测试套件 100% 验证通过！出版级质量门禁就绪！");

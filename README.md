@@ -1,86 +1,96 @@
 # Weaving's Notes - 个人数字花园与出版级文章站
 
 基于 [Obsidian WeChat Publisher (obw)](https://github.com/weavingtan/obw) 驱动的个人 Notes 静态站点。
-所有文章通过 GitHub Actions 自动构建部署至 GitHub Pages，与微信公众号排版保持 100% 视觉对齐，同时专为宽屏阅读打造了高颜值响应式体验。
+所有文章通过 GitHub Actions 自动构建部署至 GitHub Pages，与微信公众号排版保持 100% 视觉对齐，同时专为宽屏阅读打造了高颜值响应式体验与独立页面体系。
+
+---
 
 ## 🌟 核心特色
 
 - **出版级美学排版**：100% 承接公众号 37 个全能高级视觉指令（指标、卡片、对比、图表、引用、金句、步骤流等）；
-- **优雅暗黑模式**：纯正深色美学，随系统偏好自动切换，支持平滑一键切换并记住偏好；
-- **智能随动目录 (TOC)**：桌面端右侧配备 ScrollSpy 浮动目录，实时追踪长文阅读进度；
-- **双端自适应**：手机端（375px~430px）如同微信文章般精致轻巧，桌面端与 iPad 端自动舒展为多列流体卡片；
-- **微信生态闭环**：文末自动附带公众号一键关注与引流卡片，建立个人私域沉淀；
-- **GitHub Actions 零配置自动化**：在 Obsidian 中点击发布草稿，自动提交 Markdown 与配图，GitHub Pages 自动编译上线。
+- **五套高定全站风格**：薄荷翡翠 (默认)、科技深蓝、极光鸢尾、暖阳琥珀、极简水墨，支持 Zero-FOUC 零闪烁秒切；
+- **优雅暗黑模式**：WCAG 2.1 AA 数学对比度认证 (文本对比度高达 17:1)，彻底根治公众号内联深色文字在夜间看不清的兼容性问题；
+- **五大独立页面体系**：
+  - `首页` (`/index.html`)：晨曦全景 Hero + 精选杂志大卡片 + 最新卡片流 + 动态分类联动筛选
+  - `归档` (`/archives.html`)：按年份月份倒序垂直时间线索引
+  - `分类` (`/categories.html`)：基于 Frontmatter 动态聚合的全站分类探索卡片
+  - `标签` (`/tags.html`)：可视化标签云与颗粒度关键词索引
+  - `关于` (`/about.html`)：独立的作者档案与信条页面（支持直接由 Obsidian `posts/about.md` 驱动）
+- **动态数据驱动**：分类药丸、标签统计、文章排序、精选推荐全部 100% 由 Markdown Frontmatter 动态计算，零硬编码；
+- **Obsidian 深度互通**：支持 Obsidian 内部双向链接（`[[slug|标题]]`）、多行 YAML 语法、Callouts 标注块与特殊页面一键生成；
+- **微信生态闭环**：文末自动附带公众号一键关注与引流卡片，建立个人长青知识资产与私域沉淀；
+- **严苛质量门禁**：内置 `npm test` 自动化测试套件（YAML 单元测试、全站 404 死链扫描、WCAG AA 色彩对比度断言、微信防塌陷 0 div 检查）。
 
 ---
 
-## 🚀 快速初始化指南（部署到你的 GitHub）
+## 📂 页面体系与目录规范
 
-### 步骤 1：在 GitHub 创建个人主页仓库
-1. 打开 GitHub，点击 **New repository**；
-2. 仓库名填写：`weavingtan.github.io`（直接绑定你的 GitHub 顶级域名）；
-3. 权限选择 **Public**。
-
-### 步骤 2：推送本模版至该仓库
-在本地打开终端，进入本模版目录：
-```bash
-cd templates/notes-site
-git init
-git branch -M main
-git remote add origin git@github.com:weavingtan/weavingtan.github.io.git
-git add .
-git commit -m "feat: initialize notes site with obw engine"
-git push -u origin main
+```text
+weavingtan/notes/
+├── posts/                      # 核心文章归档目录
+│   ├── welcome.md              # 普通博客文章
+│   ├── frontend-arch.md
+│   └── about.md                # [可选] 独立的「关于我」页面源文件！
+├── images/                     # 文章插入的本地图片资源目录
+│   ├── hero-bg.jpg             # 首页晨曦 Hero 全景壁纸 (1774 x 887)
+│   ├── bottom-banner.jpg       # 底部月升夜景互动横幅 (2103 x 748)
+│   ├── featured-fuji.jpg       # 精选文章封面
+│   └── wechat-qr.png           # 公众号二维码
+├── docs/
+│   ├── OBSIDIAN_SYNC_GUIDE.md  # 详细的 Obsidian 写作与同步实战指南
+│   └── superpowers/specs/      # 站点全系统架构设计规范
+├── scripts/
+│   ├── build.mjs               # 核心构建流水线 (含 Web Content Adaptor)
+│   └── test-site.mjs           # 全套自动化测试套件 (404 扫描 / 对比度 / 免疫力)
+└── package.json
 ```
 
-### 步骤 3：开启 GitHub Pages 权限
-1. 打开你的 GitHub 仓库 `weavingtan.github.io`；
-2. 进入 **Settings** → **Pages**；
-3. 在 **Build and deployment** 下的 **Source** 下拉框中，选择 **GitHub Actions**。
-
-等待 1 分钟左右，GitHub Actions 构建完毕后，你的个人网站即会在：
-👉 `https://weavingtan.github.io` 正式上线！
-
 ---
 
-## ✍️ 日常写作与发布规范
+## ✍️ Obsidian 写作与同步规范
 
-### 1. 写作格式示例 (`posts/my-new-post.md`)
-每篇文章开头可添加标准 Frontmatter：
-```markdown
+详细指南见：[`docs/OBSIDIAN_SYNC_GUIDE.md`](docs/OBSIDIAN_SYNC_GUIDE.md)。
+
+每篇文章开头使用标准 YAML Frontmatter：
+
+```yaml
 ---
-title: 深入探讨现代前端工程架构
+title: 2026 现代前端工程架构：从出版级排版到全栈沉浸式体验
 date: 2026-09-22
-tags: [前端, 架构, 思考]
+categories:
+  - 技术
+  - 前端工程
+tags:
+  - 架构设计
+  - 性能优化
 author: Weaving
-description: 本文梳理模块化设计与微前端的落地实战。
+description: 探讨现代前端工程实践与高定排版系统...
+featured: true          # 设为 true 时作为首页精选大卡片
+cover: images/fuji.jpg  # 封面配图相对路径
+order: 1                # 可选手动排序权重 (越小越靠前)
+draft: false            # 设为 true 时本地草稿，构建自动跳过
 ---
-
-:::hero[前端工程化新范式]
-subtitle | 从打包器演进看 Web 开发未来十年的趋势
-:::
-
-正文内容...
 ```
-
-### 2. 放置本地配图 (`images/`)
-在 Markdown 中引用配图时，使用相对路径：
-```markdown
-![架构拓扑图](../images/arch.png)
-```
-将 `arch.png` 放入 `images/` 目录即可，构建脚本会自动将其同步到静态站点产物中。
 
 ---
 
-## 🛠️ 本地预览调试
+## 🛠️ 本地预览与回归测试
 
 ```bash
-# 1. 安装依赖（支持通过 GitHub 仓库引用 obw）
+# 1. 安装依赖
 npm install
 
-# 2. 编译生成静态站点 (输出至 dist/)
-npm run build
+# 2. 执行全量构建与自动化回归测试 (5 大测试全部通过方可提交)
+npm test
 
 # 3. 本地启动服务预览
 npm run serve
+# 浏览器访问 http://localhost:3000 查看全部页面
 ```
+
+---
+
+## 🚢 自动化持续交付 (CI/CD)
+
+项目在 `.github/workflows/deploy.yml` 中配置了 GitHub Actions 持续交付流水线：
+每次将修改推送到 `main` 分支后，GitHub Actions 会自动运行 `npm test` 进行全套单元测试、死链扫描与构建，并自动部署到 GitHub Pages。

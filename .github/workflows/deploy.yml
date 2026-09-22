@@ -29,8 +29,8 @@ jobs:
         with:
           node-version: 20
 
-      - name: Build site
-        run: node scripts/build.mjs
+      - name: Test and Build site
+        run: npm test
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

@@ -1,9 +1,10 @@
 ---
 title: 一个人的旅行：在海边的 7 天
 date: 2025-09-15
-tags: [生活, 随笔]
+categories: [生活]
+tags: [独处旅行, 看海随笔, 生活慢调]
 author: Tan
-cover: ../images/post-travel.jpg
+cover: images/post-travel.jpg
 views: 1.5k
 description: 放下工作，去看海，去感受不同的城市和生活节奏。
 ---

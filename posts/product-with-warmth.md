@@ -1,9 +1,10 @@
 ---
 title: 做一个有温度的产品：从用户的真实需求出发
 date: 2025-09-20
-tags: [产品思考, 产品设计]
+categories: [产品]
+tags: [产品思考, 用户体验, 设计美学]
 author: Tan
-cover: ../images/featured-fuji.jpg
+cover: images/featured-fuji.jpg
 featured: true
 views: 1.2k
 comments: 32
