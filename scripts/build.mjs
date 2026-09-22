@@ -35,6 +35,8 @@ import { execFileSync } from "node:child_process";
 // 探测可用的 obw CLI 路径
 function findObwCli() {
   const candidates = [
+    path.resolve(ROOT_DIR, "bin/obw.cjs"),
+    path.resolve(ROOT_DIR, "bin/obw.js"),
     path.resolve(ROOT_DIR, "../../bin/obw.js"),
     path.resolve(ROOT_DIR, "node_modules/obsidian-wechat-publisher/bin/obw.js"),
     path.resolve(ROOT_DIR, "../node_modules/obsidian-wechat-publisher/bin/obw.js"),

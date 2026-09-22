@@ -6,8 +6,5 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "serve": "npx serve dist"
-  },
-  "dependencies": {
-    "obsidian-wechat-publisher": "github:weavingtan/obw#main"
   }
 }
