@@ -2655,111 +2655,403 @@ button {
 }
 
 /* ========================================================
-   时间线归档页面 (Archives)
+   Editorial Magazine Archive Timeline (1:1 Reference Image 2)
    ======================================================== */
-.archives-container {
-  max-width: 860px;
-  margin: 40px auto 80px;
-  padding: 0 24px;
-}
 
-.timeline-year-group {
-  margin-bottom: 48px;
-  position: relative;
-}
-
-.timeline-year-header {
+/* Chapter 1: Archive Hero (3 Columns) */
+.archive-hero {
   display: flex;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 24px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--border-color);
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 36px;
+  padding: 48px 0 64px 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 56px;
 }
 
-.timeline-year-number {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--primary);
-  font-family: var(--font-sans);
+.archive-hero-col-left {
+  flex: 0 0 32%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
 }
 
-.timeline-year-count {
-  font-size: 0.88rem;
+.archive-hero-title {
+  font-size: clamp(1.85rem, 3.2vw, 2.6rem);
+  font-weight: 850;
+  line-height: 1.28;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+  margin: 16px 0 16px 0;
+}
+
+.archive-hero-desc {
+  font-size: 0.96rem;
+  line-height: 1.68;
   color: var(--text-muted);
-  font-weight: 550;
+  margin: 0;
 }
 
-.timeline-list {
+.archive-hero-col-center {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--bg-subtle);
   position: relative;
-  padding-left: 28px;
+  min-height: 320px;
 }
 
-.timeline-list::before {
-  content: "";
-  position: absolute;
-  top: 6px;
-  bottom: 6px;
-  left: 7px;
-  width: 2px;
-  background: var(--border-color);
+.archive-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.timeline-item {
-  position: relative;
+.archive-hero-col-center:hover .archive-hero-img {
+  transform: scale(1.03);
+}
+
+.archive-hero-col-right {
+  flex: 0 0 18%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-width: 0;
+  padding-left: 20px;
+  border-left: 1px solid var(--border-subtle, var(--border-color));
+}
+
+.archive-filter-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 24px;
+}
+
+.archive-filter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.archive-filter-link {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 14px 0;
-  transition: transform 0.2s ease;
-}
-
-.timeline-item:hover {
-  transform: translateX(4px);
-}
-
-.timeline-bullet {
-  position: absolute;
-  left: -28px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--bg-card);
-  border: 3px solid var(--primary);
-  box-shadow: 0 0 0 3px var(--bg-page);
+  justify-content: space-between;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.86rem;
+  font-weight: 650;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 6px 0;
+  border-bottom: 1px solid transparent;
   transition: all 0.2s ease;
 }
 
-.timeline-item:hover .timeline-bullet {
-  background: var(--primary);
-  transform: scale(1.2);
-}
-
-.timeline-date {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  color: var(--text-light);
-  width: 52px;
-  flex-shrink: 0;
-}
-
-.timeline-title-link {
-  font-size: 1.02rem;
-  font-weight: 600;
-  color: var(--text-main);
-  flex: 1;
-  transition: color 0.2s ease;
-}
-
-.timeline-title-link:hover {
+.archive-filter-link:hover,
+.archive-filter-link.active {
   color: var(--primary);
+  border-bottom-color: var(--primary);
+  transform: translateX(3px);
 }
 
-.timeline-meta {
+/* Year Blocks Container */
+.archive-years-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.year-block {
+  display: flex;
+  align-items: stretch;
+  gap: 40px;
+  padding: 56px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.year-block:first-child {
+  padding-top: 16px;
+}
+
+.year-block:last-child {
+  border-bottom: none;
+}
+
+/* Left Column: Year Summary */
+.year-col-left {
+  flex: 0 0 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.year-number {
+  font-family: var(--font-mono, monospace);
+  font-size: 2.8rem;
+  font-weight: 850;
+  line-height: 1;
+  color: var(--text-main);
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+
+.year-reflection {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin: 0 0 20px 0;
+}
+
+.year-count-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono, monospace);
   font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-light);
+  padding: 4px 12px;
+  background: var(--bg-subtle);
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+}
+
+/* Middle Column: Dotted Timeline */
+.year-timeline-dots {
+  flex: 0 0 60px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.timeline-dot-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  padding-top: 12px;
+}
+
+.timeline-dot-stem {
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  border-left: 1.5px dashed var(--border-color);
+  z-index: 1;
+}
+
+.timeline-dot-node {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 48px;
+}
+
+.timeline-dot-node:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-dot-circle {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--bg-page, #fff);
+  border: 2px solid var(--primary);
+  margin-bottom: 6px;
+  box-shadow: 0 0 0 3px var(--bg-page);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.timeline-dot-node:hover .timeline-dot-circle {
+  transform: scale(1.3);
+  background: var(--primary);
+}
+
+.timeline-dot-month {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 600;
   color: var(--text-light);
   white-space: nowrap;
 }
+
+/* Right Column: 2-column flex stream of rich editorial entries */
+.year-col-right {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.archive-entries-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px 28px;
+}
+
+.archive-entry-card {
+  flex: 0 0 calc(50% - 14px);
+  max-width: calc(50% - 14px);
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  transition: transform 0.2s ease;
+}
+
+.archive-entry-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-subtle);
+  margin-bottom: 14px;
+}
+
+.archive-entry-img-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+}
+
+.archive-entry-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.archive-entry-card:hover .archive-entry-img {
+  transform: scale(1.04);
+}
+
+.archive-entry-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  color: var(--text-light);
+  margin-bottom: 8px;
+}
+
+.archive-entry-date {
+  color: var(--text-muted);
+}
+
+.archive-entry-sep {
+  color: var(--border-color);
+}
+
+.archive-entry-category {
+  color: var(--primary);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.archive-entry-title {
+  font-size: 1.1rem;
+  font-weight: 750;
+  line-height: 1.45;
+  margin: 0 0 10px 0;
+}
+
+.archive-entry-title-link {
+  color: var(--text-main);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.archive-entry-title-link:hover {
+  color: var(--primary);
+}
+
+.archive-entry-footer {
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+}
+
+.archive-entry-time {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* Bottom Pagination */
+.archive-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 0 24px 0;
+  border-top: 1px solid var(--border-color);
+  margin-top: 48px;
+}
+
+.archive-total-count {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.archive-pagination-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination-arrow,
+.pagination-page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.pagination-arrow:hover:not(.disabled),
+.pagination-page:hover {
+  color: var(--primary);
+  border-color: var(--border-color);
+  background: var(--bg-subtle);
+}
+
+.pagination-page.active {
+  color: #ffffff !important;
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.pagination-arrow.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 
 /* ========================================================
    分类探索页面 (Categories)
@@ -3384,6 +3676,25 @@ body.focus-reading-mode .focus-mode-exit-btn {
   .article-toc-sidebar {
     display: none;
   }
+  .selected-writings-stream {
+    flex-wrap: wrap;
+  }
+  .selected-stream-item {
+    flex: 1 1 calc(50% - 1px);
+    border-bottom: 1px solid var(--border-color);
+  }
+  .selected-stream-item:nth-child(2n) {
+    border-right: none;
+  }
+  .archive-hero {
+    gap: 24px;
+  }
+  .year-block {
+    gap: 28px;
+  }
+  .year-col-left {
+    flex: 0 0 170px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -3570,6 +3881,53 @@ body.focus-reading-mode .focus-mode-exit-btn {
   .footprint-footer-row {
     flex-direction: column;
     gap: 12px;
+  }
+  /* 归档页编辑部时间线响应式 */
+  .archive-hero {
+    flex-direction: column;
+    gap: 28px;
+    padding: 24px 0 36px 0;
+  }
+  .archive-hero-col-left,
+  .archive-hero-col-right {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+  .archive-hero-col-right {
+    padding-left: 0;
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+  }
+  .archive-filter-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .year-block {
+    flex-direction: column;
+    gap: 24px;
+    padding: 36px 0;
+  }
+  .year-col-left {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+  .year-timeline-dots {
+    display: none;
+  }
+  .archive-entries-grid {
+    flex-direction: column;
+    gap: 24px;
+  }
+  .archive-entry-card {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+  .archive-pagination {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
   }
   .bottom-comm-banner {
     padding: 36px 16px;
@@ -4499,6 +4857,7 @@ ${SITE_STYLES}
 
 /**
  * 组装时间线归档页面 HTML (/archives.html)
+ * 1:1 复刻编辑部杂志时间线 (Reference Image 2)
  */
 export function buildArchivesHtml(posts, searchIndex = []) {
   // 按年份分组
@@ -4515,35 +4874,90 @@ export function buildArchivesHtml(posts, searchIndex = []) {
     yearGroups[year].push(p);
   }
 
-  const yearsHtml = Object.keys(yearGroups)
-    .sort((a, b) => parseInt(b, 10) - parseInt(a, 10))
-    .map((year) => {
-      const yearPosts = yearGroups[year];
+  const YEAR_REFLECTIONS = {
+    "2026": "这一年，我更关注生活的质感与思考的深度。重构感知，在代码与文字间探寻数字世界的温度与秩序。",
+    "2025": "在代码与现实的交织中寻找秩序，沉淀关于架构、设计与自我成长的答案。",
+    "2024": "探索未知与可能，跨越不同技术栈的边界，以文字作为思考的锚点与心智的索引。",
+  };
+
+  const fallbackImages = [
+    "images/post-design.jpg",
+    "images/post-study.jpg",
+    "images/post-hyperf.jpg",
+    "images/post-travel.jpg",
+    "images/featured-fuji.jpg",
+    "images/hero-architecture.jpg",
+    "images/hero-daily.jpg",
+  ];
+
+  const sortedYears = Object.keys(yearGroups).sort((a, b) => parseInt(b, 10) - parseInt(a, 10));
+
+  const yearsHtml = sortedYears.map((year) => {
+    const yearPosts = yearGroups[year];
+    const yearReflection = YEAR_REFLECTIONS[year] || "这一年，我更关注生活的质感与思考的深度。";
+
+    // 提取该年份下所有月份并去重倒序
+    const monthList = [...new Set(yearPosts.map(p => {
+      const d = p.meta.date || `${year}-01-01`;
+      return d.slice(5, 7) + "月";
+    }))].sort().reverse();
+
+    const monthNodesHtml = monthList.map((m) => `
+          <section class="timeline-dot-node" style="box-sizing: border-box;">
+            <span class="timeline-dot-circle"></span>
+            <span class="timeline-dot-month">${m}</span>
+          </section>`).join("\n");
+
+    const entriesHtml = yearPosts.map((p, idx) => {
+      const rawCover = p.meta.cover ? p.meta.cover.replace(/^\.\.\//, "") : "";
+      const coverUrl = rawCover || fallbackImages[idx % fallbackImages.length];
+      const dateStr = p.meta.date ? p.meta.date.slice(5).replace(/-/g, ".") : "01.01";
+      const cat = (p.meta.categories && p.meta.categories[0]) || (p.meta.tags && p.meta.tags[0]) || "随笔";
+      const readingMin = p.readingStats ? p.readingStats.readingTimeMin : 4;
+
       return `
-      <section class="timeline-year-group">
-        <div class="timeline-year-header">
-          <span class="timeline-year-number">${year}</span>
-          <span class="timeline-year-count">共 ${yearPosts.length} 篇</span>
-        </div>
-        <div class="timeline-list">
-          ${yearPosts
-            .map((p) => {
-              const dateStr = p.meta.date ? p.meta.date.slice(5) : "01-01";
-              const cat = (p.meta.categories && p.meta.categories[0]) || "随笔";
-              return `
-            <div class="timeline-item">
-              <div class="timeline-bullet"></div>
-              <span class="timeline-date">${dateStr}</span>
-              <span class="theme-pill" style="padding:2px 8px;font-size:0.75rem;">${cat}</span>
-              <a href="posts/${p.slug}.html" class="timeline-title-link">${p.meta.title}</a>
-              <span class="timeline-meta">${ICONS.clock} 约 ${p.readingStats.readingTimeMin} 分钟</span>
-            </div>`;
-            })
-            .join("\n")}
-        </div>
+            <section class="archive-entry-card" style="box-sizing: border-box;">
+              <section class="archive-entry-thumb" style="box-sizing: border-box;">
+                <a href="posts/${p.slug}.html" class="archive-entry-img-link" tabindex="-1" aria-hidden="true">
+                  <img src="${coverUrl}" alt="${p.meta.title}" class="archive-entry-img" loading="lazy" onerror="this.src='images/hero-daily.jpg'">
+                </a>
+              </section>
+              <section class="archive-entry-header" style="box-sizing: border-box;">
+                <span class="archive-entry-date">${dateStr}</span>
+                <span class="archive-entry-sep">·</span>
+                <span class="archive-entry-category" style="color: var(--primary);">${cat.toUpperCase()}</span>
+              </section>
+              <h3 class="archive-entry-title">
+                <a href="posts/${p.slug}.html" class="archive-entry-title-link">${p.meta.title}</a>
+              </h3>
+              <section class="archive-entry-footer" style="box-sizing: border-box;">
+                <span class="archive-entry-time">${readingMin} min read</span>
+              </section>
+            </section>`;
+    }).join("\n");
+
+    return `
+      <section class="year-block" style="box-sizing: border-box;">
+        <section class="year-col-left" style="box-sizing: border-box;">
+          <span class="year-number">${year}</span>
+          <p class="year-reflection">${yearReflection}</p>
+          <span class="year-count-badge">${yearPosts.length} 篇文章</span>
+        </section>
+
+        <section class="year-timeline-dots" style="box-sizing: border-box;">
+          <section class="timeline-dot-track" style="box-sizing: border-box;">
+            <span class="timeline-dot-stem"></span>
+            ${monthNodesHtml}
+          </section>
+        </section>
+
+        <section class="year-col-right" style="box-sizing: border-box;">
+          <section class="archive-entries-grid" style="box-sizing: border-box;">
+            ${entriesHtml}
+          </section>
+        </section>
       </section>`;
-    })
-    .join("\n");
+  }).join("\n");
 
   return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -4581,19 +4995,50 @@ ${SITE_STYLES}
     </div>
   </header>
 
-  <div class="subpage-hero-banner">
-    <div class="subpage-hero-container">
-      <div class="subpage-badge">
-        <span class="pill-dot"></span> 时间线索引 · 岁月留痕
-      </div>
-      <h1 class="subpage-title">全部文章归档</h1>
-      <div class="subpage-subtitle">TIMELINE ARCHIVES</div>
-      <p class="subpage-desc">按时间脉络记录的每篇思考、架构实践与生活随笔，共累计收录 ${posts.length} 篇文章。</p>
-    </div>
-  </div>
+  <!-- 页面主体内容 (纯 Section 架构，微信后台 0 塌陷保证) -->
+  <main class="main-content-wrapper main-container">
+    <!-- Chapter 1: Archive Hero (1:1 Reference Image 2) -->
+    <section class="archive-hero" style="box-sizing: border-box;">
+      <section class="archive-hero-col-left" style="box-sizing: border-box;">
+        <span class="chapter-label">ARCHIVE ——</span>
+        <h1 class="archive-hero-title">归档 · 时间里的思考</h1>
+        <p class="archive-hero-desc">时间会筛选出真正重要的东西。在这里，按时间脉络归档记录所有关于架构思考、工程设计与生活哲学的文字足迹。</p>
+      </section>
 
-  <main class="archives-container">
-    ${yearsHtml}
+      <section class="archive-hero-col-center" style="box-sizing: border-box;">
+        <img src="images/hero-daily.jpg" alt="Archive Hero Cover" class="archive-hero-img" onerror="this.src='images/hero-architecture.jpg'">
+      </section>
+
+      <section class="archive-hero-col-right" style="box-sizing: border-box;">
+        <span class="archive-filter-label">CATEGORIES</span>
+        <nav class="archive-filter-list">
+          <a href="archives.html" class="archive-filter-link active"><span>ALL</span> <span>(${posts.length})</span></a>
+          <a href="categories.html" class="archive-filter-link"><span>DESIGN</span> <span>→</span></a>
+          <a href="categories.html" class="archive-filter-link"><span>TECHNOLOGY</span> <span>→</span></a>
+          <a href="categories.html" class="archive-filter-link"><span>LIFE</span> <span>→</span></a>
+          <a href="categories.html" class="archive-filter-link"><span>NOTES</span> <span>→</span></a>
+        </nav>
+      </section>
+    </section>
+
+    <!-- Year Blocks Container -->
+    <section class="archive-years-container" style="box-sizing: border-box;">
+      ${yearsHtml}
+    </section>
+
+    <!-- Bottom Pagination -->
+    <section class="archive-pagination" style="box-sizing: border-box;">
+      <span class="archive-total-count">共 ${posts.length} 篇文章</span>
+      <nav class="archive-pagination-nav">
+        <a href="#" class="pagination-arrow disabled" aria-label="Previous page">&lt;</a>
+        <a href="#" class="pagination-page active">1</a>
+        <a href="#" class="pagination-page">2</a>
+        <a href="#" class="pagination-page">3</a>
+        <a href="#" class="pagination-page">4</a>
+        <a href="#" class="pagination-page">5</a>
+        <a href="#" class="pagination-arrow" aria-label="Next page">&gt;</a>
+      </nav>
+    </section>
   </main>
 
   ${buildBottomBannerHtml()}

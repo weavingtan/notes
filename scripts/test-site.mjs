@@ -512,5 +512,35 @@ console.log("\n▶ [Test 10/10] 首页 1:1 复刻编辑部杂志流式排版断�
   console.log("  ✓ 首页 5 大编辑部杂志章节结构就绪，彻底告别盒装卡片，main 内部 0 div 断言通过");
 }
 
-console.log("\n🎉 全部 10 大测试套件 100% 验证通过！出版级质量门禁就绪！");
+// ========================================================
+// 11. 归档页 1:1 复刻编辑部杂志时间线断言 (Task 4: Archive Reimagining)
+// ========================================================
+console.log("\n▶ [Test 11/11] 归档页 1:1 复刻编辑部杂志时间线断言");
+
+{
+  const archivesHtml = fs.readFileSync(path.join(DIST_DIR, "archives.html"), "utf-8");
+
+  // 11.1 archive-hero
+  assert.ok(archivesHtml.includes("archive-hero"), "archives.html 必须包含 archive-hero");
+  assert.ok(archivesHtml.includes("归档 · 时间里的思考"), "archives.html 必须包含标题 '归档 · 时间里的思考'");
+  assert.ok(archivesHtml.includes("year-block"), "archives.html 必须包含 year-block");
+  assert.ok(archivesHtml.includes("year-reflection"), "archives.html 必须包含 year-reflection");
+  assert.ok(archivesHtml.includes("year-timeline-dots"), "archives.html 必须包含 year-timeline-dots");
+  assert.ok(archivesHtml.includes("archive-entries-grid"), "archives.html 必须包含 archive-entries-grid");
+  assert.ok(archivesHtml.includes("archive-pagination"), "archives.html 必须包含 archive-pagination");
+
+  // 11.2 main 容器内 0 div 断言
+  const mainMatch = archivesHtml.match(/<main\b[\s\S]*?<\/main>/i);
+  assert.ok(mainMatch, "archives.html 必须包含 <main> 标签");
+  const divInMain = mainMatch[0].match(/<div\b/i);
+  assert.equal(
+    divInMain,
+    null,
+    "archives.html <main> 容器内部违背 AGENTS.md 硬红线！出现了 <div 标签！必须全部使用 <section> 或语义化标签"
+  );
+
+  console.log("  ✓ 归档页杂志流式排版就绪，年份反思、垂直虚线时间轴、双列画报流与底栏分页就绪，main 内部 0 div 断言通过");
+}
+
+console.log("\n🎉 全部 11 大测试套件 100% 验证通过！出版级质量门禁就绪！");
 
