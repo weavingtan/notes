@@ -405,7 +405,7 @@ console.log("  ✓ 动态 4K 壁纸管道与双层 CSS 回退栈断言通过");
 // ========================================================
 // 8. 风格统一与 GitHub 按钮悬停白化自愈断言 (Task 1)
 // ========================================================
-console.log("\n▶ [Test 8/8] 风格统一与 GitHub 按钮悬停白化自愈断言");
+console.log("\n▶ [Test 8/9] 风格统一与 GitHub 按钮悬停白化自愈断言");
 
 {
   // 8.1 标签样式不得硬编码 #2563eb
@@ -428,4 +428,61 @@ console.log("\n▶ [Test 8/8] 风格统一与 GitHub 按钮悬停白化自愈断
   console.log("  ✓ 标签完全解耦硬编码 #2563eb，GitHub 按钮悬停纯白字体规则就绪");
 }
 
-console.log("\n🎉 全部 8 大测试套件 100% 验证通过！出版级质量门禁就绪！");
+// ========================================================
+// 9. 流式视口系统与全站宽幅布局断言 (Task 2: Fluid Viewport)
+// ========================================================
+console.log("\n▶ [Test 9/9] 流式视口系统与全站宽幅布局断言");
+
+{
+  const indexHtml = fs.readFileSync(path.join(DIST_DIR, "index.html"), "utf-8");
+  const samplePost = fs.readFileSync(path.join(DIST_DIR, "posts/frontend-architecture-2026.html"), "utf-8");
+
+  // 9.1 首页与文章详情页必须使用流式容器 clamp: min(94vw, 1280px)
+  assert.ok(
+    indexHtml.includes("min(94vw, 1280px)"),
+    "index.html 必须使用流式 max-width clamp: min(94vw, 1280px)"
+  );
+  assert.ok(
+    samplePost.includes("min(94vw, 1280px)"),
+    "samplePost 必须使用流式 max-width clamp: min(94vw, 1280px)"
+  );
+
+  // 9.2 严禁针对 main-container 或 post-container 出现刚性夹紧 max-width: 760px 或 860px
+  const containerRigidClamp = /\.(main-container|post-container)[^{]*\{[^}]*max-width:\s*(760|860)px/i;
+  assert.ok(
+    !containerRigidClamp.test(indexHtml),
+    "index.html 不得对 main-container/post-container 设置刚性 max-width: 760px 或 860px"
+  );
+  assert.ok(
+    !containerRigidClamp.test(samplePost),
+    "samplePost 不得对 main-container/post-container 设置刚性 max-width: 760px 或 860px"
+  );
+  assert.ok(
+    !indexHtml.includes("max-width: 760px") && !samplePost.includes("max-width: 760px"),
+    "全站不得包含刚性阅读夹紧 max-width: 760px"
+  );
+
+  // 9.3 验证 .article-content 舒适行高 line-height: 1.82 与字号 16.5px
+  assert.ok(
+    samplePost.includes("line-height: 1.82") || samplePost.includes("line-height:1.82"),
+    "samplePost .article-content 必须包含舒适行高 line-height: 1.82"
+  );
+  assert.ok(
+    samplePost.includes("font-size: 16.5px"),
+    "samplePost 必须包含 16.5px 正文字号"
+  );
+
+  // 9.4 验证 Task 1 审阅意见：标签使用 primary-faint，按钮 hover 使用 primary-hover
+  assert.ok(
+    samplePost.includes("var(--primary-faint"),
+    "标签样式必须使用 var(--primary-faint) 确保 WCAG AA 对比度"
+  );
+  assert.ok(
+    samplePost.includes("var(--primary-hover) !important") || samplePost.includes("var(--primary-hover)!important"),
+    "按钮悬停必须使用 var(--primary-hover) !important 提供清晰的悬停交互反馈"
+  );
+
+  console.log("  ✓ 首页与详情页完全接入流式视口架构 min(94vw, 1280px)，无刚性夹紧，正文排版舒适度达标");
+}
+
+console.log("\n🎉 全部 9 大测试套件 100% 验证通过！出版级质量门禁就绪！");

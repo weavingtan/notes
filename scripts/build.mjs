@@ -1163,10 +1163,10 @@ button {
 }
 
 .nav-container {
-  max-width: 1140px;
+  max-width: min(94vw, 1280px);
   height: 100%;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 clamp(16px, 3.5vw, 48px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1430,13 +1430,22 @@ button {
 }
 
 /* ========================================================
-   页面主内容包裹器
+   页面主内容包裹器与流式视口系统 (Fluid Viewport System)
    ======================================================== */
-.main-content-wrapper {
-  max-width: 1140px;
+.main-container, .post-container {
   width: 100%;
+  max-width: min(94vw, 1280px);
   margin: 0 auto;
-  padding: 40px 24px 60px;
+  padding: 36px clamp(16px, 3.5vw, 48px);
+  box-sizing: border-box;
+}
+
+.main-content-wrapper {
+  width: 100%;
+  max-width: min(94vw, 1280px);
+  margin: 0 auto;
+  padding: 36px clamp(16px, 3.5vw, 48px);
+  box-sizing: border-box;
   flex: 1;
 }
 
@@ -1539,7 +1548,7 @@ button {
 }
 
 .tag-badge, .meta-category, .pill-tag {
-  background: var(--primary-light) !important;
+  background: var(--primary-faint, rgba(16, 185, 129, 0.08)) !important;
   color: var(--primary) !important;
   border: 1px solid var(--border-color);
   font-weight: 500;
@@ -1880,9 +1889,9 @@ button {
 }
 
 .footer-inner-container {
-  max-width: 1140px;
+  max-width: min(94vw, 1280px);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 clamp(16px, 3.5vw, 48px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1908,9 +1917,11 @@ button {
    文章详情页排版与随动目录 (TOC)
    ======================================================== */
 .article-wrapper {
-  max-width: 1140px;
+  width: 100%;
+  max-width: min(94vw, 1280px);
   margin: 40px auto 80px;
-  padding: 0 24px;
+  padding: 0 clamp(16px, 3.5vw, 48px);
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 280px;
   gap: 48px;
@@ -2186,8 +2197,12 @@ button {
    Web Content Adaptor & Dark Mode 深度对比度强化 (WCAG AA)
    ======================================================== */
 .article-content {
+  width: 100%;
+  max-width: 100%;
+  line-height: 1.82;
+  font-size: 16.5px;
   color: var(--text-main);
-  line-height: 1.85;
+  word-break: break-word;
 }
 
 .article-content p,
@@ -2756,9 +2771,20 @@ body.focus-reading-mode .focus-mode-exit-btn {
   display: inline-flex;
 }
 
-/* 代码块一键复制按钮 */
+/* 代码块一键复制按钮与全宽排版 */
 .article-content pre {
+  margin: 1.8em 0;
+  width: 100%;
+  box-sizing: border-box;
   position: relative;
+}
+
+@media (min-width: 1200px) {
+  .post-header,
+  .article-header {
+    max-width: 960px;
+    margin: 0 auto 36px auto;
+  }
 }
 
 .code-copy-btn {
@@ -2866,9 +2892,9 @@ body.focus-reading-mode .focus-mode-exit-btn {
 
 .interaction-btn.primary:hover,
 .github-btn-primary:hover {
-  background: var(--primary) !important;
+  background: var(--primary-hover) !important;
   color: #ffffff !important;
-  border-color: var(--primary) !important;
+  border-color: var(--primary-hover) !important;
   box-shadow: 0 4px 14px var(--primary-glow) !important;
   transform: translateY(-1px);
 }
@@ -3790,7 +3816,7 @@ ${SITE_STYLES}
   </header>
 
   <!-- 文章双栏排版主体 -->
-  <main class="article-wrapper">
+  <main class="article-wrapper post-container">
     <article class="article-main">
       <header class="article-header">
         <a href="../index.html" class="back-link">
@@ -4025,7 +4051,7 @@ ${SITE_STYLES}
   </section>
 
   <!-- 页面主体内容 -->
-  <main class="main-content-wrapper">
+  <main class="main-content-wrapper main-container">
     <!-- Section 1: 精选文章 (FEATURED) -->
     <section id="featured">
       <div class="section-header-bar">
