@@ -255,7 +255,7 @@ export function buildPostGithubInteraction(post) {
           </section>
         </section>
         <section class="interaction-actions" style="box-sizing:border-box;">
-          <a href="${issueDiscussUrl}" target="_blank" rel="noopener" class="interaction-btn primary">
+          <a href="${issueDiscussUrl}" target="_blank" rel="noopener" class="interaction-btn primary github-btn-primary">
             ${ICONS.chat} 参与 GitHub 讨论
           </a>
           <a href="${issueErrataUrl}" target="_blank" rel="noopener" class="interaction-btn secondary">
@@ -603,6 +603,7 @@ export const SITE_STYLES = `
   --primary: #10b981;
   --primary-hover: #059669;
   --primary-light: #34d399;
+  --primary-glow: rgba(16, 185, 129, 0.25);
   --primary-faint: rgba(16, 185, 129, 0.08);
   --accent-primary: #10b981;
   --accent-blue: #10b981;
@@ -623,6 +624,7 @@ export const SITE_STYLES = `
   --primary: #10b981;
   --primary-hover: #059669;
   --primary-light: #34d399;
+  --primary-glow: rgba(16, 185, 129, 0.25);
   --primary-faint: rgba(16, 185, 129, 0.08);
   --accent-primary: #10b981;
   --accent-blue: #10b981;
@@ -649,6 +651,7 @@ export const SITE_STYLES = `
   --primary: #34d399;
   --primary-hover: #6ee7b7;
   --primary-light: #a7f3d0;
+  --primary-glow: rgba(52, 211, 153, 0.35);
   --primary-faint: rgba(52, 211, 153, 0.12);
   --accent-primary: #34d399;
   --accent-blue: #34d399;
@@ -667,6 +670,7 @@ export const SITE_STYLES = `
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
   --primary-light: #60a5fa;
+  --primary-glow: rgba(37, 99, 235, 0.25);
   --primary-faint: rgba(37, 99, 235, 0.08);
   --accent-primary: #2563eb;
   --accent-blue: #2563eb;
@@ -690,6 +694,7 @@ export const SITE_STYLES = `
   --primary: #60a5fa;
   --primary-hover: #93c5fd;
   --primary-light: #bfdbfe;
+  --primary-glow: rgba(96, 165, 250, 0.35);
   --primary-faint: rgba(96, 165, 250, 0.12);
   --accent-primary: #60a5fa;
   --accent-blue: #60a5fa;
@@ -708,6 +713,7 @@ export const SITE_STYLES = `
   --primary: #8b5cf6;
   --primary-hover: #7c3aed;
   --primary-light: #a78bfa;
+  --primary-glow: rgba(139, 92, 246, 0.25);
   --primary-faint: rgba(139, 92, 246, 0.08);
   --accent-primary: #8b5cf6;
   --accent-blue: #8b5cf6;
@@ -731,6 +737,7 @@ export const SITE_STYLES = `
   --primary: #a78bfa;
   --primary-hover: #c4b5fd;
   --primary-light: #ddd6fe;
+  --primary-glow: rgba(167, 139, 250, 0.35);
   --primary-faint: rgba(167, 139, 250, 0.12);
   --accent-primary: #a78bfa;
   --accent-blue: #a78bfa;
@@ -749,6 +756,7 @@ export const SITE_STYLES = `
   --primary: #d97706;
   --primary-hover: #b45309;
   --primary-light: #fbbf24;
+  --primary-glow: rgba(217, 119, 6, 0.25);
   --primary-faint: rgba(217, 119, 6, 0.08);
   --accent-primary: #d97706;
   --accent-blue: #d97706;
@@ -772,6 +780,7 @@ export const SITE_STYLES = `
   --primary: #fbbf24;
   --primary-hover: #fcd34d;
   --primary-light: #fde68a;
+  --primary-glow: rgba(251, 191, 36, 0.35);
   --primary-faint: rgba(251, 191, 36, 0.12);
   --accent-primary: #fbbf24;
   --accent-blue: #fbbf24;
@@ -790,6 +799,7 @@ export const SITE_STYLES = `
   --primary: #475569;
   --primary-hover: #334155;
   --primary-light: #64748b;
+  --primary-glow: rgba(71, 85, 105, 0.25);
   --primary-faint: rgba(71, 85, 105, 0.08);
   --accent-primary: #475569;
   --accent-blue: #475569;
@@ -813,6 +823,7 @@ export const SITE_STYLES = `
   --primary: #94a3b8;
   --primary-hover: #cbd5e1;
   --primary-light: #e2e8f0;
+  --primary-glow: rgba(148, 163, 184, 0.35);
   --primary-faint: rgba(148, 163, 184, 0.12);
   --accent-primary: #94a3b8;
   --accent-blue: #94a3b8;
@@ -1515,16 +1526,28 @@ button {
 }
 
 .tag-badge-pill.blue {
-  background: #eff6ff;
-  color: #2563eb;
-  border: 1px solid #dbeafe;
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid var(--border-color);
 }
 
 [data-theme="dark"] .tag-badge-pill.blue,
 [data-mode="dark"] .tag-badge-pill.blue {
-  background: rgba(37, 99, 235, 0.15);
-  color: #60a5fa;
-  border-color: rgba(37, 99, 235, 0.3);
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--border-color);
+}
+
+.tag-badge, .meta-category, .pill-tag {
+  background: var(--primary-light) !important;
+  color: var(--primary) !important;
+  border: 1px solid var(--border-color);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.tag-badge:hover, .pill-tag:hover {
+  background: var(--primary) !important;
+  color: #ffffff !important;
 }
 
 .featured-title {
@@ -2833,13 +2856,20 @@ body.focus-reading-mode .focus-mode-exit-btn {
   transition: all 0.2s ease;
 }
 
-.interaction-btn.primary {
+.interaction-btn.primary,
+.github-btn-primary {
   background: var(--primary);
-  color: #ffffff;
+  color: #ffffff !important;
+  border: 1px solid var(--primary);
+  box-shadow: 0 2px 8px var(--primary-glow);
 }
 
-.interaction-btn.primary:hover {
-  background: var(--primary-dark);
+.interaction-btn.primary:hover,
+.github-btn-primary:hover {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 4px 14px var(--primary-glow) !important;
   transform: translateY(-1px);
 }
 

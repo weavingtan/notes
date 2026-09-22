@@ -402,4 +402,30 @@ assert.ok(indexHtml.includes("images/hero-bg.jpg"), "首页缺少 hero-bg.jpg �
 assert.ok(indexHtml.includes("📷"), "首页名言卡片缺少今日壁纸摄影信息标记");
 console.log("  ✓ 动态 4K 壁纸管道与双层 CSS 回退栈断言通过");
 
-console.log("\n🎉 全部 7 大测试套件 100% 验证通过！出版级质量门禁就绪！");
+// ========================================================
+// 8. 风格统一与 GitHub 按钮悬停白化自愈断言 (Task 1)
+// ========================================================
+console.log("\n▶ [Test 8/8] 风格统一与 GitHub 按钮悬停白化自愈断言");
+
+{
+  // 8.1 标签样式不得硬编码 #2563eb
+  const indexHtml = fs.readFileSync(path.join(DIST_DIR, "index.html"), "utf-8");
+  assert.ok(
+    !indexHtml.includes("background:#2563eb") &&
+    !indexHtml.includes("background: #2563eb") &&
+    !indexHtml.includes("color:#2563eb") &&
+    !indexHtml.includes("color: #2563eb"),
+    "Tags must not have hardcoded #2563eb"
+  );
+
+  // 8.2 GitHub 主要按钮悬停白化免疫与纯白文本断言
+  const samplePost = fs.readFileSync(path.join(DIST_DIR, "posts/frontend-architecture-2026.html"), "utf-8");
+  assert.ok(samplePost.includes(".github-btn-primary:hover"), "Must have .github-btn-primary:hover rule");
+  assert.ok(
+    samplePost.includes("color: #ffffff !important") || samplePost.includes("color:#ffffff !important"),
+    "Button hover text must be pure white"
+  );
+  console.log("  ✓ 标签完全解耦硬编码 #2563eb，GitHub 按钮悬停纯白字体规则就绪");
+}
+
+console.log("\n🎉 全部 8 大测试套件 100% 验证通过！出版级质量门禁就绪！");
