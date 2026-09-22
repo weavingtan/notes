@@ -293,23 +293,17 @@ console.log(`  ✓ 全部 ${postHtmlFiles.length} 篇详情页 article-content �
 // ========================================================
 console.log("\n▶ [Test 6/6] V2 视觉体验升级与暗黑模式白板免疫断言");
 
-// 6.1 首页 2 列宽幅杂志卡片与 100vw 全宽横幅断言
+// 6.1 交流横幅无框悬浮断言与名言日历卡片动态化断言
 const indexHtml = fs.readFileSync(path.join(DIST_DIR, "index.html"), "utf-8");
-assert.ok(indexHtml.includes('class="latest-grid-2"'), "首页未采用 2 列卡片布局 .latest-grid-2");
-assert.ok(indexHtml.includes('class="card-item-2"'), "首页文章未采用 .card-item-2 样式");
-assert.ok(indexHtml.includes('class="bottom-comm-banner"'), "首页缺少底部横幅 .bottom-comm-banner");
 assert.ok(!indexHtml.includes(' 阅读</span>'), "首页仍残留虚假阅读量字段");
 assert.ok(!indexHtml.includes('1.2k 阅读'), "精选文章卡片仍残留 1.2k 阅读量");
-
-// 6.2 交流横幅无框悬浮断言
-assert.ok(indexHtml.includes('.bottom-comm-banner'), "首页缺少 .bottom-comm-banner 样式");
 assert.ok(indexHtml.includes('.banner-left'), "首页缺少 .banner-left 样式");
 
-// 6.3 今日日期动态化断言 (YYYY.MM.DD)
+// 6.2 今日日期动态化断言 (YYYY.MM.DD)
 const todayRegex = /\d{4}\.\d{2}\.\d{2}/;
 assert.ok(todayRegex.test(indexHtml), "名言日历卡片未包含动态今天日期 (YYYY.MM.DD)");
 
-// 6.4 关于我页面暗黑模式白板免疫断言
+// 6.3 关于我页面暗黑模式白板免疫断言
 const aboutHtml = fs.readFileSync(path.join(DIST_DIR, "about.html"), "utf-8");
 const cardsMatch = aboutHtml.match(/<section class="wechat-module wechat-module-cards"[^>]*>([\s\S]*?)<\/section>\s*<h2/);
 if (cardsMatch) {
@@ -321,8 +315,7 @@ if (cardsMatch) {
   );
   assert.ok(cardsHtml.includes("var(--bg-card)"), "cards 模块未自愈替换为 var(--bg-card)");
 }
-console.log("  ✓ 首页 2 列宽幅大卡片、零假阅读量、动态日期与 100vw 悬浮横幅断言通过");
-console.log("  ✓ 暗黑模式卡片背景自愈与无白板断言通过");
+console.log("  ✓ 零假阅读量、动态日期与暗黑模式白板自愈断言通过");
 
 // ========================================================
 // 7. V2 沉浸式极客交互与微信移动端响应式排版断言
@@ -485,4 +478,39 @@ console.log("\n▶ [Test 9/9] 流式视口系统与全站宽幅布局断言");
   console.log("  ✓ 首页与详情页完全接入流式视口架构 min(94vw, 1280px)，无刚性夹紧，正文排版舒适度达标");
 }
 
-console.log("\n🎉 全部 9 大测试套件 100% 验证通过！出版级质量门禁就绪！");
+// ========================================================
+// 10. 首页 1:1 复刻编辑部杂志流式排版断言 (Task 3: Editorial Hero & 5 Chapters)
+// ========================================================
+console.log("\n▶ [Test 10/10] 首页 1:1 复刻编辑部杂志流式排版断言");
+
+{
+  const indexHtml = fs.readFileSync(path.join(DIST_DIR, "index.html"), "utf-8");
+
+  // 10.1 5 大核心章节容器断言
+  assert.ok(indexHtml.includes("editorial-hero"), "index.html 必须包含 3 列编辑部 Hero (editorial-hero)");
+  assert.ok(indexHtml.includes("featured-showcase"), "index.html 必须包含 FEATURED showcase 章节 (featured-showcase)");
+  assert.ok(indexHtml.includes("selected-writings"), "index.html 必须包含 SELECTED WRITINGS 4 列竖排流 (selected-writings)");
+  assert.ok(indexHtml.includes("panoramic-archive-spread"), "index.html 必须包含全景归档横幅 (panoramic-archive-spread)");
+  assert.ok(indexHtml.includes("footprint-about"), "index.html 必须包含足迹与关于我章节 (footprint-about)");
+
+  // 10.2 彻底清除旧版卡片盒模型断言
+  assert.ok(!indexHtml.includes("card-item-2"), "index.html 严禁残留旧版 card-item-2 盒装卡片");
+  assert.ok(!indexHtml.includes("card-item-4"), "index.html 严禁残留旧版 card-item-4 盒装卡片");
+
+  // 10.3 微信防塌陷与无 div 约束：main 与 content 区域内无 div
+  const mainMatch = indexHtml.match(/<main\b[\s\S]*?<\/main>/i);
+  if (mainMatch) {
+    const mainHtml = mainMatch[0];
+    const divInMain = mainHtml.match(/<div\b/i);
+    assert.equal(
+      divInMain,
+      null,
+      "index.html <main> 容器内部违背 AGENTS.md 硬红线！出现了 <div 标签！必须全部使用 <section> 或语义化标签"
+    );
+  }
+
+  console.log("  ✓ 首页 5 大编辑部杂志章节结构就绪，彻底告别盒装卡片，main 内部 0 div 断言通过");
+}
+
+console.log("\n🎉 全部 10 大测试套件 100% 验证通过！出版级质量门禁就绪！");
+

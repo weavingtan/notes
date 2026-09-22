@@ -1475,35 +1475,85 @@ button {
 }
 
 /* ========================================================
-   Section 1: 精选文章 (FEATURED) 宽幅双栏大卡片
+   Editorial Magazine Layout Styles (5 Chapters)
    ======================================================== */
-.featured-card {
-  display: grid;
-  grid-template-columns: 1.25fr 1fr;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: var(--card-shadow);
-  margin-bottom: 60px;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s, border-color 0.3s;
+
+/* Chapter 1: 3-column Editorial Hero */
+.editorial-hero {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 36px;
+  padding: 48px 0 64px 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 56px;
 }
 
-.featured-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--card-shadow-hover);
-  border-color: var(--card-border-hover);
+.editorial-hero-col-left {
+  flex: 0 0 32%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
 }
 
-.featured-cover-box {
-  width: 100%;
-  min-height: 320px;
-  position: relative;
+.editorial-date {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  margin-bottom: 24px;
+}
+
+.editorial-headline {
+  font-size: clamp(1.85rem, 3.2vw, 2.6rem);
+  font-weight: 850;
+  line-height: 1.28;
+  color: var(--text-main);
+  letter-spacing: -0.03em;
+  margin: 0 0 18px 0;
+}
+
+.editorial-subheadline {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin: 0 0 32px 0;
+  font-style: italic;
+  opacity: 0.88;
+}
+
+.editorial-more-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: transform 0.2s ease, color 0.2s ease;
+  align-self: flex-start;
+}
+
+.editorial-more-link:hover {
+  transform: translateX(4px);
+  color: var(--primary-hover, var(--primary));
+}
+
+.editorial-hero-col-center {
+  flex: 1 1 auto;
+  min-width: 0;
   overflow: hidden;
+  border-radius: 12px;
   background: var(--bg-subtle);
+  position: relative;
+  min-height: 380px;
 }
 
-.featured-cover-img {
+.editorial-hero-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1511,96 +1561,507 @@ button {
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.featured-card:hover .featured-cover-img {
-  transform: scale(1.04);
+.editorial-hero-col-center:hover .editorial-hero-img {
+  transform: scale(1.03);
 }
 
-.featured-content {
-  padding: 36px 36px 32px;
+.editorial-hero-col-right {
+  flex: 0 0 18%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-width: 0;
+  padding-left: 20px;
+  border-left: 1px solid var(--border-subtle, var(--border-color));
+}
+
+.editorial-nav-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 24px;
+}
+
+.editorial-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.editorial-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.92rem;
+  font-weight: 650;
+  color: var(--text-main);
+  text-decoration: none;
+  padding: 8px 0;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.editorial-nav-item:hover {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  padding-left: 4px;
+}
+
+/* Chapter 2: FEATURED Showcase */
+.featured-showcase {
+  margin-bottom: 72px;
+}
+
+.featured-showcase-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.chapter-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.88rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  color: var(--text-main);
+  text-transform: uppercase;
+}
+
+.featured-showcase-grid {
+  display: flex;
+  align-items: stretch;
+  gap: 36px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 36px 40px;
+  box-shadow: var(--card-shadow);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.featured-showcase-grid:hover {
+  border-color: var(--card-border-hover, var(--primary));
+  box-shadow: var(--card-shadow-hover);
+}
+
+.featured-showcase-text {
+  flex: 0 0 38%;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-width: 0;
 }
 
-.featured-tag-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  margin-bottom: 16px;
-  align-self: flex-start;
-}
-
-.tag-badge-pill.blue {
-  background: var(--primary-light);
-  color: var(--primary);
-  border: 1px solid var(--border-color);
-}
-
-[data-theme="dark"] .tag-badge-pill.blue,
-[data-mode="dark"] .tag-badge-pill.blue {
-  background: var(--primary-light);
-  color: var(--primary);
-  border-color: var(--border-color);
-}
-
-.tag-badge, .meta-category, .pill-tag {
-  background: var(--primary-faint, rgba(16, 185, 129, 0.08)) !important;
-  color: var(--primary) !important;
-  border: 1px solid var(--border-color);
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-.tag-badge:hover, .pill-tag:hover {
-  background: var(--primary) !important;
-  color: #ffffff !important;
-}
-
-.featured-title {
-  font-size: 1.45rem;
-  font-weight: 750;
-  line-height: 1.38;
+.featured-showcase-title {
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  font-weight: 800;
+  line-height: 1.35;
   color: var(--text-main);
-  margin-bottom: 14px;
-  letter-spacing: -0.015em;
-  transition: color 0.2s;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.02em;
+  transition: color 0.2s ease;
 }
 
-.featured-card:hover .featured-title {
+.featured-showcase-text:hover .featured-showcase-title {
   color: var(--primary);
 }
 
-.featured-desc {
-  font-size: 0.94rem;
+.featured-showcase-desc {
+  font-size: 0.95rem;
+  line-height: 1.7;
   color: var(--text-muted);
-  line-height: 1.68;
-  margin-bottom: 24px;
+  margin: 0 0 24px 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.post-meta-row {
+.featured-showcase-meta {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-light);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.featured-showcase-image-box {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  min-height: 280px;
+  background: var(--bg-subtle);
+}
+
+.featured-showcase-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.featured-showcase-grid:hover .featured-showcase-img {
+  transform: scale(1.03);
+}
+
+.featured-showcase-ctrl {
+  flex: 0 0 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-left: 1px solid var(--border-subtle, var(--border-color));
+}
+
+.feat-counter {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-light);
+  letter-spacing: 0.05em;
+}
+
+.feat-nav-arrows {
+  font-family: var(--font-mono, monospace);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s;
+  user-select: none;
+}
+
+.feat-nav-arrows:hover {
+  color: var(--primary);
+}
+
+/* Chapter 3: SELECTED WRITINGS */
+.selected-writings {
+  margin-bottom: 72px;
+}
+
+.selected-writings-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.selected-writings-stream {
+  display: flex;
+  align-items: stretch;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.selected-stream-item {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 28px 24px;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: transparent;
+  transition: background 0.2s ease, transform 0.2s ease;
+  text-decoration: none;
+}
+
+.selected-stream-item:first-child {
+  border-left: 1px solid var(--border-color);
+}
+
+.selected-stream-item:hover {
+  background: var(--bg-subtle);
+}
+
+.selected-item-num-date {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  font-family: var(--font-mono, monospace);
   font-size: 0.82rem;
+  font-weight: 700;
   color: var(--text-light);
+  letter-spacing: 0.05em;
+  margin-bottom: 20px;
 }
 
-.meta-item {
+.selected-item-title {
+  font-size: 1.08rem;
+  font-weight: 750;
+  line-height: 1.45;
+  color: var(--text-main);
+  margin: 0 0 16px 0;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.2s ease;
+}
+
+.selected-stream-item:hover .selected-item-title {
+  color: var(--primary);
+}
+
+.selected-item-meta {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Chapter 4: Panoramic Archive Spread */
+.panoramic-archive-spread {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  box-sizing: border-box;
+  min-height: 380px;
+  background-color: #0b132b;
+  background-image: linear-gradient(rgba(11, 19, 43, 0.72), rgba(11, 19, 43, 0.88)), var(--banner-bg);
+  background-size: cover;
+  background-position: center;
+  padding: 64px max(24px, calc((100vw - 1280px) / 2));
+  color: #ffffff;
+  margin-top: 36px;
+  margin-bottom: 72px;
+}
+
+.panoramic-inner {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.panoramic-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 36px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.panoramic-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.05em;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.panoramic-sub {
+  font-size: 0.92rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.75);
+  font-style: italic;
+}
+
+.panoramic-view-all {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary-light, #a7f3d0);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.panoramic-view-all:hover {
+  transform: translateX(4px);
+  opacity: 0.9;
+}
+
+.panoramic-years-grid {
+  display: flex;
+  align-items: flex-start;
+  gap: 36px;
+}
+
+.panoramic-year-col {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panoramic-year-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: 1.35rem;
+  font-weight: 850;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 6px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.panoramic-post-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.panoramic-post-row:hover {
+  color: var(--primary-light, #34d399);
+}
+
+.panoramic-post-title {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.panoramic-post-date {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+  flex-shrink: 0;
+}
+
+/* Chapter 5: Footprint & About */
+.footprint-about {
+  margin-bottom: 64px;
+}
+
+.footprint-about-inner {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 42px 48px;
+  box-shadow: var(--card-shadow);
+}
+
+.footprint-avatar-box {
+  flex: 0 0 120px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--primary-faint, rgba(16, 185, 129, 0.2));
+  flex-shrink: 0;
+  background: var(--bg-subtle);
+}
+
+.footprint-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.footprint-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.footprint-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.footprint-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: 0.05em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.footprint-signature {
+  font-family: "Caveat", "Brush Script MT", cursive, sans-serif;
+  font-size: 1.6rem;
+  color: var(--primary);
+  opacity: 0.9;
+}
+
+.footprint-bio {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin: 0 0 20px 0;
+}
+
+.footprint-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle, var(--border-color));
+}
+
+.footprint-more-link {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: transform 0.2s ease;
+}
+
+.footprint-more-link:hover {
+  transform: translateX(4px);
+}
+
+.footprint-social-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.footprint-social-icon {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-/* ========================================================
-   Section 2: 最新文章 (LATEST) 4 列卡片流 + 分类药丸
-   ======================================================== */
+.footprint-social-icon:hover {
+  background: var(--primary);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* 兼容现有测试的辅助样式 */
 .category-filter-pills {
   display: flex;
   align-items: center;
@@ -1628,165 +2089,6 @@ button {
   background: var(--primary);
   color: #ffffff;
   box-shadow: 0 2px 8px var(--primary-faint);
-}
-
-.latest-grid-2,
-.latest-grid-4 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 28px;
-  margin-bottom: 56px;
-}
-
-.card-item-2,
-.card-item-4 {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: var(--card-shadow);
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s, border-color 0.25s;
-}
-
-.card-item-2:hover,
-.card-item-4:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--card-shadow-hover);
-  border-color: var(--card-border-hover);
-}
-
-.card-item-cover-box {
-  width: 100%;
-  height: 220px;
-  position: relative;
-  overflow: hidden;
-  background: var(--bg-subtle);
-}
-
-.card-item-cover-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.card-item-2:hover .card-item-cover-img,
-.card-item-4:hover .card-item-cover-img {
-  transform: scale(1.04);
-}
-
-.card-item-body {
-  padding: 22px 24px 24px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.tag-badge-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: 9999px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  line-height: 1.4;
-  background: var(--pill-bg);
-  border: 1px solid var(--pill-border);
-  color: var(--pill-text);
-  margin-bottom: 12px;
-  align-self: flex-start;
-  transition: all 0.2s ease;
-}
-
-.tag-badge-pill.teal {
-  background: #e6fcf5;
-  color: #0ca678;
-  border: 1px solid #c3fae8;
-}
-[data-theme="dark"] .tag-badge-pill.teal,
-[data-mode="dark"] .tag-badge-pill.teal {
-  background: rgba(12, 166, 120, 0.15);
-  color: #38d9a9;
-  border-color: rgba(12, 166, 120, 0.3);
-}
-
-.tag-badge-pill.purple {
-  background: #f3e8ff;
-  color: #9333ea;
-  border: 1px solid #e9d5ff;
-}
-[data-theme="dark"] .tag-badge-pill.purple,
-[data-mode="dark"] .tag-badge-pill.purple {
-  background: rgba(147, 51, 234, 0.15);
-  color: #c084fc;
-  border-color: rgba(147, 51, 234, 0.3);
-}
-
-.tag-badge-pill.amber {
-  background: #fff7ed;
-  color: #ea580c;
-  border: 1px solid #ffedd5;
-}
-[data-theme="dark"] .tag-badge-pill.amber,
-[data-mode="dark"] .tag-badge-pill.amber {
-  background: rgba(234, 88, 12, 0.15);
-  color: #fb923c;
-  border-color: rgba(234, 88, 12, 0.3);
-}
-
-.tag-badge-pill.cyan {
-  background: #e0f2fe;
-  color: #0284c7;
-  border: 1px solid #bae6fd;
-}
-[data-theme="dark"] .tag-badge-pill.cyan,
-[data-mode="dark"] .tag-badge-pill.cyan {
-  background: rgba(2, 132, 199, 0.15);
-  color: #38bdf8;
-  border-color: rgba(2, 132, 199, 0.3);
-}
-
-.card-item-title {
-  font-size: 1.22rem;
-  font-weight: 750;
-  line-height: 1.45;
-  color: var(--text-main);
-  margin-bottom: 10px;
-  transition: color 0.2s;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.card-item-2:hover .card-item-title,
-.card-item-4:hover .card-item-title {
-  color: var(--primary);
-}
-
-.card-item-desc {
-  font-size: 0.92rem;
-  color: var(--text-muted);
-  line-height: 1.65;
-  margin-bottom: 20px;
-  flex: 1;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.card-item-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.82rem;
-  color: var(--text-light);
-  border-top: 1px solid var(--border-subtle);
-  padding-top: 14px;
 }
 
 /* ========================================================
@@ -3076,10 +3378,6 @@ body.focus-reading-mode .focus-mode-exit-btn {
    响应式断点适配 (移动端彻底微信化排版 + 锁死横向晃动)
    ======================================================== */
 @media (max-width: 1024px) {
-  .latest-grid-2,
-  .latest-grid-4 {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .article-wrapper {
     grid-template-columns: 1fr;
   }
@@ -3211,32 +3509,67 @@ body.focus-reading-mode .focus-mode-exit-btn {
     margin-top: 14px;
   }
 
-  /* 首页卡片单列 */
-  .hero-inner-container {
+  /* 首页编辑部杂志章节流式响应式 */
+  .editorial-hero {
     flex-direction: column;
-    padding: 0;
+    gap: 28px;
+    padding: 24px 0 36px 0;
   }
-  .hero-quote-card {
+  .editorial-hero-col-left,
+  .editorial-hero-col-right {
+    flex: 1 1 auto;
     width: 100%;
-    margin-top: 20px;
   }
-  .featured-card {
-    grid-template-columns: 1fr;
+  .editorial-hero-col-right {
+    padding-left: 0;
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
   }
-  .featured-cover-box {
-    min-height: 190px;
-    height: 190px;
+  .editorial-nav-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
   }
-  .featured-content {
-    padding: 20px 16px;
+  .featured-showcase-grid {
+    flex-direction: column;
+    padding: 24px 18px;
+    gap: 20px;
   }
-  .latest-grid-2,
-  .latest-grid-4 {
-    grid-template-columns: 1fr;
-    gap: 18px;
+  .featured-showcase-ctrl {
+    flex-direction: row;
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+    padding-top: 12px;
   }
-  .card-item-cover-box {
-    height: 180px;
+  .selected-writings-stream {
+    flex-direction: column;
+  }
+  .selected-stream-item {
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .selected-stream-item:first-child {
+    border-left: none;
+  }
+  .selected-stream-item:last-child {
+    border-bottom: none;
+  }
+  .panoramic-years-grid {
+    flex-direction: column;
+    gap: 24px;
+  }
+  .footprint-about-inner {
+    flex-direction: column;
+    text-align: center;
+    padding: 28px 20px;
+    gap: 20px;
+  }
+  .footprint-header-row,
+  .footprint-footer-row {
+    flex-direction: column;
+    gap: 12px;
   }
   .bottom-comm-banner {
     padding: 36px 16px;
@@ -3467,7 +3800,7 @@ function filterCategory(cat, btn) {
   document.querySelectorAll(".filter-pill").forEach(p => p.classList.remove("active"));
   if (btn) btn.classList.add("active");
 
-  const cards = document.querySelectorAll(".card-item-2, .card-item-4");
+  const cards = document.querySelectorAll(".selected-stream-item, .category-post-item");
   cards.forEach(card => {
     const cats = (card.getAttribute("data-categories") || "").split(",").map(t => t.trim().toLowerCase());
     const tags = (card.getAttribute("data-tags") || "").split(",").map(t => t.trim().toLowerCase());
@@ -3923,6 +4256,9 @@ export function buildBottomBannerHtml() {
         <a href="${SITE_CONFIG.githubUrl}" target="_blank" rel="noopener" class="social-circle-btn" title="GitHub 个人主页">${ICONS.github}</a>
         <a href="about.html" class="social-circle-btn" title="关于我">${ICONS.user}</a>
       </div>
+      <div class="banner-meta-footnote" style="margin-top: 18px; font-size: 0.78rem; opacity: 0.65;">
+        <span>${getTodayFormattedDate()}</span> · <span>📷 今日壁纸：${(getDailyWallpaper() || {}).title || "晨曦之光"}</span>
+      </div>
     </div>
   </section>`;
 }
@@ -3934,45 +4270,67 @@ export function buildIndexPageHtml(posts, featuredPost, latestPosts, allCategori
   const dailyQuote = getDailyQuote();
   const dailyWallpaper = getDailyWallpaper();
 
-  function getTagColorClass(tag) {
-    if (tag.includes("技术")) return "teal";
-    if (tag.includes("生活")) return "purple";
-    if (tag.includes("产品")) return "amber";
-    if (tag.includes("成长")) return "cyan";
-    return "blue";
-  }
-
-  const latestCardsHtml = latestPosts
-    .map((p) => {
-      const firstTag = (p.meta.tags && p.meta.tags[0]) ? p.meta.tags[0] : (p.meta.categories && p.meta.categories[0]) || "随笔";
-      const colorClass = getTagColorClass(firstTag);
-      let coverUrl = p.meta.cover ? p.meta.cover.replace(/^\.\.\//, "") : "images/post-hyperf.jpg";
-
-      return `
-      <article class="card-item-2" data-categories="${(p.meta.categories || []).join(",")}" data-tags="${(p.meta.tags || []).join(",")}" data-title="${p.meta.title}" data-desc="${p.meta.description}" data-url="posts/${p.slug}.html">
-        <div class="card-item-cover-box">
-          <img src="${coverUrl}" alt="${p.meta.title}" class="card-item-cover-img" onerror="this.style.opacity=0.3">
-        </div>
-        <div class="card-item-body">
-          <span class="tag-badge-pill ${colorClass}">${firstTag}</span>
-          <a href="posts/${p.slug}.html">
-            <h3 class="card-item-title">${p.meta.title}</h3>
-          </a>
-          <p class="card-item-desc">${p.meta.description || p.rawExcerpt || "点击阅读全文..."}</p>
-          <div class="card-item-footer">
-            <span class="meta-item">${ICONS.calendar} ${p.meta.date || getTodayFormattedDate().replace(/\./g, "-")}</span>
-            <span class="meta-item">${ICONS.clock} 约 ${p.readingStats.readingTimeMin} 分钟</span>
-          </div>
-        </div>
-      </article>`;
-    })
-    .join("\n");
-
-  // 精选文章卡片
+  // 精选文章
   const feat = featuredPost || posts[0];
   const featCover = feat.meta.cover ? feat.meta.cover.replace(/^\.\.\//, "") : "images/featured-fuji.jpg";
-  const featTag = (feat.meta.tags && feat.meta.tags[0]) ? feat.meta.tags[0] : ((feat.meta.categories && feat.meta.categories[0]) || "产品思考");
-  const featComments = feat.meta.comments ? (feat.meta.comments.includes("评论") ? feat.meta.comments : feat.meta.comments + " 评论") : "32 评论";
+  const featTag = (feat.meta.tags && feat.meta.tags[0]) ? feat.meta.tags[0] : ((feat.meta.categories && feat.meta.categories[0]) || "DESIGN");
+  const featReadingMin = feat.readingStats ? feat.readingStats.readingTimeMin : 5;
+
+  // Selected writings (4 篇文章流)
+  const selectedCandidates = posts.filter(p => p.slug !== feat.slug);
+  const selectedList = selectedCandidates.slice(0, 4);
+  while (selectedList.length < 4 && posts.length > 0) {
+    selectedList.push(posts[selectedList.length % posts.length]);
+  }
+
+  const selectedStreamHtml = selectedList.map((p, idx) => {
+    const num = String(idx + 1).padStart(2, "0");
+    const dateStr = p.meta.date ? p.meta.date.slice(5).replace(/-/g, ".") : "09.22";
+    const cat = (p.meta.categories && p.meta.categories[0]) || (p.meta.tags && p.meta.tags[0]) || "NOTES";
+    const readingMin = p.readingStats ? p.readingStats.readingTimeMin : 4;
+
+    return `
+      <a href="posts/${p.slug}.html" class="selected-stream-item" data-categories="${(p.meta.categories || []).join(",")}" data-tags="${(p.meta.tags || []).join(",")}">
+        <section class="selected-item-num-date" style="box-sizing: border-box;">
+          <span style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">${num}</span>
+          <span>${dateStr}</span>
+        </section>
+        <h3 class="selected-item-title">${p.meta.title}</h3>
+        <section class="selected-item-meta" style="box-sizing: border-box;">
+          <span>${cat.toUpperCase()} / ${readingMin} MIN</span>
+        </section>
+      </a>`;
+  }).join("\n");
+
+  // Panoramic archive (年份分组文章)
+  const postsByYear = {};
+  for (const p of posts) {
+    const y = (p.meta.date || "2026").slice(0, 4);
+    if (!postsByYear[y]) postsByYear[y] = [];
+    postsByYear[y].push(p);
+  }
+  const archiveYears = ["2026", "2025", "2024"];
+
+  const panoramicColsHtml = archiveYears.map(year => {
+    const yearPosts = postsByYear[year] || [];
+    const displayPosts = yearPosts.slice(0, 3);
+    const postRowsHtml = displayPosts.length > 0 
+      ? displayPosts.map(p => {
+          const dateSub = p.meta.date ? p.meta.date.slice(5).replace(/-/g, ".") : "01.01";
+          return `
+          <a href="posts/${p.slug}.html" class="panoramic-post-row">
+            <span class="panoramic-post-title">${p.meta.title}</span>
+            <span class="panoramic-post-date">${dateSub}</span>
+          </a>`;
+        }).join("\n")
+      : `<span style="font-size: 0.85rem; color: rgba(255,255,255,0.45); font-style: italic;">暂无归档记录</span>`;
+
+    return `
+      <section class="panoramic-year-col" style="box-sizing: border-box;">
+        <span class="panoramic-year-badge">${year}</span>
+        ${postRowsHtml}
+      </section>`;
+  }).join("\n");
 
   return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -4013,89 +4371,113 @@ ${SITE_STYLES}
     </div>
   </header>
 
-  <!-- 晨曦全景 Hero 区域 (画作自含行楷书法，HTML 专注交互与名言卡片) -->
-  <section class="home-hero-wrapper">
-    <div class="hero-inner-container">
-      <div class="hero-left-content">
-        <div class="home-hero-badge">
-          <span class="pill-dot"></span> 个人数字花园 · 思考与沉淀
-        </div>
-        <h1 class="sr-only">记录思考 也记录生活 - Better Me, Better Life</h1>
-        <p class="hero-bio-desc">${SITE_CONFIG.hero.bio}</p>
-        <div class="hero-btn-row">
-          <a href="#featured" class="btn-hero-primary">
-            探索文章 ${ICONS.arrowRight}
-          </a>
-          <a href="about.html" class="btn-hero-secondary">
-            关于我
-          </a>
-        </div>
-      </div>
-
-      <!-- 右上角悬浮名言日历卡片 (动态读取开源金句 API 与今天真实日期) -->
-      <div class="hero-quote-card">
-        <div class="quote-header">
-          <span>${dailyQuote.date}</span>
-          <span>${dailyQuote.weather}</span>
-        </div>
-        <div class="quote-body">
-          ${dailyQuote.text}
-        </div>
-        <div class="quote-author">— ${dailyQuote.author}</div>
-        ${dailyWallpaper ? `
-        <div class="quote-wallpaper-info" title="${dailyWallpaper.copyright}">
-          <span>📷</span> 今日壁纸：${dailyWallpaper.title}
-        </div>` : ""}
-      </div>
-    </div>
-  </section>
-
-  <!-- 页面主体内容 -->
+  <!-- 页面主体内容 (纯 Section 架构，微信后台 0 塌陷保证) -->
   <main class="main-content-wrapper main-container">
-    <!-- Section 1: 精选文章 (FEATURED) -->
-    <section id="featured">
-      <div class="section-header-bar">
-        <h2 class="section-title">
-          精选文章 <span class="section-subtitle">FEATURED</span>
-        </h2>
-      </div>
+    <!-- Chapter 1: 3-column Editorial Hero -->
+    <section class="editorial-hero" style="box-sizing: border-box;">
+      <section class="editorial-hero-col-left" style="box-sizing: border-box;">
+        <span class="editorial-date">${getTodayFormattedDate().replace(/\./g, " / ")}</span>
+        <h1 class="editorial-headline">记录设计、技术，以及那些值得思考的事。</h1>
+        <p class="editorial-subheadline">I write about design, technology and everything in between.</p>
+        <a href="#featured" class="editorial-more-link">READ MORE →</a>
+      </section>
 
-      <article class="featured-card">
-        <div class="featured-cover-box">
-          <img src="${featCover}" alt="${feat.meta.title}" class="featured-cover-img" onerror="this.style.opacity=0.3">
-        </div>
-        <div class="featured-content">
-          <span class="featured-tag-badge tag-badge-pill blue">${featTag}</span>
-          <a href="posts/${feat.slug}.html">
-            <h3 class="featured-title">${feat.meta.title}</h3>
-          </a>
-          <p class="featured-desc">${feat.meta.description || feat.rawExcerpt || "点击探索深度阅读全文..."}</p>
-          <div class="post-meta-row">
-            <span class="meta-item">${ICONS.calendar} ${feat.meta.date || getTodayFormattedDate().replace(/\./g, "-")}</span>
-            <span class="meta-item">${ICONS.clock} 约 ${feat.readingStats.readingTimeMin} 分钟阅读</span>
-            <span class="meta-item">${ICONS.chat} ${featComments}</span>
-          </div>
-        </div>
-      </article>
+      <section class="editorial-hero-col-center" style="box-sizing: border-box;">
+        <img src="images/hero-architecture.jpg" alt="Editorial Hero Cover" class="editorial-hero-img" onerror="this.src='images/hero-daily.jpg'">
+      </section>
+
+      <section class="editorial-hero-col-right" style="box-sizing: border-box;">
+        <span class="editorial-nav-label">CATEGORIES</span>
+        <nav class="editorial-nav-list">
+          <a href="categories.html" class="editorial-nav-item"><span>DESIGN</span> <span>→</span></a>
+          <a href="categories.html" class="editorial-nav-item"><span>TECHNOLOGY</span> <span>→</span></a>
+          <a href="categories.html" class="editorial-nav-item"><span>LIFE</span> <span>→</span></a>
+          <a href="categories.html" class="editorial-nav-item"><span>NOTES</span> <span>→</span></a>
+        </nav>
+      </section>
     </section>
 
-    <!-- Section 2: 最新文章 (LATEST) 全动态分类联动筛选 -->
-    <section id="latest">
-      <div class="section-header-bar">
-        <h2 class="section-title">
-          最新文章 <span class="section-subtitle">LATEST</span>
-        </h2>
-        <div class="category-filter-pills">
-          <button class="filter-pill active" onclick="filterCategory('all', this)">全部</button>
-          ${allCategories
-            .map((cat) => `<button class="filter-pill" onclick="filterCategory('${cat}', this)">${cat}</button>`)
-            .join("\n          ")}
-        </div>
-      </div>
+    <!-- Chapter 2: FEATURED Showcase -->
+    <section id="featured" class="featured-showcase" style="box-sizing: border-box;">
+      <section class="featured-showcase-header" style="box-sizing: border-box;">
+        <span class="chapter-label">FEATURED ——</span>
+      </section>
 
-      <div class="latest-grid-2">
-        ${latestCardsHtml}
-      </div>
+      <section class="featured-showcase-grid" style="box-sizing: border-box;">
+        <section class="featured-showcase-text" style="box-sizing: border-box;">
+          <a href="posts/${feat.slug}.html" style="text-decoration: none;">
+            <h2 class="featured-showcase-title">${feat.meta.title}</h2>
+          </a>
+          <p class="featured-showcase-desc">${feat.meta.description || feat.rawExcerpt || "点击探索深度阅读全文..."}</p>
+          <span class="featured-showcase-meta">${featTag.toUpperCase()} / ${featReadingMin} MIN READ</span>
+        </section>
+
+        <section class="featured-showcase-image-box" style="box-sizing: border-box;">
+          <a href="posts/${feat.slug}.html" style="display: block; width: 100%; height: 100%;">
+            <img src="${featCover}" alt="${feat.meta.title}" class="featured-showcase-img" onerror="this.src='images/featured-fuji.jpg'">
+          </a>
+        </section>
+
+        <section class="featured-showcase-ctrl" style="box-sizing: border-box;">
+          <span class="feat-counter">01 / 04</span>
+          <span class="feat-nav-arrows">↑ ↓</span>
+        </section>
+      </section>
+    </section>
+
+    <!-- Chapter 3: SELECTED WRITINGS (4-column vertical stream) -->
+    <section class="selected-writings" style="box-sizing: border-box;">
+      <section class="selected-writings-header" style="box-sizing: border-box;">
+        <span class="chapter-label">SELECTED WRITINGS ——</span>
+      </section>
+
+      <section class="selected-writings-stream" style="box-sizing: border-box;">
+        ${selectedStreamHtml}
+      </section>
+    </section>
+
+    <!-- Chapter 4: Panoramic Archive Spread -->
+    <section class="panoramic-archive-spread" style="box-sizing: border-box;">
+      <section class="panoramic-inner" style="box-sizing: border-box;">
+        <section class="panoramic-header" style="box-sizing: border-box;">
+          <h2 class="panoramic-title">
+            <span>ARCHIVE ——</span>
+            <span class="panoramic-sub">时间会筛选出真正重要的东西。</span>
+          </h2>
+          <a href="archives.html" class="panoramic-view-all">VIEW ALL →</a>
+        </section>
+
+        <section class="panoramic-years-grid" style="box-sizing: border-box;">
+          ${panoramicColsHtml}
+        </section>
+      </section>
+    </section>
+
+    <!-- Chapter 5: Footprint & About -->
+    <section class="footprint-about" style="box-sizing: border-box;">
+      <section class="footprint-about-inner" style="box-sizing: border-box;">
+        <section class="footprint-avatar-box" style="box-sizing: border-box;">
+          <img src="images/avatar.jpg" alt="${SITE_CONFIG.author}" class="footprint-avatar-img" onerror="this.src='images/featured-fuji.jpg'">
+        </section>
+
+        <section class="footprint-info" style="box-sizing: border-box;">
+          <section class="footprint-header-row" style="box-sizing: border-box;">
+            <h2 class="footprint-title">ABOUT ME ——</h2>
+            <span class="footprint-signature">${SITE_CONFIG.author}</span>
+          </section>
+          <p class="footprint-bio">
+            你好，我是 ${SITE_CONFIG.author}。一个喜欢思考、记录和创造的人。在这里，我分享一些关于设计、技术、生活的所见所想。
+          </p>
+          <section class="footprint-footer-row" style="box-sizing: border-box;">
+            <a href="about.html" class="footprint-more-link">MORE ABOUT →</a>
+            <section class="footprint-social-links" style="box-sizing: border-box;">
+              <a href="mailto:${SITE_CONFIG.email}" class="footprint-social-icon" title="发送邮件">${ICONS.mail}</a>
+              <a href="${SITE_CONFIG.githubUrl}" target="_blank" rel="noopener" class="footprint-social-icon" title="GitHub 主页">${ICONS.github}</a>
+              <a href="about.html" class="footprint-social-icon" title="关于我">${ICONS.user}</a>
+            </section>
+          </section>
+        </section>
+      </section>
     </section>
   </main>
 
