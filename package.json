@@ -1,0 +1,13 @@
+{
+  "name": "weavingtan-notes-site",
+  "version": "1.0.0",
+  "description": "基于 obw 出版级排版引擎构建的高颜值个人 Notes 静态站点",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "serve": "npx serve dist"
+  },
+  "dependencies": {
+    "obsidian-wechat-publisher": "github:weavingtan/obw#main"
+  }
+}
