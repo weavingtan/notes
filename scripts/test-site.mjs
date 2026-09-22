@@ -598,6 +598,50 @@ console.log("\n▶ [Test 12/12] 分类与标签页 1:1 复刻侧边栏与水平�
   console.log("  ✓ categories.html 与 tags.html 1:1 复刻双列杂志流式排版就绪，侧边栏、引言卡片、水平流与 0 div 断言全数通过");
 }
 
-console.log("\n🎉 全部 12 大测试套件 100% 验证通过！出版级质量门禁就绪！");
+// ========================================================
+// 13. 关于我页面 1:1 复刻编辑部杂志画像排版断言 (Task 6: About Page Reimagining)
+// ========================================================
+console.log("\n▶ [Test 13/13] 关于我页面 1:1 复刻编辑部杂志画像排版断言");
+
+{
+  const aboutHtml = fs.readFileSync(path.join(DIST_DIR, "about.html"), "utf-8");
+
+  // 13.1 3-column Hero Trio
+  assert.ok(aboutHtml.includes("about-hero-trio"), "about.html 必须包含 3 列主角区 about-hero-trio");
+  assert.ok(aboutHtml.includes("ABOUT ME ——"), "about.html 必须包含 'ABOUT ME ——' 顶标");
+  assert.ok(aboutHtml.includes("保持好奇，保持温柔。"), "about.html 必须包含右侧名言 '保持好奇，保持温柔。'");
+
+  // 13.2 Personal Info Card & Details
+  assert.ok(aboutHtml.includes("personal-info-card"), "about.html 必须包含个人档案卡片 personal-info-card");
+  assert.ok(aboutHtml.includes("PERSONAL INFO"), "about.html 必须包含 'PERSONAL INFO' 标题");
+  assert.ok(aboutHtml.includes("全栈架构师 / 产品设计师"), "about.html 必须包含职业 '全栈架构师 / 产品设计师'");
+
+  // 13.3 4-Column Interests Hairline Grid
+  assert.ok(aboutHtml.includes("interests-hairline-grid"), "about.html 必须包含 4 列兴趣发丝线网格 interests-hairline-grid");
+  assert.ok(aboutHtml.includes("MY INTERESTS"), "about.html 必须包含 'MY INTERESTS' 标题");
+  assert.ok(aboutHtml.includes("设计"), "about.html 兴趣栏必须包含 '设计'");
+  assert.ok(aboutHtml.includes("技术"), "about.html 兴趣栏必须包含 '技术'");
+  assert.ok(aboutHtml.includes("生活"), "about.html 兴趣栏必须包含 '生活'");
+  assert.ok(aboutHtml.includes("阅读"), "about.html 兴趣栏必须包含 '阅读'");
+
+  // 13.4 Panoramic About Banner
+  assert.ok(aboutHtml.includes("panoramic-about-banner"), "about.html 必须包含全景宽幅横幅 panoramic-about-banner");
+  assert.ok(aboutHtml.includes("在生活的缝隙里，寻找热爱的方向"), "about.html 必须包含全景文案 '在生活的缝隙里，寻找热爱的方向'");
+  assert.ok(aboutHtml.includes("Better Things Ahead"), "about.html 必须包含英文寄语 'Better Things Ahead'");
+
+  // 13.5 ZERO <div> inside <main>
+  const mainMatch = aboutHtml.match(/<main\b[\s\S]*?<\/main>/i);
+  assert.ok(mainMatch, "about.html 必须包含 <main> 容器");
+  const divInMain = mainMatch[0].match(/<div\b/i);
+  assert.equal(
+    divInMain,
+    null,
+    "about.html <main> 容器内部违背 AGENTS.md 硬红线！出现了 <div 标签！必须全部使用 <section> 或语义化标签"
+  );
+
+  console.log("  ✓ about.html 3 列主角区、个人资料卡、4 列兴趣发丝线网格、全景横幅与 <main> 内 0 div 断言全数通过");
+}
+
+console.log("\n🎉 全部 13 大测试套件 100% 验证通过！出版级质量门禁就绪！");
 
 

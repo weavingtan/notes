@@ -3471,60 +3471,478 @@ button {
 
 
 /* ========================================================
-   关于我独立页面 (About)
+   关于我独立页面 (About Me - 1:1 Reference Image 1)
    ======================================================== */
-.about-wrapper {
-  max-width: 900px;
-  margin: 40px auto 80px;
-  padding: 0 24px;
+.about-main-page {
+  padding-top: 8px;
 }
 
-.about-card {
+/* 1. 3-Column Hero Trio */
+.about-hero-trio {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 36px;
+  padding: 48px 0 60px 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 56px;
+}
+
+.about-hero-statement {
+  flex: 0 0 34%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.about-hero-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  font-weight: 750;
+  color: var(--primary);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: block;
+}
+
+.about-hero-title {
+  font-size: clamp(1.85rem, 3.2vw, 2.6rem);
+  font-weight: 850;
+  line-height: 1.28;
+  letter-spacing: -0.025em;
+  color: var(--text-main);
+  margin: 0 0 18px 0;
+}
+
+.about-hero-intro {
+  font-size: 0.96rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+  margin: 0 0 28px 0;
+}
+
+.about-hero-read-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  transition: all 0.2s ease;
+  margin-top: auto;
+  width: fit-content;
+}
+
+.about-hero-read-more:hover {
+  color: var(--primary-hover);
+  transform: translateX(4px);
+}
+
+.about-hero-center {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--bg-subtle);
+  position: relative;
+  min-height: 320px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+}
+
+.about-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.about-hero-center:hover .about-hero-img {
+  transform: scale(1.03);
+}
+
+.about-hero-quote-col {
+  flex: 0 0 24%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-left: 28px;
+  border-left: 1px solid var(--border-subtle, var(--border-color));
+  min-width: 0;
+}
+
+.about-hero-quote {
+  font-family: var(--font-serif, "Georgia", serif);
+  font-size: 1.25rem;
+  font-style: italic;
+  line-height: 1.65;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.about-hero-signature-block {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 24px;
+}
+
+.about-hero-signature {
+  font-family: var(--font-serif, "Georgia", "Baskerville", serif);
+  font-size: 1.5rem;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.about-hero-location {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--text-light);
+  text-transform: uppercase;
+}
+
+/* 2. Middle Split Section */
+.about-mid-split {
+  display: flex;
+  gap: 40px;
+  align-items: stretch;
+  margin-bottom: 64px;
+}
+
+.about-personal-col {
+  flex: 0 0 320px;
+  min-width: 0;
+}
+
+.personal-info-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 24px;
-  padding: 44px 48px;
+  border-radius: 16px;
+  padding: 28px;
   box-shadow: var(--card-shadow);
-}
-
-.about-profile-header {
   display: flex;
-  align-items: center;
-  gap: 24px;
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border-color);
+  flex-direction: column;
+  height: 100%;
 }
 
-.about-avatar {
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  background: var(--accent-gradient);
+.personal-portrait-wrap {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 22px;
+  background: var(--bg-subtle);
+}
+
+.personal-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%);
+  display: block;
+  transition: filter 0.35s ease;
+}
+
+.personal-portrait-wrap:hover .personal-portrait-img {
+  filter: grayscale(20%);
+}
+
+.personal-header {
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle, var(--border-color));
+}
+
+.personal-header-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 750;
+  color: var(--primary);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.personal-details-list {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  font-weight: 800;
-  color: #ffffff;
-  box-shadow: 0 4px 16px var(--primary-faint);
-  flex-shrink: 0;
+  flex-direction: column;
+  gap: 13px;
+  margin-bottom: 22px;
 }
 
-.about-name-block {
+.personal-detail-row {
+  display: flex;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.detail-label {
+  flex: 0 0 44px;
+  color: var(--text-light);
+  font-weight: 500;
+  font-family: var(--font-sans, sans-serif);
+}
+
+.detail-value {
+  flex: 1;
+  color: var(--text-main);
+  font-weight: 550;
+  word-break: break-word;
+}
+
+.detail-email-link {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.detail-email-link:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+.personal-card-divider {
+  height: 1px;
+  background: var(--border-subtle, var(--border-color));
+  margin: auto 0 18px 0;
+}
+
+.personal-footer-block {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.personal-signature {
+  font-family: var(--font-serif, "Georgia", serif);
+  font-size: 1.3rem;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.personal-motto {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.76rem;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.about-interests-col {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.interests-header {
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle, var(--border-color));
+}
+
+.interests-header-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 750;
+  color: var(--primary);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.interests-hairline-grid {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: var(--bg-card);
+  overflow: hidden;
   flex: 1;
 }
 
-.about-name {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--text-main);
-  margin-bottom: 4px;
+.interest-hairline-col {
+  flex: 1 1 25%;
+  min-width: 0;
+  padding: 34px 26px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border-subtle, var(--border-color));
+  transition: background 0.25s ease;
 }
 
-.about-title-tag {
-  font-size: 0.92rem;
+.interest-hairline-col:last-child {
+  border-right: none;
+}
+
+.interest-hairline-col:hover {
+  background: var(--bg-subtle);
+}
+
+.interest-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--primary-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  margin-bottom: 22px;
+  flex-shrink: 0;
+}
+
+.interest-col-title {
+  font-size: 1.12rem;
+  font-weight: 750;
+  color: var(--text-main);
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.interest-col-en {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-light);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.interest-col-desc {
+  font-size: 0.88rem;
+  line-height: 1.7;
   color: var(--text-muted);
+  margin: 0 0 24px 0;
+  flex: 1;
+}
+
+.interest-view-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  margin-top: auto;
+  transition: all 0.2s ease;
+}
+
+.interest-view-more:hover {
+  color: var(--primary-hover);
+  transform: translateX(3px);
+}
+
+/* 3. Panoramic Landscape Banner */
+.panoramic-about-banner {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 56px;
+  min-height: 300px;
+  background-image: url('images/hero-bg.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+}
+
+.panoramic-about-overlay {
+  position: relative;
+  width: 100%;
+  min-height: 300px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.65) 50%, rgba(15, 23, 42, 0.82) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 56px 60px;
+  gap: 40px;
+}
+
+.panoramic-about-left {
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panoramic-about-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 750;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.panoramic-about-title {
+  font-size: clamp(1.6rem, 2.8vw, 2.3rem);
+  font-weight: 850;
+  color: #ffffff;
+  line-height: 1.3;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.panoramic-about-sub {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0 0 12px 0;
+  letter-spacing: 0.04em;
+}
+
+.panoramic-about-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.84rem;
+  font-weight: 750;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 10px 22px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  width: fit-content;
+  transition: all 0.25s ease;
+}
+
+.panoramic-about-link:hover {
+  background: #ffffff;
+  color: #0f172a;
+  transform: translateY(-2px);
+}
+
+.panoramic-about-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.panoramic-about-cursive {
+  font-family: var(--font-serif, "Georgia", "Baskerville", cursive, serif);
+  font-size: clamp(1.8rem, 3.5vw, 3rem);
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 /* ========================================================
@@ -3948,6 +4366,61 @@ body.focus-reading-mode .focus-mode-exit-btn {
   .year-col-left {
     flex: 0 0 170px;
   }
+
+  /* 关于我页面 1024px 响应式 (纯 flex 弹性流，无 grid) */
+  .about-hero-trio {
+    flex-wrap: wrap;
+    gap: 32px;
+    padding: 36px 0 48px;
+    margin-bottom: 48px;
+  }
+  .about-hero-statement {
+    flex: 1 1 52%;
+  }
+  .about-hero-center {
+    flex: 1 1 40%;
+    min-height: 280px;
+  }
+  .about-hero-quote-col {
+    flex: 1 1 100%;
+    border-left: none;
+    border-top: 1px solid var(--border-subtle, var(--border-color));
+    padding-left: 0;
+    padding-top: 24px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .about-hero-signature-block {
+    margin-top: 0;
+    padding-top: 0;
+    align-items: flex-end;
+  }
+  .about-mid-split {
+    flex-direction: column;
+    gap: 40px;
+    margin-bottom: 48px;
+  }
+  .about-personal-col {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+  .interests-hairline-grid {
+    flex-wrap: wrap;
+  }
+  .interest-hairline-col {
+    flex: 1 1 50%;
+  }
+  .interest-hairline-col:nth-child(2) {
+    border-right: none;
+  }
+  .interest-hairline-col:nth-child(1),
+  .interest-hairline-col:nth-child(2) {
+    border-bottom: 1px solid var(--border-subtle, var(--border-color));
+  }
+  .panoramic-about-overlay {
+    padding: 44px 36px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -4252,8 +4725,61 @@ body.focus-reading-mode .focus-mode-exit-btn {
     padding-left: 0;
     align-self: flex-start;
   }
-  .about-card {
-    padding: 24px 16px;
+  /* 关于我页面 768px 移动端响应式 (纯 flex 弹性流，无 grid) */
+  .about-hero-trio {
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px 0 36px;
+    margin-bottom: 36px;
+  }
+  .about-hero-statement,
+  .about-hero-center,
+  .about-hero-quote-col {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+  .about-hero-center {
+    min-height: 220px;
+  }
+  .about-hero-quote-col {
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+    padding-left: 0;
+    padding-top: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .about-mid-split {
+    flex-direction: column;
+    gap: 32px;
+    margin-bottom: 40px;
+  }
+  .interests-hairline-grid {
+    flex-direction: column;
+  }
+  .interest-hairline-col {
+    flex: 1 1 auto;
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle, var(--border-color));
+    padding: 28px 20px;
+  }
+  .interest-hairline-col:last-child {
+    border-bottom: none;
+  }
+  .panoramic-about-banner {
+    min-height: auto;
+    margin-bottom: 40px;
+  }
+  .panoramic-about-overlay {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 36px 20px;
+    min-height: auto;
+  }
+  .panoramic-about-right {
+    align-self: flex-start;
   }
 }
 
@@ -5933,12 +6459,17 @@ ${SITE_STYLES}
 }
 
 /**
- * 组装关于我页面 HTML (/about.html)
+ * 组装关于我页面 HTML (/about.html - 1:1 Reference Image 1)
  */
-export function buildAboutHtml(aboutPost, aboutRenderedHtml, aboutToc, searchIndex = []) {
-  const tocHtml = aboutToc && aboutToc.length > 0
-    ? aboutToc.map(t => `<li class="toc-item toc-level-${t.level}"><a href="#${t.id}">${t.text}</a></li>`).join("\n")
-    : "";
+export function buildAboutHtml(aboutPost, arg2, arg3, arg4) {
+  let searchIndex = [];
+  if (Array.isArray(arg2)) {
+    searchIndex = arg2;
+  } else if (Array.isArray(arg4)) {
+    searchIndex = arg4;
+  } else if (Array.isArray(arg3)) {
+    searchIndex = arg3;
+  }
 
   return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -5976,42 +6507,155 @@ ${SITE_STYLES}
     </div>
   </header>
 
-  <div class="subpage-hero-banner">
-    <div class="subpage-hero-container">
-      <div class="subpage-badge">
-        <span class="pill-dot"></span> 创造者档案 · 思考原点
-      </div>
-      <h1 class="subpage-title">关于作者与本站</h1>
-      <div class="subpage-subtitle">ABOUT THE CREATOR</div>
-      <p class="subpage-desc">“生活不在别处，就在当下的每一个选择里。” 记录技术、产品、生活与成长。</p>
-    </div>
-  </div>
-
-  <main class="about-wrapper">
-    <article class="about-card">
-      <div class="about-profile-header">
-        <div class="about-avatar">T</div>
-        <div class="about-name-block">
-          <h2 class="about-name">${SITE_CONFIG.author} (Weaving)</h2>
-          <div class="about-title-tag">全栈架构开发者 · 独立创造者 · 微信出版级排版倡导者</div>
-        </div>
-      </div>
-
-      <section class="article-content">
-        ${aboutRenderedHtml}
+  <!-- 页面主体内容 (纯 Section 架构，微信后台 0 塌陷保证，无任何 div 标签) -->
+  <main class="main-content-wrapper main-container about-main-page">
+    <!-- 1. 3-Column Hero Trio -->
+    <section class="about-hero-trio" style="box-sizing: border-box;">
+      <section class="about-hero-statement" style="box-sizing: border-box;">
+        <span class="about-hero-label">ABOUT ME ——</span>
+        <h1 class="about-hero-title">你好，我是 Tan。<br>一个喜欢思考、记录和<br>创造的人。</h1>
+        <p class="about-hero-intro">
+          在技术的演进中寻找确定性，在设计的克制中注入温度。这里是我的个人思考集散地，记录架构、产品、生活与长期主义实践。
+        </p>
+        <a href="#about-profile" class="about-hero-read-more">READ MORE →</a>
       </section>
 
-      <!-- 微信公众号订阅卡片 -->
-      <section class="wechat-promo-card">
-        <div class="wechat-promo-text">
-          <h4>关注作者公众号「${SITE_CONFIG.wechatName}」</h4>
-          <p>本文由 Obsidian WeChat Publisher (obw) 出版级排版引擎生成并同步发布。深度技术实战与原创思考第一时间直达。</p>
-        </div>
-        <div class="wechat-qr-box">
-          <img src="${SITE_CONFIG.wechatQrUrl}" alt="公众号二维码" onerror="this.parentElement.style.display='none'">
-        </div>
+      <section class="about-hero-center" style="box-sizing: border-box;">
+        <img src="images/hero-daily.jpg" alt="Tan's Workspace Sunlight" class="about-hero-img" onerror="this.src='images/hero-bg.jpg'">
       </section>
-    </article>
+
+      <section class="about-hero-quote-col" style="box-sizing: border-box;">
+        <blockquote class="about-hero-quote">
+          “保持好奇，保持温柔。”
+        </blockquote>
+        <section class="about-hero-signature-block" style="box-sizing: border-box;">
+          <span class="about-hero-signature">Tan</span>
+          <span class="about-hero-location">BEIJING · 2026</span>
+        </section>
+      </section>
+    </section>
+
+    <!-- 2. Middle Split Section (Personal Info + My Interests) -->
+    <section id="about-profile" class="about-mid-split" style="box-sizing: border-box;">
+      <!-- Left Column: Personal Info Card -->
+      <section class="about-personal-col" style="box-sizing: border-box;">
+        <section class="personal-info-card" style="box-sizing: border-box;">
+          <section class="personal-portrait-wrap" style="box-sizing: border-box;">
+            <img src="images/avatar.jpg" alt="Tan Portrait" class="personal-portrait-img">
+          </section>
+          <header class="personal-header" style="box-sizing: border-box;">
+            <span class="personal-header-label">PERSONAL INFO</span>
+          </header>
+          <section class="personal-details-list" style="box-sizing: border-box;">
+            <section class="personal-detail-row" style="box-sizing: border-box;">
+              <span class="detail-label">坐标</span>
+              <span class="detail-value">北京 · 朝阳</span>
+            </section>
+            <section class="personal-detail-row" style="box-sizing: border-box;">
+              <span class="detail-label">职业</span>
+              <span class="detail-value">全栈架构师 / 产品设计师</span>
+            </section>
+            <section class="personal-detail-row" style="box-sizing: border-box;">
+              <span class="detail-label">邮箱</span>
+              <span class="detail-value"><a href="mailto:tan@example.com" class="detail-email-link">tan@example.com</a></span>
+            </section>
+            <section class="personal-detail-row" style="box-sizing: border-box;">
+              <span class="detail-label">喜欢</span>
+              <span class="detail-value">架构演进、开源、阅读、摄影、咖啡</span>
+            </section>
+          </section>
+          <section class="personal-card-divider" style="box-sizing: border-box;"></section>
+          <section class="personal-footer-block" style="box-sizing: border-box;">
+            <span class="personal-signature">Tan</span>
+            <span class="personal-motto">Good things take time.</span>
+          </section>
+        </section>
+      </section>
+
+      <!-- Right Column: My Interests -->
+      <section class="about-interests-col" style="box-sizing: border-box;">
+        <header class="interests-header" style="box-sizing: border-box;">
+          <span class="interests-header-label">MY INTERESTS</span>
+        </header>
+        <section class="interests-hairline-grid" style="box-sizing: border-box;">
+          <!-- 1. 设计 DESIGN -->
+          <section class="interest-hairline-col" style="box-sizing: border-box;">
+            <section class="interest-icon-box" style="box-sizing: border-box;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+                <path d="M2 2l7.586 7.586"/>
+                <circle cx="11" cy="11" r="2"/>
+              </svg>
+            </section>
+            <h3 class="interest-col-title">设计 <span class="interest-col-en">DESIGN</span></h3>
+            <p class="interest-col-desc">喜欢简洁、克制、有温度的设计。也喜欢探索不同的视觉表达方式。</p>
+            <a href="categories.html#cat-设计" class="interest-view-more">VIEW MORE →</a>
+          </section>
+
+          <!-- 2. 技术 TECHNOLOGY -->
+          <section class="interest-hairline-col" style="box-sizing: border-box;">
+            <section class="interest-icon-box" style="box-sizing: border-box;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 18 22 12 16 6"/>
+                <polyline points="8 6 2 12 8 18"/>
+              </svg>
+            </section>
+            <h3 class="interest-col-title">技术 <span class="interest-col-en">TECHNOLOGY</span></h3>
+            <p class="interest-col-desc">关注互联网、AI 和数字产品，喜欢思考技术如何改变我们新生活方式。</p>
+            <a href="categories.html#cat-技术" class="interest-view-more">VIEW MORE →</a>
+          </section>
+
+          <!-- 3. 生活 LIFE -->
+          <section class="interest-hairline-col" style="box-sizing: border-box;">
+            <section class="interest-icon-box" style="box-sizing: border-box;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+            </section>
+            <h3 class="interest-col-title">生活 <span class="interest-col-en">LIFE</span></h3>
+            <p class="interest-col-desc">喜欢城市漫步、记录日常的美好，也喜欢在旅行中发现新的视角。</p>
+            <a href="categories.html#cat-生活" class="interest-view-more">VIEW MORE →</a>
+          </section>
+
+          <!-- 4. 阅读 NOTES -->
+          <section class="interest-hairline-col" style="box-sizing: border-box;">
+            <section class="interest-icon-box" style="box-sizing: border-box;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
+            </section>
+            <h3 class="interest-col-title">阅读 <span class="interest-col-en">NOTES</span></h3>
+            <p class="interest-col-desc">阅读是我最重要的精神食粮，在文字中寻找更多可能性。</p>
+            <a href="archives.html" class="interest-view-more">VIEW MORE →</a>
+          </section>
+        </section>
+      </section>
+    </section>
+
+    <!-- 3. Panoramic Landscape Banner -->
+    <section class="panoramic-about-banner" style="box-sizing: border-box;">
+      <section class="panoramic-about-overlay" style="box-sizing: border-box;">
+        <section class="panoramic-about-left" style="box-sizing: border-box;">
+          <span class="panoramic-about-label">A LITTLE MORE ——</span>
+          <h2 class="panoramic-about-title">在生活的缝隙里，寻找热爱的方向。</h2>
+          <p class="panoramic-about-sub">写下思考 · 记录成长 · 分享生活</p>
+          <a href="archives.html" class="panoramic-about-link">EXPLORE MORE →</a>
+        </section>
+        <section class="panoramic-about-right" style="box-sizing: border-box;">
+          <span class="panoramic-about-cursive">Better Things Ahead</span>
+        </section>
+      </section>
+    </section>
   </main>
 
   ${buildBottomBannerHtml()}
@@ -6163,7 +6807,7 @@ export async function main() {
     const rawRendered = renderWithObw(preprocessed, SITE_CONFIG.theme);
     const adapted = adaptObwHtmlForWeb(rawRendered);
     const { toc, html: processedHtml } = extractToc(adapted);
-    const aboutHtml = buildAboutHtml(aboutPost, processedHtml, toc, searchIndex);
+    const aboutHtml = buildAboutHtml(aboutPost, searchIndex);
     fs.writeFileSync(path.join(DIST_DIR, "about.html"), aboutHtml, "utf-8");
     console.log(`✅ 已从 posts/about.md 生成关于我页面: dist/about.html`);
   } else {
@@ -6186,7 +6830,7 @@ highlight | “生活不在别处，就在当下的每一个选择里。”
     const rawRendered = renderWithObw(defaultAboutBody, SITE_CONFIG.theme);
     const adapted = adaptObwHtmlForWeb(rawRendered);
     const { toc, html: processedHtml } = extractToc(adapted);
-    const aboutHtml = buildAboutHtml({ meta: { title: "关于我" }, readingStats: { totalWords: 300, readingTimeMin: 1 } }, processedHtml, toc, searchIndex);
+    const aboutHtml = buildAboutHtml({ meta: { title: "关于我" }, readingStats: { totalWords: 300, readingTimeMin: 1 } }, searchIndex);
     fs.writeFileSync(path.join(DIST_DIR, "about.html"), aboutHtml, "utf-8");
     console.log(`✅ 已生成默认关于我页面: dist/about.html`);
   }
