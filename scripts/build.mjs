@@ -2311,7 +2311,7 @@ function buildPostPageHtml(post, renderedHtml, toc) {
   </script>
   <style>
 :root {
-  --hero-bg: url('../images/hero-clean.jpg'), url('../images/hero-bg.jpg');
+  --hero-bg: url('../images/hero-bg.jpg');
   --banner-bg: url('../images/bottom-banner-clean.jpg'), url('../images/bottom-banner.jpg');
 }
 ${SITE_STYLES}
@@ -2533,7 +2533,7 @@ function buildIndexPageHtml(posts, featuredPost, latestPosts) {
   </script>
   <style>
 :root {
-  --hero-bg: url('images/hero-clean.jpg'), url('images/hero-bg.jpg');
+  --hero-bg: url('images/hero-bg.jpg');
   --banner-bg: url('images/bottom-banner-clean.jpg'), url('images/bottom-banner.jpg');
 }
 ${SITE_STYLES}
