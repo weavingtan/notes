@@ -5351,27 +5351,27 @@ ${SITE_STYLES}
         <a href="../index.html" class="back-link">
           ${ICONS.arrowLeft} 返回博客首页
         </a>
-        <div class="article-badge-row">
+        <section class="article-badge-row" style="box-sizing:border-box;">
           ${categoryPill}
           <span class="theme-pill status">2026 · Pro</span>
-        </div>
+        </section>
         <h1 class="article-title">${post.meta.title}</h1>
-        <div class="theme-accent-dash">
+        <section class="theme-accent-dash" style="box-sizing:border-box;">
           <span class="dash-long"></span>
           <span class="dash-dot"></span>
           <span class="dash-dot"></span>
-        </div>
+        </section>
         ${post.meta.description ? `<p class="article-digest-desc">${post.meta.description}</p>` : ""}
         ${coverUrl ? `
-        <div class="article-cover-card" style="border-radius:14px;overflow:hidden;margin:18px 0 24px;border:1px solid var(--border-color);">
+        <section class="article-cover-card" style="box-sizing:border-box;border-radius:14px;overflow:hidden;margin:18px 0 24px;border:1px solid var(--border-color);">
           <img src="${coverUrl}" alt="${post.meta.title}" style="width:100%;max-height:420px;object-fit:cover;display:block;" onerror="this.parentElement.style.display='none'">
-        </div>` : ""}
-        <div class="article-tags-row">
+        </section>` : ""}
+        <section class="article-tags-row" style="box-sizing:border-box;">
           <span class="theme-pill author"><span class="pill-dot"></span> ${post.meta.author || SITE_CONFIG.author}</span>
           ${tagsHtml}
           <span class="theme-pill meta">${ICONS.calendar} ${post.meta.date || "最近更新"}</span>
           <span class="theme-pill meta">${ICONS.clock} 约 ${post.readingStats.readingTimeMin} 分钟阅读</span>
-        </div>
+        </section>
       </header>
 
       <!-- 正文内容 (Web Adaptor 自愈与高对比度排版) -->
@@ -5386,14 +5386,14 @@ ${SITE_STYLES}
       ${recommendationsHtml}
 
       <!-- 微信公众号订阅卡片 -->
-      <section class="wechat-promo-card">
-        <div class="wechat-promo-text">
+      <section class="wechat-promo-card" style="box-sizing:border-box;">
+        <section class="wechat-promo-text" style="box-sizing:border-box;">
           <h4>关注作者公众号「${SITE_CONFIG.wechatName}」</h4>
           <p>本文由 Obsidian WeChat Publisher (obw) 出版级排版引擎生成并同步发布。深度技术实战与原创思考第一时间直达。</p>
-        </div>
-        <div class="wechat-qr-box">
+        </section>
+        <section class="wechat-qr-box" style="box-sizing:border-box;">
           <img src="../${SITE_CONFIG.wechatQrUrl}" alt="公众号二维码" onerror="this.parentElement.style.display='none'">
-        </div>
+        </section>
       </section>
     </article>
 
@@ -5401,20 +5401,20 @@ ${SITE_STYLES}
     ${
       toc.length > 0
         ? `<aside class="article-toc-sidebar" aria-label="文章目录">
-        <div class="toc-header">
+        <section class="toc-header" style="box-sizing:border-box;">
           ${ICONS.toc} <span>本文目录</span>
-        </div>
+        </section>
         <ul class="toc-list">
           ${tocItemsHtml}
         </ul>
       </aside>`
         : `<aside class="article-toc-sidebar">
-        <div class="toc-header">${ICONS.toc} <span>文章信息</span></div>
-        <div style="font-size:0.88rem;color:var(--text-muted);line-height:1.6;">
+        <section class="toc-header" style="box-sizing:border-box;">${ICONS.toc} <span>文章信息</span></section>
+        <section style="box-sizing:border-box;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">
           作者：${post.meta.author || SITE_CONFIG.author}<br>
           分类：${(post.meta.categories && post.meta.categories.join(", ")) || "随笔"}<br>
           字数：约 ${post.readingStats.totalWords} 字
-        </div>
+        </section>
       </aside>`
     }
   </main>

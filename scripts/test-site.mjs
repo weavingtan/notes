@@ -285,8 +285,19 @@ for (const postFile of postHtmlFiles) {
       `违背微信防塌陷硬红线！文章 [${rel}] 的正文渲染区中出现了 <div 标签！必须全部使用 <section>`
     );
   }
+
+  // 提取 <main> 容器，断言文章详情页 <main> 内零 <div>
+  const mainMatch = content.match(/<main[\s\S]*?<\/main>/i);
+  if (mainMatch) {
+    const divInMain = mainMatch[0].match(/<div\b/i);
+    assert.equal(
+      divInMain,
+      null,
+      `违背 AGENTS.md 硬红线！文章 [${rel}] 的 <main> 容器内部出现了 <div 标签！必须全部使用 <section> 或语义化标签`
+    );
+  }
 }
-console.log(`  ✓ 全部 ${postHtmlFiles.length} 篇详情页 article-content 均无 <div>，完全免疫微信粘贴塌陷！`);
+console.log(`  ✓ 全部 ${postHtmlFiles.length} 篇详情页 <main> 与 article-content 均无 <div>，完全免疫微信粘贴塌陷！`);
 
 // ========================================================
 // 6. V2 视觉体验升级与暗黑模式白板免疫断言
