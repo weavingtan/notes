@@ -542,5 +542,62 @@ console.log("\n▶ [Test 11/11] 归档页 1:1 复刻编辑部杂志时间线断�
   console.log("  ✓ 归档页杂志流式排版就绪，年份反思、垂直虚线时间轴、双列画报流与底栏分页就绪，main 内部 0 div 断言通过");
 }
 
-console.log("\n🎉 全部 11 大测试套件 100% 验证通过！出版级质量门禁就绪！");
+// ========================================================
+// 12. 分类与标签页 1:1 复刻侧边栏与水平条目流断言 (Task 5: Category & Tag Pages)
+// ========================================================
+console.log("\n▶ [Test 12/12] 分类与标签页 1:1 复刻侧边栏与水平条目流断言");
+
+{
+  const targetPages = [
+    { file: "categories.html", type: "CATEGORIES", label: "CATEGORY" },
+    { file: "tags.html", type: "TAGS", label: "TAG" }
+  ];
+
+  for (const { file, type, label } of targetPages) {
+    const pageHtml = fs.readFileSync(path.join(DIST_DIR, file), "utf-8");
+
+    // 12.1 tag-hero
+    assert.ok(pageHtml.includes("tag-hero"), `${file} 必须包含 tag-hero`);
+    assert.ok(pageHtml.includes("Good design makes life better."), `${file} 必须包含右侧引言 "Good design makes life better."`);
+
+    // 12.2 tag-stream-layout (Dual-column layout: sidebar + right content stream)
+    assert.ok(pageHtml.includes("tag-stream-layout"), `${file} 必须包含 tag-stream-layout 双列布局`);
+    assert.ok(pageHtml.includes("tag-sidebar"), `${file} 必须包含左侧边栏 tag-sidebar`);
+    assert.ok(pageHtml.includes("tag-main-stream"), `${file} 必须包含右侧流 tag-main-stream`);
+
+    // 12.3 tag-sidebar-list
+    assert.ok(pageHtml.includes("tag-sidebar-list"), `${file} 必须包含 tag-sidebar-list 侧边栏列表`);
+    assert.ok(pageHtml.includes(`ALL ${type}`), `${file} 必须包含侧边栏标题 ALL ${type}`);
+
+    // 12.4 sidebar-quote-box
+    assert.ok(pageHtml.includes("sidebar-quote-box"), `${file} 必须包含 sidebar-quote-box`);
+    assert.ok(pageHtml.includes("写作，是我与世界对话的方式。"), `${file} 必须包含底部引言 "写作，是我与世界对话的方式。"`);
+    assert.ok(pageHtml.includes("Tan"), `${file} 必须包含作者签名 "Tan"`);
+
+    // 12.5 stream-tabs
+    assert.ok(pageHtml.includes("stream-tabs"), `${file} 必须包含 stream-tabs 标签切换条`);
+    assert.ok(pageHtml.includes("最新"), `${file} 必须包含 '最新' 标签`);
+    assert.ok(pageHtml.includes("最热"), `${file} 必须包含 '最热' 标签`);
+    assert.ok(pageHtml.includes("最多阅读"), `${file} 必须包含 '最多阅读' 标签`);
+
+    // 12.6 horizontal-entry-item
+    assert.ok(pageHtml.includes("horizontal-entry-item"), `${file} 必须包含水平条目 horizontal-entry-item`);
+    assert.ok(pageHtml.includes("min read ——"), `${file} 必须包含阅读时间与索引编号格式 "min read —— "`);
+
+    // 12.7 ZERO <div> inside <main>
+    const mainMatch = pageHtml.match(/<main\b[\s\S]*?<\/main>/i);
+    assert.ok(mainMatch, `${file} 必须包含 <main> 容器`);
+    const divInMain = mainMatch[0].match(/<div\b/i);
+    assert.equal(
+      divInMain,
+      null,
+      `${file} <main> 容器内部违背 AGENTS.md 硬红线！出现了 <div 标签！必须全部使用 <section> 或语义化标签`
+    );
+  }
+
+  console.log("  ✓ categories.html 与 tags.html 1:1 复刻双列杂志流式排版就绪，侧边栏、引言卡片、水平流与 0 div 断言全数通过");
+}
+
+console.log("\n🎉 全部 12 大测试套件 100% 验证通过！出版级质量门禁就绪！");
+
 

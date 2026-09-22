@@ -3054,182 +3054,421 @@ button {
 
 
 /* ========================================================
-   分类探索页面 (Categories)
+   分类与标签双列杂志流 (Reference Image 4)
    ======================================================== */
-.categories-container {
-  max-width: 1080px;
-  margin: 40px auto 80px;
-  padding: 0 24px;
+.tag-hero {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 36px;
+  padding: 48px 0 60px 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 48px;
 }
 
-.categories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
-}
-
-.category-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 18px;
-  padding: 24px;
-  box-shadow: var(--card-shadow);
-  transition: all 0.25s ease;
+.tag-hero-left {
+  flex: 0 0 32%;
   display: flex;
   flex-direction: column;
-}
-
-.category-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--card-shadow-hover);
-  border-color: var(--card-border-hover);
-}
-
-.category-card-header {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-subtle);
+  min-width: 0;
 }
 
-.category-card-title {
-  font-size: 1.25rem;
+.tag-hero-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
   font-weight: 750;
-  color: var(--text-main);
-}
-
-.category-card-count {
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 9999px;
-  background: var(--primary-faint);
   color: var(--primary);
-  border: 1px solid var(--pill-border);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: block;
 }
 
-.category-post-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  flex: 1;
-}
-
-.category-post-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  font-size: 0.92rem;
+.tag-hero-title {
+  font-size: clamp(1.85rem, 3.2vw, 2.6rem);
+  font-weight: 850;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
   color: var(--text-main);
-  transition: background-color 0.15s ease, color 0.15s ease;
+  margin: 0 0 16px 0;
 }
 
-.category-post-item:hover {
-  background: var(--bg-subtle);
-  color: var(--primary);
+.tag-hero-desc {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin: 0 0 24px 0;
 }
 
-.category-post-title {
-  font-weight: 550;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.category-post-date {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  color: var(--text-light);
-  white-space: nowrap;
-}
-
-/* ========================================================
-   标签云与索引页面 (Tags)
-   ======================================================== */
-.tags-container {
-  max-width: 960px;
-  margin: 40px auto 80px;
-  padding: 0 24px;
-}
-
-.tags-cloud-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
-  padding: 32px 28px;
-  box-shadow: var(--card-shadow);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 50px;
-}
-
-.tag-cloud-chip {
+.tag-hero-view-all {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 18px;
-  border-radius: 9999px;
-  font-weight: 600;
-  background: var(--bg-subtle);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+  letter-spacing: 0.06em;
   transition: all 0.2s ease;
-  cursor: pointer;
+  margin-top: auto;
 }
 
-.tag-cloud-chip:hover {
-  background: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--primary-faint);
+.tag-hero-view-all:hover {
+  color: var(--primary-hover);
+  transform: translateX(4px);
 }
 
-.tag-cloud-count {
-  font-size: 0.75rem;
-  opacity: 0.75;
-  background: rgba(0, 0, 0, 0.08);
-  padding: 2px 7px;
-  border-radius: 9999px;
+.tag-hero-center {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--bg-subtle);
+  position: relative;
+  min-height: 280px;
 }
 
-[data-mode="dark"] .tag-cloud-count {
-  background: rgba(255, 255, 255, 0.15);
+.tag-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.tag-sections-container {
+.tag-hero-center:hover .tag-hero-img {
+  transform: scale(1.03);
+}
+
+.tag-hero-right {
+  flex: 0 0 22%;
   display: flex;
   flex-direction: column;
-  gap: 36px;
+  justify-content: flex-end;
+  padding-left: 24px;
+  border-left: 1px solid var(--border-subtle, var(--border-color));
+  min-width: 0;
 }
 
-.tag-group-box {
+.tag-hero-quote {
+  font-family: var(--font-serif, "Georgia", serif);
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Dual-Column Stream Layout */
+.tag-stream-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 56px;
+  margin-bottom: 72px;
+}
+
+/* Left Sidebar */
+.tag-sidebar {
+  flex: 0 0 280px;
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  position: sticky;
+  top: 88px;
+}
+
+.tag-sidebar-header {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 750;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.tag-sidebar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tag-sidebar-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-weight: 550;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  border-radius: 0 6px 6px 0;
+  transition: all 0.2s ease;
+}
+
+.tag-sidebar-item:hover {
+  color: var(--primary);
+  background: var(--primary-faint, rgba(43, 107, 79, 0.05));
+}
+
+.tag-sidebar-item.active {
+  border-left: 3px solid var(--primary);
+  color: var(--primary);
+  background: var(--primary-faint, rgba(43, 107, 79, 0.08));
+  font-weight: 650;
+}
+
+.tag-sidebar-count {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.tag-sidebar-item.active .tag-sidebar-count {
+  background: var(--primary-faint, rgba(43, 107, 79, 0.15));
+  color: var(--primary);
+}
+
+.sidebar-quote-box {
+  padding: 22px;
+  border-radius: 12px;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   box-shadow: var(--card-shadow);
 }
 
-.tag-group-title {
+.sidebar-quote-photo {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-subtle);
+}
+
+.sidebar-quote-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.sidebar-quote-box:hover .sidebar-quote-img {
+  transform: scale(1.03);
+}
+
+.sidebar-quote-text {
+  font-family: var(--font-serif, "Georgia", serif);
+  font-size: 0.94rem;
+  font-style: italic;
+  line-height: 1.65;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.sidebar-quote-signature {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: var(--primary);
+  text-align: right;
+  display: block;
+}
+
+/* Right Column Main Stream */
+.tag-main-stream {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.stream-tabs {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 1.15rem;
-  font-weight: 750;
-  color: var(--text-main);
-  margin-bottom: 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-subtle);
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
+  margin-bottom: 8px;
 }
+
+.stream-tabs-nav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.stream-tab {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  position: relative;
+  padding-bottom: 16px;
+  margin-bottom: -17px;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.stream-tab:hover {
+  color: var(--primary);
+}
+
+.stream-tab.active {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.stream-tab-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 2px 2px 0 0;
+}
+
+.stream-total-count {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.stream-entries-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.horizontal-entry-item {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 30px 0;
+  border-bottom: 1px solid var(--border-subtle, var(--border-color));
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+.horizontal-entry-item:last-child {
+  border-bottom: none;
+}
+
+.entry-thumb-link {
+  flex: 0 0 220px;
+  width: 220px;
+  aspect-ratio: 16 / 10;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-subtle);
+  display: block;
+}
+
+.entry-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.horizontal-entry-item:hover .entry-thumb-img {
+  transform: scale(1.04);
+}
+
+.entry-text-block {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.entry-meta-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.entry-meta-category {
+  color: var(--primary);
+  font-weight: 650;
+  text-transform: uppercase;
+}
+
+.entry-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 750;
+  line-height: 1.38;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.entry-title a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.horizontal-entry-item:hover .entry-title a,
+.entry-title a:hover {
+  color: var(--primary);
+}
+
+.entry-excerpt {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.entry-right-meta {
+  flex: 0 0 auto;
+  padding-left: 16px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.entry-reading-index {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-light);
+  letter-spacing: 0.04em;
+}
+
+.stream-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0 24px 0;
+  border-top: 1px solid var(--border-color);
+  margin-top: 24px;
+}
+
 
 /* ========================================================
    关于我独立页面 (About)
@@ -3689,6 +3928,20 @@ body.focus-reading-mode .focus-mode-exit-btn {
   .archive-hero {
     gap: 24px;
   }
+  .tag-hero {
+    gap: 24px;
+  }
+  .tag-stream-layout {
+    gap: 36px;
+  }
+  .tag-sidebar {
+    flex: 0 0 240px;
+    width: 240px;
+  }
+  .entry-thumb-link {
+    flex: 0 0 190px;
+    width: 190px;
+  }
   .year-block {
     gap: 28px;
   }
@@ -3937,8 +4190,67 @@ body.focus-reading-mode .focus-mode-exit-btn {
     gap: 14px;
     text-align: center;
   }
-  .categories-grid {
-    grid-template-columns: 1fr;
+  /* 分类与标签双列杂志流响应式 */
+  .tag-hero {
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px 0 36px 0;
+  }
+  .tag-hero-left,
+  .tag-hero-center,
+  .tag-hero-right {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+  .tag-hero-center {
+    min-height: 220px;
+  }
+  .tag-hero-right {
+    padding-left: 0;
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+    padding-top: 16px;
+  }
+  .tag-stream-layout {
+    flex-direction: column;
+    gap: 36px;
+  }
+  .tag-sidebar {
+    width: 100%;
+    flex: 1 1 auto;
+    position: static;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 32px;
+  }
+  .tag-sidebar-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tag-sidebar-item {
+    border-left: none;
+    border-radius: 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
+  }
+  .sidebar-quote-box {
+    display: none;
+  }
+  .horizontal-entry-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px 0;
+  }
+  .entry-thumb-link {
+    width: 100%;
+    flex: 1 1 auto;
+    aspect-ratio: 16 / 10;
+  }
+  .entry-right-meta {
+    padding-left: 0;
+    align-self: flex-start;
   }
   .about-card {
     padding: 24px 16px;
@@ -5058,32 +5370,76 @@ ${SITE_STYLES}
 }
 
 /**
- * 组装分类探索页面 HTML (/categories.html)
+ * 组装分类探索页面 HTML (/categories.html) - 1:1 复刻 Reference Image 4
  */
 export function buildCategoriesHtml(posts, categoriesMap, searchIndex = []) {
-  const categoriesHtml = Object.entries(categoriesMap)
-    .sort((a, b) => b[1].length - a[1].length)
-    .map(([cat, catPosts]) => {
-      return `
-      <div class="category-card" id="cat-${encodeURIComponent(cat)}">
-        <div class="category-card-header">
-          <h3 class="category-card-title">${cat}</h3>
-          <span class="category-card-count">${catPosts.length} 篇</span>
-        </div>
-        <div class="category-post-list">
-          ${catPosts
-            .map(
-              (p) => `
-            <a href="posts/${p.slug}.html" class="category-post-item">
-              <span class="category-post-title">${p.meta.title}</span>
-              <span class="category-post-date">${p.meta.date || ""}</span>
-            </a>`
-            )
-            .join("\n")}
-        </div>
-      </div>`;
-    })
-    .join("\n");
+  if (!categoriesMap) {
+    categoriesMap = {};
+    for (const post of posts) {
+      for (const cat of post.meta.categories || ["未分类"]) {
+        if (!categoriesMap[cat]) categoriesMap[cat] = [];
+        categoriesMap[cat].push(post);
+      }
+    }
+  }
+
+  const fallbackImages = [
+    "images/post-design.jpg",
+    "images/post-study.jpg",
+    "images/post-hyperf.jpg",
+    "images/post-travel.jpg",
+    "images/featured-fuji.jpg",
+    "images/hero-architecture.jpg",
+    "images/hero-daily.jpg",
+  ];
+
+  const sortedCategories = Object.entries(categoriesMap)
+    .filter(([c]) => c !== "关于")
+    .sort((a, b) => b[1].length - a[1].length);
+
+  const activeName = sortedCategories[0] ? sortedCategories[0][0] : "全部";
+  const count = sortedCategories[0] ? sortedCategories[0][1].length : posts.length;
+
+  const sidebarItemsHtml = sortedCategories.map(([cat, catPosts], idx) => {
+    const isActive = idx === 0;
+    const activeClass = isActive ? " active" : "";
+    const activeStyle = isActive ? ` style="border-left: 3px solid var(--primary); color: var(--primary);"` : "";
+    return `
+          <a href="categories.html#cat-${encodeURIComponent(cat)}" class="tag-sidebar-item${activeClass}"${activeStyle} data-filter="${cat}" data-name="${cat}" data-count="${catPosts.length}">
+            <span class="tag-sidebar-name">${cat}</span>
+            <span class="tag-sidebar-count">${catPosts.length}</span>
+          </a>`;
+  }).join("\n");
+
+  const entriesHtml = posts.map((post, idx) => {
+    const idxStr = String(idx + 1).padStart(2, "0");
+    const rawCover = post.meta.cover ? post.meta.cover.replace(/^\.\.\//, "") : "";
+    const coverUrl = rawCover || fallbackImages[idx % fallbackImages.length];
+    const catName = (post.meta.categories && post.meta.categories[0]) || (post.meta.tags && post.meta.tags[0]) || "未分类";
+    const readingMin = post.readingStats ? post.readingStats.readingTimeMin : 4;
+    const excerpt = post.meta.description || "点击探索深度阅读全文...";
+
+    return `
+          <section class="horizontal-entry-item" style="box-sizing: border-box;" data-categories="${(post.meta.categories || []).join(",")}" data-tags="${(post.meta.tags || []).join(",")}">
+            <a href="posts/${post.slug}.html" class="entry-thumb-link" aria-label="${post.meta.title}">
+              <img src="${coverUrl}" alt="${post.meta.title}" class="entry-thumb-img" loading="lazy" onerror="this.src='images/hero-daily.jpg'">
+            </a>
+            <section class="entry-text-block" style="box-sizing: border-box;">
+              <header class="entry-meta-header" style="box-sizing: border-box;">
+                <span class="entry-meta-date">${post.meta.date || "2026-09-22"}</span>
+                <span class="entry-meta-sep">·</span>
+                <span class="entry-meta-category">${catName}</span>
+              </header>
+              <h3 class="entry-title">
+                <a href="posts/${post.slug}.html">${post.meta.title}</a>
+              </h3>
+              <p class="entry-excerpt">${excerpt}</p>
+            </section>
+            <section class="entry-right-meta" style="box-sizing: border-box;">
+              <span class="entry-reading-index">${readingMin} min read —— ${idxStr}</span>
+            </section>
+          </section>`;
+  }).join("\n");
 
   return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -5121,21 +5477,84 @@ ${SITE_STYLES}
     </div>
   </header>
 
-  <div class="subpage-hero-banner">
-    <div class="subpage-hero-container">
-      <div class="subpage-badge">
-        <span class="pill-dot"></span> 结构化知识库 · 主题导航
-      </div>
-      <h1 class="subpage-title">文章分类聚合</h1>
-      <div class="subpage-subtitle">CATEGORIES DIRECTORY</div>
-      <p class="subpage-desc">按技术、产品、生活、成长等维度聚类的长文脉络，帮你快速定位感兴趣的知识领域。</p>
-    </div>
-  </div>
+  <!-- 页面主体内容 (纯 Section 架构，微信后台 0 塌陷保证) -->
+  <main class="main-content-wrapper main-container">
+    <!-- Hero Header -->
+    <section class="tag-hero" style="box-sizing: border-box;">
+      <section class="tag-hero-left" style="box-sizing: border-box;">
+        <span class="tag-hero-label">CATEGORY ——</span>
+        <h1 class="tag-hero-title">${activeName} · ${count} 篇文章</h1>
+        <p class="tag-hero-desc">探索体系化思考与技术实现的交汇点。按主题聚类的长文脉络，记录架构设计、工程实践与生活感悟。</p>
+        <a href="categories.html" class="tag-hero-view-all">VIEW ALL →</a>
+      </section>
 
-  <main class="categories-container">
-    <div class="categories-grid">
-      ${categoriesHtml}
-    </div>
+      <section class="tag-hero-center" style="box-sizing: border-box;">
+        <img src="images/hero-architecture.jpg" alt="Category Hero Atmosphere" class="tag-hero-img" onerror="this.src='images/hero-daily.jpg'">
+      </section>
+
+      <section class="tag-hero-right" style="box-sizing: border-box;">
+        <p class="tag-hero-quote"><em>"Good design makes life better."</em></p>
+      </section>
+    </section>
+
+    <!-- Dual-Column Body -->
+    <section class="tag-stream-layout" style="box-sizing: border-box;">
+      <!-- Left Column Sidebar -->
+      <section class="tag-sidebar" style="box-sizing: border-box;">
+        <span class="tag-sidebar-header">ALL CATEGORIES ——</span>
+        <nav class="tag-sidebar-list">
+          ${sidebarItemsHtml}
+        </nav>
+
+        <section class="sidebar-quote-box" style="box-sizing: border-box;">
+          <section class="sidebar-quote-photo" style="box-sizing: border-box;">
+            <img src="images/hero-bg.jpg" alt="Author Workspace" class="sidebar-quote-img" onerror="this.src='images/hero-daily.jpg'">
+          </section>
+          <blockquote class="sidebar-quote-text">
+            "写作，是我与世界对话的方式。"
+          </blockquote>
+          <span class="sidebar-quote-signature">—— Tan</span>
+        </section>
+      </section>
+
+      <!-- Right Column Main Stream -->
+      <section class="tag-main-stream" style="box-sizing: border-box;">
+        <!-- Tabs Header -->
+        <section class="stream-tabs" style="box-sizing: border-box;">
+          <nav class="stream-tabs-nav">
+            <a href="#latest" class="stream-tab active" onclick="return false;">
+              <span>最新</span>
+              <span class="stream-tab-indicator"></span>
+            </a>
+            <a href="#popular" class="stream-tab" onclick="return false;">
+              <span>最热</span>
+            </a>
+            <a href="#most-read" class="stream-tab" onclick="return false;">
+              <span>最多阅读</span>
+            </a>
+          </nav>
+          <span class="stream-total-count">共 ${posts.length} 篇文章</span>
+        </section>
+
+        <!-- Horizontal Entries Stream -->
+        <section class="stream-entries-list" style="box-sizing: border-box;">
+          ${entriesHtml}
+        </section>
+
+        <!-- Bottom Pagination -->
+        <section class="archive-pagination stream-pagination" style="box-sizing: border-box;">
+          <nav class="archive-pagination-nav">
+            <a href="#" class="pagination-arrow disabled" aria-label="Previous page">&lt;</a>
+            <a href="#" class="pagination-page active">1</a>
+            <a href="#" class="pagination-page">2</a>
+            <a href="#" class="pagination-page">3</a>
+            <a href="#" class="pagination-page">4</a>
+            <a href="#" class="pagination-page">5</a>
+            <a href="#" class="pagination-arrow" aria-label="Next page">&gt;</a>
+          </nav>
+        </section>
+      </section>
+    </section>
   </main>
 
   ${buildBottomBannerHtml()}
@@ -5150,47 +5569,158 @@ ${SITE_STYLES}
   </footer>
 
   <script>${CLIENT_SCRIPTS}</script>
+  <script>
+    (function() {
+      const sidebarItems = document.querySelectorAll(".tag-sidebar-item");
+      const entries = document.querySelectorAll(".horizontal-entry-item");
+      const heroTitle = document.querySelector(".tag-hero-title");
+      const totalCount = document.querySelector(".stream-total-count");
+      const viewAllBtn = document.querySelector(".tag-hero-view-all");
+      const tabs = document.querySelectorAll(".stream-tab");
+
+      function filterCategory(catName, count) {
+        sidebarItems.forEach(item => {
+          if (item.dataset.filter === catName) {
+            item.classList.add("active");
+            item.style.borderLeft = "3px solid var(--primary)";
+            item.style.color = "var(--primary)";
+          } else {
+            item.classList.remove("active");
+            item.style.borderLeft = "";
+            item.style.color = "";
+          }
+        });
+
+        let visibleCount = 0;
+        entries.forEach(entry => {
+          const cats = (entry.dataset.categories || "").split(",");
+          if (!catName || cats.includes(catName)) {
+            entry.style.display = "flex";
+            visibleCount++;
+          } else {
+            entry.style.display = "none";
+          }
+        });
+
+        if (heroTitle) {
+          heroTitle.textContent = catName ? (catName + " · " + visibleCount + " 篇文章") : ("全部 · " + entries.length + " 篇文章");
+        }
+        if (totalCount) {
+          totalCount.textContent = "共 " + visibleCount + " 篇文章";
+        }
+      }
+
+      sidebarItems.forEach(item => {
+        item.addEventListener("click", function(e) {
+          e.preventDefault();
+          filterCategory(this.dataset.filter, this.dataset.count);
+        });
+      });
+
+      if (viewAllBtn) {
+        viewAllBtn.addEventListener("click", function(e) {
+          e.preventDefault();
+          sidebarItems.forEach(item => {
+            item.classList.remove("active");
+            item.style.borderLeft = "";
+            item.style.color = "";
+          });
+          entries.forEach(entry => entry.style.display = "flex");
+          if (heroTitle) heroTitle.textContent = "全部 · " + entries.length + " 篇文章";
+          if (totalCount) totalCount.textContent = "共 " + entries.length + " 篇文章";
+        });
+      }
+
+      tabs.forEach(tab => {
+        tab.addEventListener("click", function(e) {
+          e.preventDefault();
+          tabs.forEach(t => {
+            t.classList.remove("active");
+            const ind = t.querySelector(".stream-tab-indicator");
+            if (ind) ind.remove();
+          });
+          this.classList.add("active");
+          const ind = document.createElement("span");
+          ind.className = "stream-tab-indicator";
+          this.appendChild(ind);
+        });
+      });
+    })();
+  </script>
 </body>
 </html>`;
 }
 
 /**
- * 组装标签云与检索页面 HTML (/tags.html)
+ * 组装标签云与检索页面 HTML (/tags.html) - 1:1 复刻 Reference Image 4
  */
 export function buildTagsHtml(posts, tagsMap, searchIndex = []) {
-  const sortedTags = Object.entries(tagsMap).sort((a, b) => b[1].length - a[1].length);
+  if (!tagsMap) {
+    tagsMap = {};
+    for (const post of posts) {
+      for (const tag of post.meta.tags || []) {
+        if (!tagsMap[tag]) tagsMap[tag] = [];
+        tagsMap[tag].push(post);
+      }
+    }
+  }
 
-  const tagChipsHtml = sortedTags
-    .map(([tag, tagPosts]) => {
-      return `
-      <a href="#tag-${encodeURIComponent(tag)}" class="tag-cloud-chip">
-        <span># ${tag}</span>
-        <span class="tag-cloud-count">${tagPosts.length}</span>
-      </a>`;
-    })
-    .join("\n");
+  const fallbackImages = [
+    "images/post-design.jpg",
+    "images/post-study.jpg",
+    "images/post-hyperf.jpg",
+    "images/post-travel.jpg",
+    "images/featured-fuji.jpg",
+    "images/hero-architecture.jpg",
+    "images/hero-daily.jpg",
+  ];
 
-  const tagSectionsHtml = sortedTags
-    .map(([tag, tagPosts]) => {
-      return `
-      <div class="tag-group-box" id="tag-${encodeURIComponent(tag)}">
-        <div class="tag-group-title">
-          ${ICONS.tag} <span>${tag}</span> <span class="subpage-badge" style="margin:0 0 0 auto;font-size:0.75rem;">${tagPosts.length} 篇</span>
-        </div>
-        <div class="category-post-list">
-          ${tagPosts
-            .map(
-              (p) => `
-            <a href="posts/${p.slug}.html" class="category-post-item">
-              <span class="category-post-title">${p.meta.title}</span>
-              <span class="category-post-date">${p.meta.date || ""}</span>
-            </a>`
-            )
-            .join("\n")}
-        </div>
-      </div>`;
-    })
-    .join("\n");
+  const sortedTags = Object.entries(tagsMap)
+    .sort((a, b) => b[1].length - a[1].length);
+
+  const activeName = sortedTags[0] ? sortedTags[0][0] : "全部";
+  const count = sortedTags[0] ? sortedTags[0][1].length : posts.length;
+
+  const sidebarItemsHtml = sortedTags.map(([tag, tagPosts], idx) => {
+    const isActive = idx === 0;
+    const activeClass = isActive ? " active" : "";
+    const activeStyle = isActive ? ` style="border-left: 3px solid var(--primary); color: var(--primary);"` : "";
+    return `
+          <a href="tags.html#tag-${encodeURIComponent(tag)}" class="tag-sidebar-item${activeClass}"${activeStyle} data-filter="${tag}" data-name="${tag}" data-count="${tagPosts.length}">
+            <span class="tag-sidebar-name"># ${tag}</span>
+            <span class="tag-sidebar-count">${tagPosts.length}</span>
+          </a>`;
+  }).join("\n");
+
+  const entriesHtml = posts.map((post, idx) => {
+    const idxStr = String(idx + 1).padStart(2, "0");
+    const rawCover = post.meta.cover ? post.meta.cover.replace(/^\.\.\//, "") : "";
+    const coverUrl = rawCover || fallbackImages[idx % fallbackImages.length];
+    const catName = (post.meta.categories && post.meta.categories[0]) || (post.meta.tags && post.meta.tags[0]) || "未分类";
+    const readingMin = post.readingStats ? post.readingStats.readingTimeMin : 4;
+    const excerpt = post.meta.description || "点击探索深度阅读全文...";
+
+    return `
+          <section class="horizontal-entry-item" style="box-sizing: border-box;" data-categories="${(post.meta.categories || []).join(",")}" data-tags="${(post.meta.tags || []).join(",")}">
+            <a href="posts/${post.slug}.html" class="entry-thumb-link" aria-label="${post.meta.title}">
+              <img src="${coverUrl}" alt="${post.meta.title}" class="entry-thumb-img" loading="lazy" onerror="this.src='images/hero-daily.jpg'">
+            </a>
+            <section class="entry-text-block" style="box-sizing: border-box;">
+              <header class="entry-meta-header" style="box-sizing: border-box;">
+                <span class="entry-meta-date">${post.meta.date || "2026-09-22"}</span>
+                <span class="entry-meta-sep">·</span>
+                <span class="entry-meta-category">${catName}</span>
+              </header>
+              <h3 class="entry-title">
+                <a href="posts/${post.slug}.html">${post.meta.title}</a>
+              </h3>
+              <p class="entry-excerpt">${excerpt}</p>
+            </section>
+            <section class="entry-right-meta" style="box-sizing: border-box;">
+              <span class="entry-reading-index">${readingMin} min read —— ${idxStr}</span>
+            </section>
+          </section>`;
+  }).join("\n");
 
   return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -5228,25 +5758,84 @@ ${SITE_STYLES}
     </div>
   </header>
 
-  <div class="subpage-hero-banner">
-    <div class="subpage-hero-container">
-      <div class="subpage-badge">
-        <span class="pill-dot"></span> 灵感词云 · 颗粒度检索
-      </div>
-      <h1 class="subpage-title">标签词云索引</h1>
-      <div class="subpage-subtitle">TAGS DIRECTORY</div>
-      <p class="subpage-desc">按细分技术点与关键词交叉索引，点击标签即可跳转查看关联的所有深度文章。</p>
-    </div>
-  </div>
+  <!-- 页面主体内容 (纯 Section 架构，微信后台 0 塌陷保证) -->
+  <main class="main-content-wrapper main-container">
+    <!-- Hero Header -->
+    <section class="tag-hero" style="box-sizing: border-box;">
+      <section class="tag-hero-left" style="box-sizing: border-box;">
+        <span class="tag-hero-label">TAG ——</span>
+        <h1 class="tag-hero-title">${activeName} · ${count} 篇文章</h1>
+        <p class="tag-hero-desc">按细分知识点与灵感关键词交叉索引，以敏锐的颗粒度穿透不同领域，快速定位感兴趣的深度内容。</p>
+        <a href="tags.html" class="tag-hero-view-all">VIEW ALL →</a>
+      </section>
 
-  <main class="tags-container">
-    <div class="tags-cloud-card">
-      ${tagChipsHtml}
-    </div>
+      <section class="tag-hero-center" style="box-sizing: border-box;">
+        <img src="images/hero-daily.jpg" alt="Tag Hero Atmosphere" class="tag-hero-img" onerror="this.src='images/hero-architecture.jpg'">
+      </section>
 
-    <div class="tag-sections-container">
-      ${tagSectionsHtml}
-    </div>
+      <section class="tag-hero-right" style="box-sizing: border-box;">
+        <p class="tag-hero-quote"><em>"Good design makes life better."</em></p>
+      </section>
+    </section>
+
+    <!-- Dual-Column Body -->
+    <section class="tag-stream-layout" style="box-sizing: border-box;">
+      <!-- Left Column Sidebar -->
+      <section class="tag-sidebar" style="box-sizing: border-box;">
+        <span class="tag-sidebar-header">ALL TAGS ——</span>
+        <nav class="tag-sidebar-list">
+          ${sidebarItemsHtml}
+        </nav>
+
+        <section class="sidebar-quote-box" style="box-sizing: border-box;">
+          <section class="sidebar-quote-photo" style="box-sizing: border-box;">
+            <img src="images/hero-bg.jpg" alt="Author Workspace" class="sidebar-quote-img" onerror="this.src='images/hero-daily.jpg'">
+          </section>
+          <blockquote class="sidebar-quote-text">
+            "写作，是我与世界对话的方式。"
+          </blockquote>
+          <span class="sidebar-quote-signature">—— Tan</span>
+        </section>
+      </section>
+
+      <!-- Right Column Main Stream -->
+      <section class="tag-main-stream" style="box-sizing: border-box;">
+        <!-- Tabs Header -->
+        <section class="stream-tabs" style="box-sizing: border-box;">
+          <nav class="stream-tabs-nav">
+            <a href="#latest" class="stream-tab active" onclick="return false;">
+              <span>最新</span>
+              <span class="stream-tab-indicator"></span>
+            </a>
+            <a href="#popular" class="stream-tab" onclick="return false;">
+              <span>最热</span>
+            </a>
+            <a href="#most-read" class="stream-tab" onclick="return false;">
+              <span>最多阅读</span>
+            </a>
+          </nav>
+          <span class="stream-total-count">共 ${posts.length} 篇文章</span>
+        </section>
+
+        <!-- Horizontal Entries Stream -->
+        <section class="stream-entries-list" style="box-sizing: border-box;">
+          ${entriesHtml}
+        </section>
+
+        <!-- Bottom Pagination -->
+        <section class="archive-pagination stream-pagination" style="box-sizing: border-box;">
+          <nav class="archive-pagination-nav">
+            <a href="#" class="pagination-arrow disabled" aria-label="Previous page">&lt;</a>
+            <a href="#" class="pagination-page active">1</a>
+            <a href="#" class="pagination-page">2</a>
+            <a href="#" class="pagination-page">3</a>
+            <a href="#" class="pagination-page">4</a>
+            <a href="#" class="pagination-page">5</a>
+            <a href="#" class="pagination-arrow" aria-label="Next page">&gt;</a>
+          </nav>
+        </section>
+      </section>
+    </section>
   </main>
 
   ${buildBottomBannerHtml()}
@@ -5261,6 +5850,84 @@ ${SITE_STYLES}
   </footer>
 
   <script>${CLIENT_SCRIPTS}</script>
+  <script>
+    (function() {
+      const sidebarItems = document.querySelectorAll(".tag-sidebar-item");
+      const entries = document.querySelectorAll(".horizontal-entry-item");
+      const heroTitle = document.querySelector(".tag-hero-title");
+      const totalCount = document.querySelector(".stream-total-count");
+      const viewAllBtn = document.querySelector(".tag-hero-view-all");
+      const tabs = document.querySelectorAll(".stream-tab");
+
+      function filterTag(tagName, count) {
+        sidebarItems.forEach(item => {
+          if (item.dataset.filter === tagName) {
+            item.classList.add("active");
+            item.style.borderLeft = "3px solid var(--primary)";
+            item.style.color = "var(--primary)";
+          } else {
+            item.classList.remove("active");
+            item.style.borderLeft = "";
+            item.style.color = "";
+          }
+        });
+
+        let visibleCount = 0;
+        entries.forEach(entry => {
+          const tags = (entry.dataset.tags || "").split(",");
+          if (!tagName || tags.includes(tagName)) {
+            entry.style.display = "flex";
+            visibleCount++;
+          } else {
+            entry.style.display = "none";
+          }
+        });
+
+        if (heroTitle) {
+          heroTitle.textContent = tagName ? (tagName + " · " + visibleCount + " 篇文章") : ("全部 · " + entries.length + " 篇文章");
+        }
+        if (totalCount) {
+          totalCount.textContent = "共 " + visibleCount + " 篇文章";
+        }
+      }
+
+      sidebarItems.forEach(item => {
+        item.addEventListener("click", function(e) {
+          e.preventDefault();
+          filterTag(this.dataset.filter, this.dataset.count);
+        });
+      });
+
+      if (viewAllBtn) {
+        viewAllBtn.addEventListener("click", function(e) {
+          e.preventDefault();
+          sidebarItems.forEach(item => {
+            item.classList.remove("active");
+            item.style.borderLeft = "";
+            item.style.color = "";
+          });
+          entries.forEach(entry => entry.style.display = "flex");
+          if (heroTitle) heroTitle.textContent = "全部 · " + entries.length + " 篇文章";
+          if (totalCount) totalCount.textContent = "共 " + entries.length + " 篇文章";
+        });
+      }
+
+      tabs.forEach(tab => {
+        tab.addEventListener("click", function(e) {
+          e.preventDefault();
+          tabs.forEach(t => {
+            t.classList.remove("active");
+            const ind = t.querySelector(".stream-tab-indicator");
+            if (ind) ind.remove();
+          });
+          this.classList.add("active");
+          const ind = document.createElement("span");
+          ind.className = "stream-tab-indicator";
+          this.appendChild(ind);
+        });
+      });
+    })();
+  </script>
 </body>
 </html>`;
 }
