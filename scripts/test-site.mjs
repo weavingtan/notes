@@ -877,14 +877,28 @@ console.log("\n▶ [Test 18/18] 电影感沉浸巨幕、人文排版、开放 AP
   assert.ok(archivesHtml.includes("archive-on-this-day"), "归档页必须包含独立策展横幅 archive-on-this-day");
   assert.ok(!aboutHtml.includes('<section class="bottom-comm-banner"'), "关于我页以全景大横幅为收尾，严禁出现重复的 bottom-comm-banner 底栏");
 
-  // 18.4 3D 拟物黑胶唱片卡片 (Vinyl Card) 全站落地断言
+  // 18.4 网易云音乐真实 API 资产与 3D 拟物黑胶唱片交互式播放器全站落地断言
+  const vinylDataJson = JSON.parse(fs.readFileSync(vinylFile, "utf-8"));
+  assert.equal(vinylDataJson.source, "网易云音乐", "vinyl.json 必须真实接入网易云音乐开放数据源");
+  assert.ok(vinylDataJson.audioUrl && vinylDataJson.audioUrl.startsWith("http"), "网易云音乐曲目必须包含可试听的真实音频流链接");
+  assert.ok(Array.isArray(vinylDataJson.tracks) && vinylDataJson.tracks.length > 0, "vinyl.json 必须包含多首网易云音乐曲目列表");
+
   const vinylPages = [categoriesHtml, articlesHtml, aboutHtml];
   for (const page of vinylPages) {
     assert.ok(page.includes("vinyl-capsule"), "页面必须包含 3D 拟物黑胶唱片容器 vinyl-capsule");
     assert.ok(page.includes("vinyl-jacket"), "黑胶唱片组件必须包含封套 jacket");
     assert.ok(page.includes("vinyl-disc"), "黑胶唱片组件必须包含 33RPM 旋转黑胶盘 vinyl-disc");
     assert.ok(page.includes("NOW PLAYING"), "黑胶唱片必须展示播放状态 NOW PLAYING");
+    assert.ok(page.includes("site-vinyl-audio"), "黑胶唱片必须集成真实 HTML5 音频试听播放器");
+    assert.ok(page.includes("vinyl-play-overlay"), "黑胶唱片必须包含交互式播放/暂停按钮浮层");
+    assert.ok(page.includes("vinyl-eq-bars"), "黑胶唱片必须包含动态跳动音量频段 live-equalizer");
+    assert.ok(page.includes("toggleVinylPlay"), "黑胶唱片必须绑定原生客户端控制指令 toggleVinylPlay()");
   }
+
+  // 18.4.1 关于页与文章页布局防塌陷与发丝线网格留白断言
+  assert.ok(/about-mid-split\s*\{[^}]*align-items:\s*flex-start/s.test(aboutHtml), "关于页 .about-mid-split 必须使用 align-items: flex-start 彻底消除发丝线网格大面积空白下坠缺陷");
+  assert.ok(!aboutHtml.includes(".interests-hairline-grid {\n  display: flex;\n  align-items: stretch;\n  border: 1px solid var(--border-color);\n  border-radius: 16px;\n  background: var(--bg-card);\n  overflow: hidden;\n  flex: 1;\n}"), "关于页发丝线网格严禁使用 flex: 1 刚性撑爆留白");
+  assert.ok(categoriesHtml.includes("min-height: 580px;"), "分类与文章列表流必须声明 min-height 保证短分类下不与底栏发生拥挤碰撞");
 
   // 18.5 Raycast 级 Command Palette (Cmd+K) 原生指令中心断言
   assert.ok(indexHtml.includes("nav-cmd-k-btn"), "顶部导航栏必须包含 ⌘K 搜索与指令中心入口");

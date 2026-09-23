@@ -2,11 +2,11 @@
   "city": "Beijing",
   "cityCn": "北京",
   "coordinates": "39°54'N, 116°23'E",
-  "temp": 32,
+  "temp": 30,
   "condition": "多云",
   "icon": "⛅",
   "solarTerm": "秋分",
-  "chineseHour": "申时",
-  "summary": "北京 · 多云 32°C / 秋分 · 申时",
+  "chineseHour": "酉时",
+  "summary": "北京 · 多云 30°C / 秋分 · 酉时",
   "updatedAt": "2026-09-23"
 }

@@ -280,21 +280,100 @@ async function fetchOnThisDay() {
 }
 
 /**
- * 确保听觉心境黑胶唱片数据
+ * 抓取网易云音乐真实曲目数据 (听觉心境黑胶唱片)
  */
-function ensureVinylData() {
-  const vinylData = {
-    title: "Opus",
-    artist: "坂本龙一 (Ryuichi Sakamoto)",
-    releaseYear: "2023",
-    label: "Milan Records",
-    vibe: "静谧钢琴 · 晨曦沉思",
-    currentTrack: "Aqua",
-    jacket: "images/hero-architecture.jpg",
-    updatedAt: new Date().toISOString().slice(0, 10)
+async function fetchNeteaseMusic() {
+  console.log("🎵 正在从网易云音乐获取听觉心境曲目...");
+  const dateStr = new Date().toISOString().slice(0, 10);
+
+  const fallbackVinyl = {
+    source: "网易云音乐",
+    playlistId: 3778678,
+    playlistName: "网易云音乐 · 热歌榜",
+    title: "水星记",
+    artist: "郭顶",
+    album: "飞行器的执行周期",
+    currentTrack: "水星记",
+    jacket: "https://p2.music.126.net/wSMfGvFzOAYRU_yVIfquAA==/2946691248081599.jpg",
+    audioUrl: "https://music.163.com/song/media/outer/url?id=441491828.mp3",
+    songId: 441491828,
+    link: "https://music.163.com/#/song?id=441491828",
+    vibe: "沉浸治愈 · 听觉心境",
+    updatedAt: dateStr,
+    tracks: [
+      {
+        id: 441491828,
+        title: "水星记",
+        artist: "郭顶",
+        album: "飞行器的执行周期",
+        jacket: "https://p2.music.126.net/wSMfGvFzOAYRU_yVIfquAA==/2946691248081599.jpg",
+        audioUrl: "https://music.163.com/song/media/outer/url?id=441491828.mp3",
+        link: "https://music.163.com/#/song?id=441491828"
+      }
+    ]
   };
-  fs.writeFileSync(VINYL_FILE, JSON.stringify(vinylData, null, 2), "utf-8");
-  return vinylData;
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+
+    const res = await fetch("https://music.163.com/api/playlist/detail?id=3778678", {
+      signal: controller.signal,
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Referer": "https://music.163.com/"
+      }
+    });
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.result && Array.isArray(data.result.tracks) && data.result.tracks.length > 0) {
+        const p = data.result;
+        const tracks = p.tracks.slice(0, 10).map(t => {
+          const artistName = (t.artists || []).map(a => a.name).join(" / ") || "网易音乐人";
+          const albumName = (t.album && t.album.name) || "单曲";
+          const jacketUrl = (t.album && t.album.picUrl) ? t.album.picUrl.replace(/^http:\/\//, "https://") : "images/hero-architecture.jpg";
+          return {
+            id: t.id,
+            title: t.name,
+            artist: artistName,
+            album: albumName,
+            jacket: jacketUrl,
+            audioUrl: `https://music.163.com/song/media/outer/url?id=${t.id}.mp3`,
+            link: `https://music.163.com/#/song?id=${t.id}`
+          };
+        });
+
+        const topTrack = tracks[0];
+        const vinylData = {
+          source: "网易云音乐",
+          playlistId: p.id || 3778678,
+          playlistName: p.name || "网易云音乐 · 热歌榜",
+          title: topTrack.title,
+          artist: topTrack.artist,
+          album: topTrack.album,
+          currentTrack: topTrack.title,
+          jacket: topTrack.jacket,
+          audioUrl: topTrack.audioUrl,
+          songId: topTrack.id,
+          link: topTrack.link,
+          vibe: "网易云音乐 · 每日精选",
+          updatedAt: dateStr,
+          tracks: tracks
+        };
+
+        fs.writeFileSync(VINYL_FILE, JSON.stringify(vinylData, null, 2), "utf-8");
+        return vinylData;
+      }
+    }
+  } catch (err) {
+    console.warn("⚠️ 网易云音乐 API 请求超时或异常，平滑启用兜底曲目:", err.message);
+  }
+
+  // 兜底写入
+  fs.writeFileSync(VINYL_FILE, JSON.stringify(fallbackVinyl, null, 2), "utf-8");
+  return fallbackVinyl;
 }
 
 /**
@@ -515,8 +594,8 @@ async function main() {
   fs.writeFileSync(ON_THIS_DAY_FILE, JSON.stringify(onThisDayData, null, 2), "utf-8");
   console.log(`📜 历史上的今天已就绪: ${onThisDayData.display}`);
 
-  // 5. 注入听觉心境黑胶唱片
-  const vinylData = ensureVinylData();
+  // 5. 抓取网易云音乐听觉心境黑胶唱片
+  const vinylData = await fetchNeteaseMusic();
   console.log(`🎵 听觉心境已就绪: ${vinylData.title} · ${vinylData.artist}`);
 
   // 6. 抓取多源自然壁纸

@@ -401,7 +401,7 @@ export function getOnThisDay() {
 }
 
 /**
- * 读取听觉心境黑胶唱片配置 (带优雅兜底)
+ * 读取网易云音乐听觉心境黑胶唱片配置 (带优雅兜底)
  */
 export function getVinylData() {
   if (fs.existsSync(VINYL_FILE)) {
@@ -410,15 +410,62 @@ export function getVinylData() {
     } catch {}
   }
   return {
-    title: "Opus",
-    artist: "坂本龙一 (Ryuichi Sakamoto)",
-    releaseYear: "2023",
-    label: "Milan Records",
-    vibe: "静谧钢琴 · 晨曦沉思",
-    currentTrack: "Aqua",
-    jacket: "images/hero-architecture.jpg",
+    source: "网易云音乐",
+    playlistId: 3778678,
+    playlistName: "网易云音乐 · 热歌榜",
+    title: "水星记",
+    artist: "郭顶",
+    album: "飞行器的执行周期",
+    currentTrack: "水星记",
+    jacket: "https://p2.music.126.net/wSMfGvFzOAYRU_yVIfquAA==/2946691248081599.jpg",
+    audioUrl: "https://music.163.com/song/media/outer/url?id=441491828.mp3",
+    songId: 441491828,
+    link: "https://music.163.com/#/song?id=441491828",
+    vibe: "沉浸治愈 · 听觉心境",
     updatedAt: getTodayFormattedDate().replace(/\./g, "-")
   };
+}
+
+/**
+ * 组装网易云音乐 3D 拟物黑胶唱片交互式播放器组件 (严格遵循 section 语义化)
+ */
+export function buildVinylCapsuleHtml(vinyl = getVinylData()) {
+  const sourceName = vinyl.source || "网易云音乐";
+  const title = vinyl.title || vinyl.currentTrack || "水星记";
+  const artist = vinyl.artist || "网易音乐人";
+  const jacket = vinyl.jacket || "images/hero-architecture.jpg";
+  const audioUrl = vinyl.audioUrl || "https://music.163.com/song/media/outer/url?id=441491828.mp3";
+
+  return `
+        <!-- 3D 拟物网易云音乐黑胶唱片交互式播放器 (严格 Section 语义化，点击直接播放真实曲目) -->
+        <section class="vinyl-capsule" id="vinyl-capsule" style="box-sizing: border-box;" onclick="toggleVinylPlay()" title="点击试听 / 暂停 · ${title} - ${artist}">
+          <section class="vinyl-wrapper" style="box-sizing: border-box;">
+            <section class="vinyl-jacket" style="box-sizing: border-box;">
+              <img src="${jacket}" alt="${title}" onerror="this.src='images/hero-architecture.jpg'">
+              <span class="vinyl-play-overlay">
+                <svg class="vinyl-play-icon" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <svg class="vinyl-pause-icon" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              </span>
+            </section>
+            <section class="vinyl-disc" style="box-sizing: border-box;">
+              <span class="vinyl-disc-center"></span>
+            </section>
+          </section>
+          <section class="vinyl-meta" style="box-sizing: border-box;">
+            <section class="vinyl-label-row" style="box-sizing: border-box;">
+              <span class="vinyl-label">NOW PLAYING · ${sourceName}</span>
+              <span class="vinyl-eq-bars" aria-hidden="true">
+                <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
+              </span>
+            </section>
+            <span class="vinyl-title">${title}</span>
+            <section class="vinyl-bottom-row" style="box-sizing: border-box;">
+              <span class="vinyl-artist">${artist}</span>
+              <span class="vinyl-status-hint">点击试听</span>
+            </section>
+          </section>
+          <audio id="site-vinyl-audio" preload="none" src="${audioUrl}" onplay="onVinylAudioPlay()" onpause="onVinylAudioPause()" onended="onVinylAudioEnded()"></audio>
+        </section>`;
 }
 
 // 5 款精选全站风格定义
@@ -4055,6 +4102,7 @@ button {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  min-height: 580px;
 }
 
 /* 流头部：仅保留文章计数（原「最新 / 最热 / 最多阅读」假 Tabs 已移除） */
@@ -4369,8 +4417,8 @@ button {
 .about-mid-split {
   display: flex;
   gap: 40px;
-  align-items: stretch;
-  margin-bottom: 64px;
+  align-items: flex-start;
+  margin-bottom: 56px;
 }
 
 .about-personal-col {
@@ -4526,14 +4574,14 @@ button {
   border: 1px solid var(--border-color);
   border-radius: 16px;
   background: var(--bg-card);
+  box-shadow: var(--card-shadow);
   overflow: hidden;
-  flex: 1;
 }
 
 .interest-hairline-col {
   flex: 1 1 25%;
   min-width: 0;
-  padding: 34px 26px;
+  padding: 30px 22px;
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border-subtle, var(--border-color));
@@ -4557,7 +4605,7 @@ button {
   align-items: center;
   justify-content: center;
   color: var(--primary);
-  margin-bottom: 22px;
+  margin-bottom: 18px;
   flex-shrink: 0;
 }
 
@@ -4565,7 +4613,7 @@ button {
   font-size: 1.12rem;
   font-weight: 750;
   color: var(--text-main);
-  margin: 0 0 12px 0;
+  margin: 0 0 10px 0;
   display: flex;
   align-items: baseline;
   gap: 8px;
@@ -4582,10 +4630,9 @@ button {
 
 .interest-col-desc {
   font-size: 0.88rem;
-  line-height: 1.7;
+  line-height: 1.65;
   color: var(--text-muted);
-  margin: 0 0 24px 0;
-  flex: 1;
+  margin: 0 0 18px 0;
 }
 
 .interest-view-more {
@@ -4598,7 +4645,7 @@ button {
   color: var(--primary);
   text-decoration: none;
   letter-spacing: 0.06em;
-  margin-top: auto;
+  margin-top: 6px;
   transition: all 0.2s ease;
 }
 
@@ -4612,6 +4659,7 @@ button {
   position: relative;
   border-radius: 18px;
   overflow: hidden;
+  margin-top: 56px;
   margin-bottom: 56px;
   min-height: 300px;
   background-image: url('images/hero-bg.jpg');
@@ -5823,16 +5871,20 @@ body.focus-reading-mode .focus-mode-exit-btn {
   align-items: center;
   gap: 16px;
   padding: 14px 18px;
-  border-radius: 12px;
+  border-radius: 14px;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   box-shadow: var(--card-shadow);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
   margin-top: 18px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
 }
 .vinyl-capsule:hover {
   transform: translateY(-2px);
+  border-color: var(--primary);
   box-shadow: var(--card-shadow-hover);
 }
 .vinyl-wrapper {
@@ -5846,9 +5898,9 @@ body.focus-reading-mode .focus-mode-exit-btn {
   z-index: 2;
   width: 54px;
   height: 54px;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
   background: #1e293b;
 }
 .vinyl-jacket img {
@@ -5856,6 +5908,23 @@ body.focus-reading-mode .focus-mode-exit-btn {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+.vinyl-play-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: opacity 0.2s ease, background 0.2s ease;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  opacity: 0.85;
+}
+.vinyl-capsule:hover .vinyl-play-overlay {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.48);
 }
 .vinyl-disc {
   position: absolute;
@@ -5873,7 +5942,15 @@ body.focus-reading-mode .focus-mode-exit-btn {
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .vinyl-capsule:hover .vinyl-disc {
-  transform: translateX(24px) rotate(180deg);
+  transform: translateX(22px) rotate(180deg);
+}
+.vinyl-capsule.playing .vinyl-disc {
+  transform: translateX(22px);
+  animation: rotateVinyl 4s linear infinite;
+}
+@keyframes rotateVinyl {
+  0% { transform: translateX(22px) rotate(0deg); }
+  100% { transform: translateX(22px) rotate(360deg); }
 }
 .vinyl-disc-center {
   width: 16px;
@@ -5885,28 +5962,64 @@ body.focus-reading-mode .focus-mode-exit-btn {
 .vinyl-meta {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   min-width: 0;
+  flex: 1;
+}
+.vinyl-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 .vinyl-label {
-  font-family: var(--font-mono);
+  font-family: var(--font-mono, monospace);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--primary);
   font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+}
+.vinyl-eq-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2.5px;
+  height: 12px;
+}
+.eq-bar {
+  width: 2.5px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 1px;
+  transition: height 0.2s ease;
+}
+.vinyl-capsule.playing .eq-bar:nth-child(1) {
+  animation: eqBounce 0.7s ease-in-out infinite alternate;
+}
+.vinyl-capsule.playing .eq-bar:nth-child(2) {
+  animation: eqBounce 0.5s ease-in-out 0.2s infinite alternate;
+}
+.vinyl-capsule.playing .eq-bar:nth-child(3) {
+  animation: eqBounce 0.9s ease-in-out 0.1s infinite alternate;
+}
+@keyframes eqBounce {
+  0% { height: 3px; }
+  100% { height: 12px; }
 }
 .vinyl-title {
-  font-family: var(--font-serif-cn);
+  font-family: var(--font-serif-cn, serif);
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 650;
   color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.vinyl-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 .vinyl-artist {
   font-size: 11.5px;
@@ -5914,6 +6027,21 @@ body.focus-reading-mode .focus-mode-exit-btn {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 140px;
+}
+.vinyl-status-hint {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--primary-faint, rgba(16, 185, 129, 0.08));
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.vinyl-capsule.playing .vinyl-status-hint {
+  background: var(--primary);
+  color: #ffffff;
 }
 
 /* ========================================================
@@ -6641,11 +6769,56 @@ window.addEventListener("keydown", (e) => {
   }
 });
 
+// 网易云音乐黑胶唱片播放器控制器
+function toggleVinylPlay() {
+  var audio = document.getElementById("site-vinyl-audio");
+  if (!audio) return;
+  if (audio.paused) {
+    audio.play().then(function() {
+      showToast("🎵 正在试听网易云音乐精选");
+    }).catch(function(e) {
+      console.warn("音频自动播放受限:", e.message);
+      showToast("🎵 点击播放网易云音乐曲目");
+    });
+  } else {
+    audio.pause();
+    showToast("已暂停播放");
+  }
+}
+function onVinylAudioPlay() {
+  document.querySelectorAll(".vinyl-capsule").forEach(function(c) {
+    c.classList.add("playing");
+    var hint = c.querySelector(".vinyl-status-hint");
+    if (hint) hint.textContent = "正在播放";
+    var playIcon = c.querySelector(".vinyl-play-icon");
+    var pauseIcon = c.querySelector(".vinyl-pause-icon");
+    if (playIcon) playIcon.style.display = "none";
+    if (pauseIcon) pauseIcon.style.display = "block";
+  });
+}
+function onVinylAudioPause() {
+  document.querySelectorAll(".vinyl-capsule").forEach(function(c) {
+    c.classList.remove("playing");
+    var hint = c.querySelector(".vinyl-status-hint");
+    if (hint) hint.textContent = "点击试听";
+    var playIcon = c.querySelector(".vinyl-play-icon");
+    var pauseIcon = c.querySelector(".vinyl-pause-icon");
+    if (playIcon) playIcon.style.display = "block";
+    if (pauseIcon) pauseIcon.style.display = "none";
+  });
+}
+function onVinylAudioEnded() {
+  onVinylAudioPause();
+}
 document.addEventListener("DOMContentLoaded", () => {
   initSiteTheme();
   initCodeCopy();
   initZenReadingMode();
 });
+window.toggleVinylPlay = toggleVinylPlay;
+window.onVinylAudioPlay = onVinylAudioPlay;
+window.onVinylAudioPause = onVinylAudioPause;
+window.onVinylAudioEnded = onVinylAudioEnded;
 `;
 
 /**
@@ -7749,22 +7922,7 @@ ${buildPageHeaderHtml({ activeKey: "categories" })}
           <span class="sidebar-quote-signature">—— Tan</span>
         </section>
 
-        <!-- 3D 拟物黑胶唱片组件 -->
-        <section class="vinyl-capsule" style="box-sizing: border-box;">
-          <section class="vinyl-wrapper" style="box-sizing: border-box;">
-            <section class="vinyl-jacket" style="box-sizing: border-box;">
-              <img src="${vinyl.jacket}" alt="${vinyl.title}" onerror="this.src='images/hero-architecture.jpg'">
-            </section>
-            <section class="vinyl-disc" style="box-sizing: border-box;">
-              <span class="vinyl-disc-center"></span>
-            </section>
-          </section>
-          <section class="vinyl-meta" style="box-sizing: border-box;">
-            <span class="vinyl-label">NOW PLAYING</span>
-            <span class="vinyl-title">${vinyl.title} · ${vinyl.currentTrack}</span>
-            <span class="vinyl-artist">${vinyl.artist}</span>
-          </section>
-        </section>
+${buildVinylCapsuleHtml(vinyl)}
       </section>
 
       <!-- Right Column Main Stream -->
@@ -7934,22 +8092,7 @@ ${buildPageHeaderHtml({ activeKey: "articles" })}
           <span class="sidebar-quote-signature">—— ${(SITE_CONFIG.pages && SITE_CONFIG.pages.articles && SITE_CONFIG.pages.articles.sidebar_signature) || SITE_CONFIG.author || "Tan"}</span>
         </section>
 
-        <!-- 3D 拟物黑胶唱片组件 -->
-        <section class="vinyl-capsule" style="box-sizing: border-box;">
-          <section class="vinyl-wrapper" style="box-sizing: border-box;">
-            <section class="vinyl-jacket" style="box-sizing: border-box;">
-              <img src="${vinyl.jacket}" alt="${vinyl.title}" onerror="this.src='images/hero-architecture.jpg'">
-            </section>
-            <section class="vinyl-disc" style="box-sizing: border-box;">
-              <span class="vinyl-disc-center"></span>
-            </section>
-          </section>
-          <section class="vinyl-meta" style="box-sizing: border-box;">
-            <span class="vinyl-label">NOW PLAYING</span>
-            <span class="vinyl-title">${vinyl.title} · ${vinyl.currentTrack}</span>
-            <span class="vinyl-artist">${vinyl.artist}</span>
-          </section>
-        </section>
+${buildVinylCapsuleHtml(vinyl)}
       </section>
 
       <!-- Right Column Main Stream -->
@@ -8079,22 +8222,7 @@ ${buildPageHeaderHtml({ activeKey: "about" })}
           </section>
         </section>
 
-        <!-- 3D 拟物黑胶唱片组件 -->
-        <section class="vinyl-capsule" style="box-sizing: border-box;">
-          <section class="vinyl-wrapper" style="box-sizing: border-box;">
-            <section class="vinyl-jacket" style="box-sizing: border-box;">
-              <img src="${vinyl.jacket}" alt="${vinyl.title}" onerror="this.src='images/hero-architecture.jpg'">
-            </section>
-            <section class="vinyl-disc" style="box-sizing: border-box;">
-              <span class="vinyl-disc-center"></span>
-            </section>
-          </section>
-          <section class="vinyl-meta" style="box-sizing: border-box;">
-            <span class="vinyl-label">NOW PLAYING</span>
-            <span class="vinyl-title">${vinyl.title}</span>
-            <span class="vinyl-artist">${vinyl.artist} · ${vinyl.mood || vinyl.vibe}</span>
-          </section>
-        </section>
+${buildVinylCapsuleHtml(vinyl)}
       </section>
 
       <!-- Right Column: My Interests -->
