@@ -1093,6 +1093,7 @@ export const SITE_STYLES = `
   --pill-border: rgba(16, 185, 129, 0.28);
   --pill-text: #065f46;
   --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(16, 185, 129, 0.16) 0%, rgba(5, 150, 105, 0.04) 60%, transparent 100%);
+  --hero-overlay-gradient: linear-gradient(135deg, rgba(4, 36, 26, 0.82) 0%, rgba(10, 22, 35, 0.90) 100%);
 
   /* 多场景每日壁纸变量池 (支持 WebP 主路径 + 本地优质回退) */
   --bg-hero-daily: url('images/daily/hero.webp'), url('images/hero-architecture.jpg');
@@ -1121,6 +1122,7 @@ export const SITE_STYLES = `
   --pill-border: rgba(16, 185, 129, 0.28);
   --pill-text: #065f46;
   --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(16, 185, 129, 0.16) 0%, rgba(5, 150, 105, 0.04) 60%, transparent 100%);
+  --hero-overlay-gradient: linear-gradient(135deg, rgba(4, 36, 26, 0.82) 0%, rgba(10, 22, 35, 0.90) 100%);
 }
 [data-mode="dark"],
 [data-theme="dark"],
@@ -1150,6 +1152,7 @@ export const SITE_STYLES = `
   --pill-border: rgba(52, 211, 153, 0.32);
   --pill-text: #a7f3d0;
   --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(52, 211, 153, 0.18) 0%, rgba(16, 185, 129, 0.05) 60%, transparent 100%);
+  --hero-overlay-gradient: linear-gradient(135deg, rgba(3, 26, 18, 0.88) 0%, rgba(6, 15, 26, 0.94) 100%);
 }
 
 /* 2. 🌌 科技深蓝 (Tech Blue) */
@@ -1167,6 +1170,7 @@ export const SITE_STYLES = `
   --pill-border: rgba(37, 99, 235, 0.25);
   --pill-text: #1e40af;
   --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(37, 99, 235, 0.16) 0%, rgba(30, 64, 175, 0.04) 60%, transparent 100%);
+  --hero-overlay-gradient: linear-gradient(135deg, rgba(10, 28, 64, 0.84) 0%, rgba(7, 14, 36, 0.92) 100%);
 }
 [data-theme="tech-blue"][data-mode="dark"] {
   --bg-page: #0b132b;
@@ -1193,6 +1197,7 @@ export const SITE_STYLES = `
   --pill-border: rgba(96, 165, 250, 0.3);
   --pill-text: #bfdbfe;
   --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(96, 165, 250, 0.18) 0%, rgba(37, 99, 235, 0.05) 60%, transparent 100%);
+  --hero-overlay-gradient: linear-gradient(135deg, rgba(7, 20, 48, 0.88) 0%, rgba(5, 10, 26, 0.95) 100%);
 }
 
 /* 3. 🔮 极光鸢尾 (Aurora Violet) */
@@ -1210,6 +1215,7 @@ export const SITE_STYLES = `
   --pill-border: rgba(139, 92, 246, 0.25);
   --pill-text: #5b21b6;
   --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(139, 92, 246, 0.18) 0%, rgba(236, 72, 153, 0.05) 60%, transparent 100%);
+  --hero-overlay-gradient: linear-gradient(135deg, rgba(32, 14, 56, 0.84) 0%, rgba(12, 16, 38, 0.90) 100%);
 }
 [data-theme="aurora-violet"][data-mode="dark"] {
   --bg-page: #160d27;
@@ -1236,6 +1242,7 @@ export const SITE_STYLES = `
   --pill-border: rgba(167, 139, 250, 0.3);
   --pill-text: #ddd6fe;
   --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(167, 139, 250, 0.20) 0%, rgba(244, 114, 182, 0.06) 60%, transparent 100%);
+  --hero-overlay-gradient: linear-gradient(135deg, rgba(24, 10, 42, 0.88) 0%, rgba(8, 12, 28, 0.94) 100%);
 }
 
 /* 4. 🍂 暖阳琥珀 (Warm Amber) */
@@ -1253,6 +1260,7 @@ export const SITE_STYLES = `
   --pill-border: rgba(217, 119, 6, 0.28);
   --pill-text: #92400e;
   --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(217, 119, 6, 0.16) 0%, rgba(234, 88, 12, 0.04) 60%, transparent 100%);
+  --hero-overlay-gradient: linear-gradient(135deg, rgba(46, 24, 7, 0.84) 0%, rgba(18, 12, 8, 0.92) 100%);
 }
 [data-theme="warm-amber"][data-mode="dark"] {
   --bg-page: #1c1408;
@@ -1279,6 +1287,7 @@ export const SITE_STYLES = `
   --pill-border: rgba(251, 191, 36, 0.3);
   --pill-text: #fde68a;
   --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(251, 191, 36, 0.18) 0%, rgba(245, 158, 11, 0.05) 60%, transparent 100%);
+  --hero-overlay-gradient: linear-gradient(135deg, rgba(35, 18, 5, 0.88) 0%, rgba(12, 8, 5, 0.95) 100%);
 }
 
 /* 5. ✒️ 极简水墨 (Minimalist Ink) */
@@ -1296,6 +1305,7 @@ export const SITE_STYLES = `
   --pill-border: rgba(71, 85, 105, 0.2);
   --pill-text: #1e293b;
   --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(71, 85, 105, 0.14) 0%, rgba(15, 23, 42, 0.03) 60%, transparent 100%);
+  --hero-overlay-gradient: linear-gradient(135deg, rgba(18, 22, 30, 0.86) 0%, rgba(10, 13, 20, 0.92) 100%);
 }
 [data-theme="minimalist-ink"][data-mode="dark"] {
   --bg-page: #0f172a;
@@ -1322,6 +1332,7 @@ export const SITE_STYLES = `
   --pill-border: rgba(148, 163, 184, 0.28);
   --pill-text: #e2e8f0;
   --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(148, 163, 184, 0.16) 0%, rgba(30, 41, 59, 0.05) 60%, transparent 100%);
+  --hero-overlay-gradient: linear-gradient(135deg, rgba(12, 15, 22, 0.90) 0%, rgba(6, 8, 14, 0.96) 100%);
 }
 
 *, *::before, *::after {
@@ -1977,7 +1988,7 @@ button {
   box-sizing: border-box;
   min-height: clamp(460px, 54vh, 600px);
   background-color: #0b132b;
-  background-image: linear-gradient(rgba(11, 19, 43, 0.72), rgba(11, 19, 43, 0.88)), var(--bg-hero-daily);
+  background-image: var(--hero-overlay-gradient), var(--bg-hero-daily);
   background-size: cover;
   background-position: center;
   display: flex;
@@ -2462,7 +2473,7 @@ button {
   box-sizing: border-box;
   min-height: 380px;
   background-color: #0b132b;
-  background-image: linear-gradient(rgba(11, 19, 43, 0.72), rgba(11, 19, 43, 0.88)), var(--archive-bg);
+  background-image: var(--hero-overlay-gradient), var(--archive-bg);
   background-size: cover;
   background-position: center 20%;
   padding: 64px max(24px, calc((100vw - 1280px) / 2));
@@ -2740,7 +2751,7 @@ button {
   border-radius: 0;
   overflow: hidden;
   background-color: #0b132b;
-  background-image: linear-gradient(rgba(11, 19, 43, 0.72), rgba(11, 19, 43, 0.88)), var(--bg-footer-daily);
+  background-image: var(--hero-overlay-gradient), var(--bg-footer-daily);
   background-size: cover;
   background-position: center 20%;
   display: flex;
@@ -3450,7 +3461,7 @@ button {
   box-sizing: border-box;
   min-height: clamp(380px, 46vh, 500px);
   background-color: #0b132b;
-  background-image: linear-gradient(rgba(11, 19, 43, 0.76), rgba(11, 19, 43, 0.90)), var(--bg-archive-daily);
+  background-image: var(--hero-overlay-gradient), var(--bg-archive-daily);
   background-size: cover;
   background-position: center;
   display: flex;
@@ -3894,7 +3905,7 @@ button {
   box-sizing: border-box;
   min-height: clamp(360px, 44vh, 480px);
   background-color: #0b132b;
-  background-image: linear-gradient(rgba(11, 19, 43, 0.76), rgba(11, 19, 43, 0.90)), var(--bg-banner-daily);
+  background-image: var(--hero-overlay-gradient), var(--bg-banner-daily);
   background-size: cover;
   background-position: center;
   display: flex;
@@ -4319,18 +4330,92 @@ button {
   padding-top: 8px;
 }
 
-/* 4. posts/about.md 正文区（编辑部版式下方的 Markdown 长文） */
+/* 4. posts/about.md 正文区（100% 等宽与现代杂志双栏流式章节） */
 .about-post-body {
-  max-width: min(94vw, 820px);
-  margin: 0 auto 72px;
+  width: 100%;
+  max-width: 100%;
+  margin: 56px 0 72px 0;
+  box-sizing: border-box;
 }
 
-.about-post-body > *:first-child {
-  margin-top: 0;
+.about-split-chapter {
+  display: flex;
+  gap: clamp(32px, 5vw, 64px);
+  align-items: flex-start;
+  padding: 56px 0;
+  border-bottom: 1px solid var(--border-color);
+  box-sizing: border-box;
 }
 
-.about-post-body > *:last-child {
-  margin-bottom: 0;
+.about-split-chapter:first-child {
+  padding-top: 24px;
+}
+
+.about-split-chapter:last-child {
+  border-bottom: none;
+  padding-bottom: 24px;
+}
+
+.about-chapter-guide {
+  flex: 0 0 clamp(200px, 22vw, 260px);
+  position: sticky;
+  top: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.chapter-guide-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.16em;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+.chapter-guide-title {
+  font-family: var(--font-serif-cn, serif);
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.chapter-guide-line {
+  width: 48px;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 1px;
+  margin-top: 4px;
+}
+
+.about-chapter-content {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.about-chapter-content > *:first-child {
+  margin-top: 0 !important;
+}
+
+@media (max-width: 860px) {
+  .about-split-chapter {
+    flex-direction: column;
+    gap: 20px;
+    padding: 36px 0;
+  }
+  .about-chapter-guide {
+    flex: none;
+    width: 100%;
+    position: static;
+  }
+  .chapter-guide-line {
+    margin-bottom: 8px;
+  }
 }
 
 /* 1. 3-Column Hero Trio (100vw 全宽电影感沉浸巨幕) */
@@ -4342,7 +4427,7 @@ button {
   box-sizing: border-box;
   min-height: clamp(380px, 48vh, 520px);
   background-color: #0b132b;
-  background-image: linear-gradient(rgba(11, 19, 43, 0.74), rgba(11, 19, 43, 0.90)), var(--bg-about-daily);
+  background-image: var(--hero-overlay-gradient), var(--bg-about-daily);
   background-size: cover;
   background-position: center;
   display: flex;
@@ -4723,6 +4808,167 @@ button {
   transform: translateX(3px);
 }
 
+/* 2.1 架构与创造力装备库 (Tech Stack & Craft Matrix) */
+.about-craft-matrix {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-top: 24px;
+  box-shadow: var(--card-shadow);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  box-sizing: border-box;
+}
+
+.about-craft-matrix:hover {
+  border-color: var(--card-border-hover);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.craft-header {
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+
+.craft-header-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  color: var(--text-light);
+  text-transform: uppercase;
+}
+
+.craft-clusters-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.craft-cluster {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.craft-cluster-title {
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.craft-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.craft-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 550;
+  color: var(--primary);
+  background: var(--primary-faint, rgba(16, 185, 129, 0.08));
+  border: 1px solid var(--border-subtle, rgba(16, 185, 129, 0.16));
+  border-radius: 20px;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease;
+}
+
+.craft-pill:hover {
+  transform: translateY(-2px);
+  background: var(--pill-bg, rgba(16, 185, 129, 0.15));
+  border-color: var(--primary);
+}
+
+/* 2.2 What I'm Doing "Now" 实时看板 */
+.about-now-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-left: 3.5px solid var(--primary);
+  border-radius: 16px;
+  padding: 22px 28px;
+  margin-top: 20px;
+  box-shadow: var(--card-shadow);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  box-sizing: border-box;
+}
+
+.about-now-card:hover {
+  box-shadow: var(--card-shadow-hover);
+}
+
+.now-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+
+.now-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  color: var(--text-main);
+  text-transform: uppercase;
+}
+
+.now-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  box-shadow: 0 0 0 0 var(--primary-glow);
+  animation: pulseBreathing 2s infinite cubic-bezier(0.45, 0, 0.55, 1);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+@keyframes pulseBreathing {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 var(--primary-glow);
+  }
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 8px transparent;
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.now-time-tag {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-light);
+  letter-spacing: 0.06em;
+}
+
+.now-status-desc {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.now-status-desc strong {
+  color: var(--text-main);
+}
+
 /* 3. Panoramic Landscape Banner */
 .panoramic-about-banner {
   position: relative;
@@ -4742,7 +4988,7 @@ button {
   position: relative;
   width: 100%;
   min-height: 300px;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.65) 50%, rgba(15, 23, 42, 0.82) 100%);
+  background: var(--hero-overlay-gradient);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -8231,20 +8477,108 @@ ${buildPageTailHtml({
   })}`;
 }
 
+/**
+ * 将 posts/about.md 渲染出的 HTML 重构为现代杂志双栏流式章节 (Editorial Split Chapters)
+ * 100% 遵从 AGENTS.md 规范：0 div，全使用 section / semantic 标签
+ */
+export function transformAboutBodyToEditorialChapters(bodyHtml) {
+  if (!bodyHtml || typeof bodyHtml !== "string" || !bodyHtml.trim()) {
+    return "";
+  }
+
+  // 提取 wechat-article 内的内容（或者如果直接是包含 h2 的 HTML）
+  const innerMatch = bodyHtml.match(/<section[^>]*class="wechat-article"[^>]*>([\s\S]*?)<\/section>\s*$/i);
+  const contentToParse = innerMatch ? innerMatch[1] : bodyHtml;
+
+  // 查找所有的 <h2> 标签
+  const h2Regex = /<h2\b([^>]*)>([\s\S]*?)<\/h2>/gi;
+  const h2Matches = [...contentToParse.matchAll(h2Regex)];
+
+  if (h2Matches.length === 0) {
+    return `
+    <!-- 3. posts/about.md 正文区（obw 出版引擎渲染） -->
+    <section class="about-post-body article-content" style="box-sizing: border-box;">
+      ${bodyHtml}
+    </section>`;
+  }
+
+  const chapterBadges = [
+    "01 / IDENTITY",
+    "02 / CRAFT & WORKS",
+    "03 / CONNECT",
+    "04 / PHILOSOPHY",
+    "05 / FOOTPRINT"
+  ];
+
+  const chapters = [];
+
+  // 检查第一个 <h2> 之前是否有前言内容
+  const firstH2Index = h2Matches[0].index;
+  if (firstH2Index > 0) {
+    const preamble = contentToParse.slice(0, firstH2Index).trim();
+    if (preamble) {
+      chapters.push(`
+      <section class="about-split-chapter about-chapter-preamble" style="box-sizing: border-box;">
+        <section class="about-chapter-guide" style="box-sizing: border-box;">
+          <span class="chapter-guide-badge">00 / PREFACE</span>
+          <h2 class="chapter-guide-title">序言 · 前言</h2>
+          <section class="chapter-guide-line" style="box-sizing: border-box;"></section>
+        </section>
+        <section class="about-chapter-content article-content" style="box-sizing: border-box;">
+          ${preamble}
+        </section>
+      </section>`);
+    }
+  }
+
+  for (let i = 0; i < h2Matches.length; i++) {
+    const curr = h2Matches[i];
+    const headingContent = curr[2];
+    const cleanTitle = headingContent.replace(/<[^>]+>/g, "").trim();
+
+    // 截取当前 h2 到下一个 h2（或末尾）之间的内容
+    const startIndex = curr.index + curr[0].length;
+    const endIndex = (i + 1 < h2Matches.length) ? h2Matches[i + 1].index : contentToParse.length;
+    const chapterBody = contentToParse.slice(startIndex, endIndex).trim();
+
+    // 计算徽标
+    let badge = chapterBadges[i] || `${String(i + 1).padStart(2, "0")} / CHAPTER`;
+    if (/我是谁|身份|who|about/i.test(cleanTitle)) {
+      badge = `${String(i + 1).padStart(2, "0")} / IDENTITY`;
+    } else if (/作品|开源|craft|work|project/i.test(cleanTitle)) {
+      badge = `${String(i + 1).padStart(2, "0")} / CRAFT & WORKS`;
+    } else if (/交流|找到我|connect|contact/i.test(cleanTitle)) {
+      badge = `${String(i + 1).padStart(2, "0")} / CONNECT`;
+    }
+
+    chapters.push(`
+      <section class="about-split-chapter" style="box-sizing: border-box;">
+        <section class="about-chapter-guide" style="box-sizing: border-box;">
+          <span class="chapter-guide-badge">${badge}</span>
+          <h2 class="chapter-guide-title">${cleanTitle}</h2>
+          <section class="chapter-guide-line" style="box-sizing: border-box;"></section>
+        </section>
+        <section class="about-chapter-content article-content" style="box-sizing: border-box;">
+          ${chapterBody}
+        </section>
+      </section>`);
+  }
+
+  return `
+    <!-- 3. posts/about.md 100% 等宽杂志双栏流式章节（obw 出版引擎渲染） -->
+    <section class="about-post-body" style="box-sizing: border-box;">
+      ${chapters.join("\n")}
+    </section>`;
+}
+
 export function buildAboutHtml(aboutPost, bodyHtml = "", searchIndex = []) {
   const aboutMeta = (aboutPost && aboutPost.meta) || {};
   const pageTitle = aboutMeta.title || "关于我 (About Me)";
   const pageDesc =
     aboutMeta.description ||
     `关于 ${SITE_CONFIG.author}，全栈开发者与独立创造者，记录技术、产品、生活与成长。`;
-  // posts/about.md 的正文：由 obw 出版引擎渲染，兑现 OBSIDIAN_SYNC_GUIDE 1.1 契约
-  const bodySectionHtml = bodyHtml
-    ? `
-    <!-- 3. posts/about.md 正文故事（obw 出版引擎渲染） -->
-    <section class="about-post-body article-content" style="box-sizing: border-box;">
-      ${bodyHtml}
-    </section>`
-    : "";
+  // posts/about.md 的正文：重构为 100% 等宽与现代杂志双栏流式章节（obw 出版引擎渲染）
+  const bodySectionHtml = transformAboutBodyToEditorialChapters(bodyHtml);
 
   const personalInfoData = SITE_CONFIG.personal_info || {
     "坐标": "北京 · 朝阳",
@@ -8397,6 +8731,54 @@ ${buildVinylCapsuleHtml(vinyl)}
             <p class="interest-col-desc">阅读是我最重要的精神食粮，在文字中寻找更多可能性。</p>
             <a href="archives.html" class="interest-view-more">VIEW MORE →</a>
           </section>
+        </section>
+
+        <!-- 4. 技术栈与创造力装备库 (Tech Stack & Craft Matrix) -->
+        <section class="about-craft-matrix" style="box-sizing: border-box;">
+          <header class="craft-header" style="box-sizing: border-box;">
+            <span class="craft-header-label">TECH STACK & CRAFT</span>
+          </header>
+          <section class="craft-clusters-wrap" style="box-sizing: border-box;">
+            <!-- 架构与工程体系 -->
+            <section class="craft-cluster" style="box-sizing: border-box;">
+              <span class="craft-cluster-title">架构与工程体系</span>
+              <section class="craft-pills" style="box-sizing: border-box;">
+                <span class="craft-pill">TypeScript</span>
+                <span class="craft-pill">Vue 3 / React</span>
+                <span class="craft-pill">Node.js</span>
+                <span class="craft-pill">Hyperf / PHP</span>
+                <span class="craft-pill">Docker / K8s</span>
+                <span class="craft-pill">Tailwind CSS</span>
+                <span class="craft-pill">PostgreSQL</span>
+              </section>
+            </section>
+            <!-- 设计与生产力工具 -->
+            <section class="craft-cluster" style="box-sizing: border-box;">
+              <span class="craft-cluster-title">设计与生产力工具</span>
+              <section class="craft-pills" style="box-sizing: border-box;">
+                <span class="craft-pill">Figma</span>
+                <span class="craft-pill">Neovim</span>
+                <span class="craft-pill">Obsidian</span>
+                <span class="craft-pill">macOS</span>
+                <span class="craft-pill">Raycast</span>
+                <span class="craft-pill">Git / GitHub</span>
+              </section>
+            </section>
+          </section>
+        </section>
+
+        <!-- 5. 正在打磨与探索 (Now Status) 看板 -->
+        <section class="about-now-card" style="box-sizing: border-box;">
+          <section class="now-header-row" style="box-sizing: border-box;">
+            <span class="now-badge">
+              <span class="now-live-dot"></span>
+              <span class="now-badge-text">WHAT I'M DOING NOW</span>
+            </span>
+            <span class="now-time-tag">实时聚焦 · 2026</span>
+          </section>
+          <p class="now-status-desc">
+            持续打磨 <strong>obw</strong> 微信公众号出版级排版引擎与个人数字花园；探索深度 AI Agentic Coding 工作流与极客审美生活方式。
+          </p>
         </section>
       </section>
     </section>

@@ -944,6 +944,83 @@ console.log("\n▶ [Test 18/18] 电影感沉浸巨幕、人文排版、开放 AP
   console.log("  ✓ 全站核心页面 <main> 零 <div> 微信排版硬约束 100% 达成！");
 }
 
-console.log("\n🎉 全部 18 大测试套件 100% 验证通过！出版级质量门禁就绪！");
+// ========================================================
+// 19. 电影感主题大图遮罩联动、关于页装备矩阵与 100% 画报双栏流式断言
+// ========================================================
+console.log("\n▶ [Test 19/19] 电影感主题大图遮罩联动、关于页装备矩阵与 100% 画报双栏流式断言");
+
+// 19.1 动态主题遮罩系统断言
+const indexHtmlContent = fs.readFileSync(path.join(DIST_DIR, "index.html"), "utf-8");
+const aboutHtmlContent = fs.readFileSync(path.join(DIST_DIR, "about.html"), "utf-8");
+const archivesHtmlContent = fs.readFileSync(path.join(DIST_DIR, "archives.html"), "utf-8");
+const categoriesHtmlContent = fs.readFileSync(path.join(DIST_DIR, "categories.html"), "utf-8");
+
+assert.ok(indexHtmlContent.includes("--hero-overlay-gradient:"), "CSS 变量池必须声明 --hero-overlay-gradient");
+assert.ok(indexHtmlContent.includes('[data-theme="mint-emerald"]'), "必须包含薄荷翡翠主题");
+assert.ok(indexHtmlContent.includes('[data-theme="tech-blue"]'), "必须包含科技深蓝主题");
+assert.ok(indexHtmlContent.includes('[data-theme="aurora-violet"]'), "必须包含极光鸢尾主题");
+assert.ok(indexHtmlContent.includes('[data-theme="warm-amber"]'), "必须包含暖阳琥珀主题");
+assert.ok(indexHtmlContent.includes('[data-theme="minimalist-ink"]'), "必须包含极简水墨主题");
+
+// 校验各个主题选择器都定义了专属的 --hero-overlay-gradient
+const themeRules = [
+  { theme: 'data-theme="mint-emerald"', colorPart: "rgba(4, 36, 26" },
+  { theme: 'data-theme="tech-blue"', colorPart: "rgba(10, 28, 64" },
+  { theme: 'data-theme="aurora-violet"', colorPart: "rgba(32, 14, 56" },
+  { theme: 'data-theme="warm-amber"', colorPart: "rgba(46, 24, 7" },
+  { theme: 'data-theme="minimalist-ink"', colorPart: "rgba(18, 22, 30" }
+];
+
+for (const { theme, colorPart } of themeRules) {
+  assert.ok(indexHtmlContent.includes(theme), `样式表必须声明主题选择器 [${theme}]`);
+  assert.ok(indexHtmlContent.includes(colorPart), `主题 [${theme}] 必须声明对应的专属遮罩色相 ${colorPart}`);
+}
+
+// 校验大图横幅严禁出现写死的 rgba(11, 19, 43 遮罩
+assert.ok(!indexHtmlContent.includes("rgba(11, 19, 43"), "全站样式表严禁硬编码 rgba(11, 19, 43) 静态灰色大图遮罩");
+assert.ok(aboutHtmlContent.includes("var(--hero-overlay-gradient)"), "关于页大图必须绑定 var(--hero-overlay-gradient)");
+assert.ok(archivesHtmlContent.includes("var(--hero-overlay-gradient)"), "归档页大图必须绑定 var(--hero-overlay-gradient)");
+
+// 19.2 关于页装备矩阵与 Now 实时看板断言
+assert.ok(aboutHtmlContent.includes("about-craft-matrix"), "关于页必须包含技能与装备矩阵 .about-craft-matrix");
+assert.ok(aboutHtmlContent.includes("TECH STACK & CRAFT"), "装备矩阵必须包含标题 TECH STACK & CRAFT");
+assert.ok(aboutHtmlContent.includes("craft-pill"), "装备矩阵必须包含 .craft-pill 胶囊标签");
+assert.ok(aboutHtmlContent.includes("TypeScript"), "装备矩阵必须包含 TypeScript");
+assert.ok(aboutHtmlContent.includes("Figma"), "装备矩阵必须包含 Figma");
+assert.ok(aboutHtmlContent.includes("about-now-card"), "关于页必须包含实时状态看板 .about-now-card");
+assert.ok(aboutHtmlContent.includes("now-live-dot"), "状态看板必须包含呼吸绿点 .now-live-dot");
+assert.ok(aboutHtmlContent.includes("WHAT I'M DOING NOW"), "状态看板必须包含 WHAT I'M DOING NOW 标头");
+assert.ok(aboutHtmlContent.includes("pulseBreathing"), "CSS 必须声明呼吸灯动画 pulseBreathing");
+
+// 19.3 关于页 100% 等宽与双栏画报流式章节断言
+assert.ok(!aboutHtmlContent.includes("max-width: min(94vw, 820px)"), "关于页正文严禁夹紧在 820px，必须 100% 满宽与上方 1280px 齐平");
+assert.ok(aboutHtmlContent.includes(".about-post-body {\n  width: 100%;\n  max-width: 100%;"), "关于页 .about-post-body 必须声明 width: 100% 与 max-width: 100%");
+assert.ok(aboutHtmlContent.includes("about-split-chapter"), "关于页正文必须渲染为双栏画报流式章节 .about-split-chapter");
+assert.ok(aboutHtmlContent.includes("about-chapter-guide"), "双栏流式章节必须包含左侧章节导引 .about-chapter-guide");
+assert.ok(aboutHtmlContent.includes("about-chapter-content"), "双栏流式章节必须包含右侧深度叙述区 .about-chapter-content");
+assert.ok(aboutHtmlContent.includes("01 / IDENTITY"), "双栏章节必须包含 01 / IDENTITY 导引徽标");
+assert.ok(aboutHtmlContent.includes("02 / CRAFT & WORKS"), "双栏章节必须包含 02 / CRAFT & WORKS 导引徽标");
+assert.ok(aboutHtmlContent.includes("03 / CONNECT"), "双栏章节必须包含 03 / CONNECT 导引徽标");
+
+// 19.4 全站 12 个 HTML 页面 <main> 内零 <div> 严格断言
+for (const file of allHtmlFiles) {
+  const fileContent = fs.readFileSync(file, "utf-8");
+  const mainMatch = fileContent.match(/<main\b[\s\S]*?<\/main>/i);
+  if (mainMatch) {
+    const divInMain = mainMatch[0].match(/<div\b/i);
+    assert.equal(
+      divInMain,
+      null,
+      `违背 AGENTS.md 硬约束：在 ${path.relative(ROOT_DIR, file)} 的 <main> 内部检测到了 <div> 标签！`
+    );
+  }
+}
+
+console.log("  ✓ 5 套精选主题动态大图遮罩色相联动断言通过");
+console.log("  ✓ 关于页装备矩阵 (Craft Matrix) 与 Now 实时看板断言通过");
+console.log("  ✓ 关于页 100% 全宽与现代杂志双栏流式章节断言通过");
+console.log("  ✓ 全站 12 页面 <main> 零 <div> 微信排版硬约束 100% 达成！");
+
+console.log("\n🎉 全部 19 大测试套件 100% 验证通过！出版级质量门禁就绪！");
 
 
