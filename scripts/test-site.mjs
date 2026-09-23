@@ -115,13 +115,17 @@ function getAllHtmlFiles(dir) {
 const allHtmlFiles = getAllHtmlFiles(DIST_DIR);
 assert.ok(allHtmlFiles.length >= 6, `生成页面总数过少: 仅 ${allHtmlFiles.length} 个`);
 
-// 必须存在的 5 大独立核心入口
-const corePages = ["index.html", "archives.html", "categories.html", "tags.html", "about.html"];
+// 必须存在的 5 大独立核心入口（文章页作为核心入口已就绪）
+const corePages = ["index.html", "articles.html", "archives.html", "categories.html", "about.html"];
 for (const p of corePages) {
   const fullP = path.join(DIST_DIR, p);
   assert.ok(fs.existsSync(fullP), `缺少核心页面: dist/${p}`);
 }
-console.log(`  ✓ 5 大独立二级页面全部就绪 (index, archives, categories, tags, about)`);
+assert.ok(
+  !fs.existsSync(path.join(DIST_DIR, "tags.html")),
+  "tags.html 应已合并入 categories.html，不应再生成独立标签页"
+);
+console.log(`  ✓ 5 大独立核心入口全部就绪 (index, articles, archives, categories, about)`);
 
 let totalLinksChecked = 0;
 for (const htmlFile of allHtmlFiles) {
@@ -310,9 +314,9 @@ assert.ok(!indexHtml.includes(' 阅读</span>'), "首页仍残留虚假阅读量
 assert.ok(!indexHtml.includes('1.2k 阅读'), "精选文章卡片仍残留 1.2k 阅读量");
 assert.ok(indexHtml.includes('.banner-left'), "首页缺少 .banner-left 样式");
 
-// 6.2 今日日期动态化断言 (YYYY.MM.DD)
-const todayRegex = /\d{4}\.\d{2}\.\d{2}/;
-assert.ok(todayRegex.test(indexHtml), "名言日历卡片未包含动态今天日期 (YYYY.MM.DD)");
+// 6.2 今日日期动态化断言 (YYYY.MM.DD 或 YYYY / MM / DD)
+const todayRegex = /\d{4}[./ ]\d{2}[./ ]\d{2}/;
+assert.ok(todayRegex.test(indexHtml), "首页未包含动态今天日期 (YYYY.MM.DD)");
 
 // 6.3 关于我页面暗黑模式白板免疫断言
 const aboutHtml = fs.readFileSync(path.join(DIST_DIR, "about.html"), "utf-8");
@@ -554,17 +558,16 @@ console.log("\n▶ [Test 11/11] 归档页 1:1 复刻编辑部杂志时间线断�
 }
 
 // ========================================================
-// 12. 分类与标签页 1:1 复刻侧边栏与水平条目流断言 (Task 5: Category & Tag Pages)
+// 12. 分类页 1:1 复刻侧边栏与水平条目流断言
+//     （原与 tags.html 共用同一套断言；标签页已合并，同时新增
+//       「不得再出现假控件」的反向断言）
 // ========================================================
-console.log("\n▶ [Test 12/12] 分类与标签页 1:1 复刻侧边栏与水平条目流断言");
+console.log("\n▶ [Test 12/12] 分类页 1:1 复刻侧边栏与水平条目流断言");
 
 {
-  const targetPages = [
-    { file: "categories.html", type: "CATEGORIES", label: "CATEGORY" },
-    { file: "tags.html", type: "TAGS", label: "TAG" }
-  ];
+  const targetPages = [{ file: "categories.html", type: "CATEGORIES" }];
 
-  for (const { file, type, label } of targetPages) {
+  for (const { file, type } of targetPages) {
     const pageHtml = fs.readFileSync(path.join(DIST_DIR, file), "utf-8");
 
     // 12.1 tag-hero
@@ -585,11 +588,12 @@ console.log("\n▶ [Test 12/12] 分类与标签页 1:1 复刻侧边栏与水平�
     assert.ok(pageHtml.includes("写作，是我与世界对话的方式。"), `${file} 必须包含底部引言 "写作，是我与世界对话的方式。"`);
     assert.ok(pageHtml.includes("Tan"), `${file} 必须包含作者签名 "Tan"`);
 
-    // 12.5 stream-tabs
-    assert.ok(pageHtml.includes("stream-tabs"), `${file} 必须包含 stream-tabs 标签切换条`);
-    assert.ok(pageHtml.includes("最新"), `${file} 必须包含 '最新' 标签`);
-    assert.ok(pageHtml.includes("最热"), `${file} 必须包含 '最热' 标签`);
-    assert.ok(pageHtml.includes("最多阅读"), `${file} 必须包含 '最多阅读' 标签`);
+    // 12.5 反向断言：假 Tabs 与假分页必须彻底消失
+    //     （只查 <main> 内，否则会误中样式表里已清理的同名类）
+    const mainForControl = pageHtml.match(/<main\b[\s\S]*?<\/main>/i)[0];
+    assert.ok(!mainForControl.includes("stream-tabs"), `${file} 不应再残留「最新/最热/最多阅读」假 Tabs`);
+    assert.ok(!mainForControl.includes("pagination-page"), `${file} 不应再残留 1–5 假分页`);
+    assert.ok(pageHtml.includes("共 ") && pageHtml.includes(" 篇文章"), `${file} 应保留文章计数`);
 
     // 12.6 horizontal-entry-item
     assert.ok(pageHtml.includes("horizontal-entry-item"), `${file} 必须包含水平条目 horizontal-entry-item`);
@@ -606,7 +610,7 @@ console.log("\n▶ [Test 12/12] 分类与标签页 1:1 复刻侧边栏与水平�
     );
   }
 
-  console.log("  ✓ categories.html 与 tags.html 1:1 复刻双列杂志流式排版就绪，侧边栏、引言卡片、水平流与 0 div 断言全数通过");
+  console.log("  ✓ categories.html 1:1 复刻双列杂志流式排版就绪，侧边栏、引言卡片、水平流、0 div 与「无假控件」断言全数通过");
 }
 
 // ========================================================
@@ -653,6 +657,111 @@ console.log("\n▶ [Test 13/13] 关于我页面 1:1 复刻编辑部杂志画像�
   console.log("  ✓ about.html 3 列主角区、个人资料卡、4 列兴趣发丝线网格、全景横幅与 <main> 内 0 div 断言全数通过");
 }
 
-console.log("\n🎉 全部 13 大测试套件 100% 验证通过！出版级质量门禁就绪！");
+// ========================================================
+// 14. 内联脚本语法合法性断言
+// 教训：build.mjs 的模板字符串里写 \" 会被吞成 "，产出 """ 这种非法 JS，
+// 浏览器直接丢弃整块 <script>（主题切换 / 日夜模式 / 搜索 / 复制全挂），
+// 而原来所有断言都只做字符串包含检查，对此毫无察觉。
+// ========================================================
+console.log("\n▶ [Test 14/14] 全站内联脚本语法合法性断言");
+{
+  const htmlFiles = [];
+  for (const f of fs.readdirSync(DIST_DIR)) {
+    if (f.endsWith(".html")) htmlFiles.push(path.join(DIST_DIR, f));
+  }
+  const distPostsDir = path.join(DIST_DIR, "posts");
+  if (fs.existsSync(distPostsDir)) {
+    for (const f of fs.readdirSync(distPostsDir)) {
+      if (f.endsWith(".html")) htmlFiles.push(path.join(distPostsDir, f));
+    }
+  }
+
+  let scriptCount = 0;
+  for (const file of htmlFiles) {
+    const html = fs.readFileSync(file, "utf-8");
+    const re = /<script\b[^>]*>([\s\S]*?)<\/script>/g;
+    let m;
+    while ((m = re.exec(html)) !== null) {
+      scriptCount++;
+      try {
+        // 仅做语法解析，不执行
+        new Function(m[1]);
+      } catch (err) {
+        assert.fail(
+          `内联脚本语法非法，浏览器会整块丢弃该 <script>！[${path.relative(ROOT_DIR, file)}] -> ${err.message}`
+        );
+      }
+    }
+  }
+  console.log(
+    `  ✓ 已校验 ${htmlFiles.length} 个页面、${scriptCount} 段内联脚本，全部语法合法（主题切换 / 日夜模式 / 搜索不会因此失效）`
+  );
+}
+
+// ========================================================
+// 15. CSS 变量完整性断言
+// 教训：--font-serif 被引用 6 次却从未定义，那 6 处全部静默回退到只有拉丁字形的 Georgia，
+// 中英混排因此割裂（分类页引语 / 关于页引语与签名 / 侧栏引语 / 个人签名 / 全屏横幅手写体）；
+// 而 --font-calligraphy 定义了却引用 0 次，字体被下载却从不生效。
+// 这类「幽灵 token」字符串断言完全看不出来（var() 自带 fallback，不会报错）。
+// ========================================================
+console.log("\n▶ [Test 15/15] CSS 变量完整性断言");
+{
+  const htmlFiles = [];
+  for (const f of fs.readdirSync(DIST_DIR)) {
+    if (f.endsWith(".html")) htmlFiles.push(path.join(DIST_DIR, f));
+  }
+  const distPostsDir = path.join(DIST_DIR, "posts");
+  if (fs.existsSync(distPostsDir)) {
+    for (const f of fs.readdirSync(distPostsDir)) {
+      if (f.endsWith(".html")) htmlFiles.push(path.join(distPostsDir, f));
+    }
+  }
+
+  const defined = new Set();
+  const used = new Map();
+  for (const file of htmlFiles) {
+    const html = fs.readFileSync(file, "utf-8");
+    // 定义可能出现在 <style> 里；引用可能出现在 <style> 或内联 style="" 中
+    for (const m of html.matchAll(/(--[a-zA-Z0-9-]+)\s*:/g)) defined.add(m[1]);
+    for (const m of html.matchAll(/var\(\s*(--[a-zA-Z0-9-]+)/g)) {
+      used.set(m[1], (used.get(m[1]) || 0) + 1);
+    }
+  }
+
+  const ghost = [...used.keys()].filter((v) => !defined.has(v));
+  assert.equal(
+    ghost.length,
+    0,
+    `以下 CSS 变量被 var() 引用但全站从未定义（会静默回退，中英文字体会割裂）：${ghost.join(", ")}`
+  );
+  console.log(
+    `  ✓ 已校验 ${htmlFiles.length} 个页面：引用 ${used.size} 个 CSS 变量，全部有定义`
+  );
+}
+
+// ========================================================
+// 16. 文章页与导航交互细节断言
+// ========================================================
+console.log("\n▶ [Test 16/16] 文章页与导航交互细节断言");
+{
+  const articlesHtml = fs.readFileSync(path.join(DIST_DIR, "articles.html"), "utf-8");
+  assert.ok(articlesHtml.includes("tag-hero"), "articles.html 必须包含 tag-hero 头部");
+  assert.ok(articlesHtml.includes("tag-stream-layout"), "articles.html 必须包含双栏流式布局");
+  assert.ok(articlesHtml.includes("horizontal-entry-item"), "articles.html 必须包含水平条目流");
+  
+  const mainMatch = articlesHtml.match(/<main\b[\s\S]*?<\/main>/i);
+  assert.ok(mainMatch, "articles.html 必须包含 <main> 标签");
+  const divInMain = mainMatch[0].match(/<div\b/i);
+  assert.equal(divInMain, null, "articles.html <main> 内部严禁出现 <div 标签！");
+
+  const indexHtml = fs.readFileSync(path.join(DIST_DIR, "index.html"), "utf-8");
+  assert.ok(indexHtml.includes('href="articles.html"'), "首页导航栏必须包含文章页入口 (articles.html)");
+  assert.ok(!indexHtml.includes('<section class="bottom-comm-banner"'), "首页严禁残留 bottom-comm-banner 标签与 footprint-about 重叠");
+
+  console.log("  ✓ 文章页 (articles.html) 双栏流式排版、导航入口与首页无重叠断言通过");
+}
+
+console.log("\n🎉 全部 16 大测试套件 100% 验证通过！出版级质量门禁就绪！");
 
 

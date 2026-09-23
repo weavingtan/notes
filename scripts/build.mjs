@@ -9,7 +9,7 @@
  * - 最新文章 (LATEST) 4 列流体响应式卡片网格 + 全动态分类药丸联动筛选 (零硬编码)
  * - 底部月升夜景互动横幅 (方案一: 左侧毛玻璃互动卡片 + 右侧原生画作留白)
  * - 完备的日间/夜间深色模式 (Zero-FOUC 零闪烁，WCAG AA 高对比度保障)
- * - 独立二级页面体系：/index.html, /archives.html, /categories.html, /tags.html, /about.html
+ * - 独立二级页面体系：/index.html, /archives.html, /categories.html, /about.html
  * - 健壮的 YAML Frontmatter 解析器 (支持多行列表、内联数组、标量、Draft、排序权重)
  * - Web Content Adaptor (消除 obw 微信内联深色，暗黑模式文字水晶般通透)
  * - Obsidian 双向链接 (Wikilinks) 与特殊页面 (about.md) 自动化渲染管线
@@ -129,7 +129,9 @@ export const ICONS = {
   clock: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
   bookOpen: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
   star: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
-  edit: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`
+  edit: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  menu: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="18" y2="18"/></svg>`,
+  rss: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>`
 };
 
 // 探测可用的 obw CLI 路径
@@ -198,14 +200,104 @@ export function buildBrandHtml(isSubdir = false) {
 }
 
 /**
+ * HTML 转义。frontmatter 是自由文本，直接拼进 HTML / 属性会破版甚至造成 XSS，
+ * 因此所有「展示用」字段在进入模板前必须经过它。
+ */
+export function escapeHtml(value) {
+  return String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '\"': "&quot;",
+    "'": "&#39;",
+  }[c]));
+}
+
+/**
+ * XML 转义（RSS / Atom 专用，实体集与 HTML 转义不同）
+ */
+function escapeXml(value) {
+  return String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&apos;",
+  }[c]));
+}
+
+/**
+ * 生成 RSS 2.0 订阅源。
+ * 必须取 metaRaw（未转义原文）——meta 里的展示字段已被 HTML 转义，
+ * 直接写进 XML 会变成 &amp;lt; 这类双重转义。
+ */
+export function buildRssFeed(posts) {
+  const base = SITE_CONFIG.siteUrl.replace(/\/+$/, "");
+  const feedUrl = `${base}/feed.xml`;
+
+  const asUtcString = (d) => {
+    if (!d) return null;
+    const dt =
+      d instanceof Date
+        ? d
+        : new Date(/^\d{4}-\d{2}-\d{2}$/.test(String(d)) ? `${d}T00:00:00Z` : d);
+    return isNaN(dt.getTime()) ? null : dt.toUTCString();
+  };
+
+  const items = posts
+    .map((p) => {
+      const raw = p.metaRaw || {};
+      const title = raw.title || p.meta.title;
+      const desc = raw.description || "";
+      const url = `${base}/posts/${p.slug}.html`;
+      const pubDate = asUtcString(p.meta.date);
+      const cats = (raw.categories || p.meta.categories || [])
+        .map((c) => `      <category>${escapeXml(c)}</category>`)
+        .join("\n");
+
+      return [
+        "    <item>",
+        `      <title>${escapeXml(title)}</title>`,
+        `      <link>${escapeXml(url)}</link>`,
+        `      <guid isPermaLink="true">${escapeXml(url)}</guid>`,
+        pubDate ? `      <pubDate>${pubDate}</pubDate>` : null,
+        `      <description>${escapeXml(desc)}</description>`,
+        cats || null,
+        "    </item>",
+      ]
+        .filter(Boolean)
+        .join("\n");
+    })
+    .join("\n");
+
+  const lastBuildDate = asUtcString(posts[0] && posts[0].meta.date) || new Date().toUTCString();
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>${escapeXml(SITE_CONFIG.title)}</title>
+    <link>${escapeXml(base)}/</link>
+    <description>${escapeXml(SITE_CONFIG.description)}</description>
+    <language>zh-CN</language>
+    <lastBuildDate>${lastBuildDate}</lastBuildDate>
+    <atom:link href="${escapeXml(feedUrl)}" rel="self" type="application/rss+xml"/>
+${items}
+  </channel>
+</rss>
+`;
+}
+
+/**
  * 提取全站文章轻量搜索索引 (用于 Cmd+K 即时全局模糊检索)
+ * 注意：索引里的 title/desc 必须是「未转义」的原始文本，
+ * 否则客户端渲染时会被二次转义成 &amp;lt; 之类。
  */
 export function buildSearchIndex(posts) {
   return posts.map((p) => ({
-    title: p.meta.title,
-    desc: p.meta.description || "",
-    categories: p.meta.categories || [],
-    tags: p.meta.tags || [],
+    title: (p.metaRaw && p.metaRaw.title) || p.meta.title,
+    desc: (p.metaRaw && p.metaRaw.description) || "",
+    categories: (p.metaRaw && p.metaRaw.categories) || p.meta.categories || [],
+    tags: (p.metaRaw && p.metaRaw.tags) || p.meta.tags || [],
     slug: p.slug,
     date: p.meta.date || "",
   }));
@@ -240,8 +332,10 @@ export function getRelatedPosts(currentPost, allPosts, limit = 2) {
  * 组装文章底部 GitHub 极客互动操作条
  */
 export function buildPostGithubInteraction(post) {
-  const issueDiscussUrl = `https://github.com/weavingtan/notes/issues/new?title=${encodeURIComponent('关于《' + post.meta.title + '》的探讨与反馈')}&body=${encodeURIComponent('### 讨论文章\n《' + post.meta.title + '》\n\n### 讨论内容或想法\n')}`;
-  const issueErrataUrl = `https://github.com/weavingtan/notes/issues/new?labels=bug,errata&title=${encodeURIComponent('[勘误] 《' + post.meta.title + '》')}&body=${encodeURIComponent('### 勘误文章\n《' + post.meta.title + '》\n\n### 错误描述与修改建议\n')}`;
+  // 用未转义的原始标题构造 URL，避免出现 &amp;amp; 这类双重转义
+  const rawTitle = (post.metaRaw && post.metaRaw.title) || post.meta.title;
+  const issueDiscussUrl = `https://github.com/weavingtan/notes/issues/new?title=${encodeURIComponent('关于《' + rawTitle + '》的探讨与反馈')}&body=${encodeURIComponent('### 讨论文章\n《' + rawTitle + '》\n\n### 讨论内容或想法\n')}`;
+  const issueErrataUrl = `https://github.com/weavingtan/notes/issues/new?labels=bug,errata&title=${encodeURIComponent('[勘误] 《' + rawTitle + '》')}&body=${encodeURIComponent('### 勘误文章\n《' + rawTitle + '》\n\n### 错误描述与修改建议\n')}`;
   const repoUrl = `https://github.com/weavingtan/notes`;
 
   return `
@@ -570,11 +664,27 @@ export function extractToc(html) {
 }
 
 /**
+ * 完整 Markdown → 网页 HTML 渲染管线
+ * （预处理 → obw 渲染 → Web 内容适配 → 抽取目录并注入标题 id）
+ * 原先在文章页 / about 页 / 默认 about 页各写一遍，三处必须同步修改。
+ */
+export function renderMarkdownForWeb(markdown, isSubdir = false) {
+  const preprocessed = preprocessMarkdown(markdown, isSubdir);
+  const rawRendered = renderWithObw(preprocessed, SITE_CONFIG.theme);
+  const adapted = adaptObwHtmlForWeb(rawRendered);
+  return extractToc(adapted);
+}
+
+/**
  * 全站顶层 CSS 样式系统 (1:1 像素级复现用户设计稿 + 独立二级页面扩展)
  */
-export const SITE_STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,600&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+// 字体加载必须走 <link>（见 buildHeadLinksHtml），不能写成 CSS @import：
+// 各页面壳会在 SITE_STYLES 之前注入 :root 主题变量覆盖，而 CSS 规范规定
+// @import 前面一旦出现任何规则即被整条忽略 —— 曾导致全站自定义字体静默回退。
+export const FONT_STYLESHEET_URL =
+  'https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,600&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap';
 
+export const SITE_STYLES = `
 :root {
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --font-calligraphy: 'Ma Shan Zheng', "Kaiti SC", "STKaiti", "KaiTi", "楷体", serif;
@@ -597,7 +707,7 @@ export const SITE_STYLES = `
   --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
   --card-shadow-hover: 0 16px 36px -4px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03);
 
-  --header-height: 64px;
+  --header-height: 78px;
 
   /* 默认薄荷翡翠主题变量 */
   --primary: #10b981;
@@ -845,7 +955,7 @@ export const SITE_STYLES = `
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 76px;
+  scroll-padding-top: var(--header-height);
 }
 
 body {
@@ -1091,56 +1201,24 @@ button {
 /* ========================================================
    导航条系统 (支持透明与毛玻璃悬浮)
    ======================================================== */
-.site-nav {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--header-height);
-  z-index: 80;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  color: #ffffff;
-}
-
-.site-nav.scrolled {
-  position: fixed;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-  color: var(--text-main);
-}
-
-.site-nav.scrolled .site-brand,
-.site-nav.scrolled .nav-menu-item,
-.site-nav.scrolled .nav-action-btn {
-  color: var(--text-main);
-}
-
-.site-nav.scrolled .nav-menu-item.active::after {
-  background: var(--primary);
-}
-
-[data-mode="dark"] .site-nav.scrolled,
-[data-theme="dark"] .site-nav.scrolled {
-  background: rgba(15, 23, 42, 0.92);
-  border-bottom-color: rgba(255, 255, 255, 0.1);
-  color: #f8fafc;
-}
-
-[data-mode="dark"] .site-nav.scrolled .site-brand,
-[data-mode="dark"] .site-nav.scrolled .nav-menu-item,
-[data-mode="dark"] .site-nav.scrolled .nav-action-btn {
-  color: #f8fafc;
-}
-
-[data-mode="dark"] .site-nav.scrolled .nav-menu-item.active::after {
-  background: var(--primary);
-}
-
-/* 文章详情页与二级页面专用导航头 */
-.article-page-header {
+/* ========================================================
+   顶栏
+   首页 (site-nav) 与二级页/文章页 (article-page-header) 共用同一套外观。
+   此前两套规则各写一份，且：
+   - 只有 .site-nav 有 .scrolled 阴影；
+   - #main-nav 只存在于首页 → 滚动阴影在其余页面恒为 no-op；
+   - .site-nav .nav-menu-item:hover 的转写特异性高于基础规则，
+     导致首页导航 hover 一直是低对比的 --primary，而二级页是 --text-main。
+   现合并为单一来源。
+   ======================================================== */
+/* 顶栏：全站（含首页）共用同一个类与同一套外观。
+   历史上首页用 .site-nav、其余页用 .article-page-header，两份规则各写一份，因而出现过：
+   - 只有首页那份有 .scrolled 阴影，其余页面滚动无反馈；
+   - #main-nav 只存在于首页 → 滚动监听在其余页面恒为 no-op；
+   - 首页那份的 .nav-menu-item:hover 特异性更高，
+     导致首页导航 hover 一直是低对比的 --primary，而二级页是 --text-main。
+   现合并为单一类名 .page-header，全站 header 产出逐字节一致。 */
+.page-header {
   position: sticky;
   top: 0;
   height: var(--header-height);
@@ -1150,32 +1228,47 @@ button {
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
   color: var(--text-main);
+  transition: background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
 }
 
-.article-page-header .site-brand,
-.article-page-header .nav-menu-item,
-.article-page-header .nav-action-btn {
+.page-header .site-brand,
+.page-header .nav-menu-item,
+.page-header .nav-action-btn {
   color: var(--text-main);
 }
 
-.article-page-header .nav-menu-item.active::after {
-  background: var(--primary);
+.page-header.scrolled {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+[data-mode="dark"] .page-header,
+[data-theme="dark"] .page-header {
+  background: rgba(15, 23, 42, 0.92);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+}
+
+[data-mode="dark"] .page-header .site-brand,
+[data-mode="dark"] .page-header .nav-menu-item,
+[data-mode="dark"] .page-header .nav-action-btn {
+  color: #f8fafc;
 }
 
 .nav-container {
   max-width: min(94vw, 1280px);
   height: 100%;
   margin: 0 auto;
-  padding: 0 clamp(16px, 3.5vw, 48px);
+  padding: 0 clamp(20px, 4vw, 56px);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 20px;
 }
 
 .site-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   text-decoration: none;
   color: inherit;
   transition: opacity 0.2s;
@@ -1188,8 +1281,8 @@ button {
 .brand-text {
   font-family: var(--font-sans);
   font-weight: 850;
-  font-size: 1.28rem;
-  letter-spacing: 0.08em;
+  font-size: 1.34rem;
+  letter-spacing: 0.06em;
   color: inherit;
 }
 
@@ -1211,50 +1304,74 @@ button {
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 4px;
 }
 
+/* 移动端汉堡按钮：桌面端隐藏，窄屏由媒体查询启用 */
+.nav-toggle-btn {
+  display: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  opacity: 0.85;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-toggle-btn:hover {
+  opacity: 1;
+  background: var(--bg-subtle);
+}
+
+/* 导航项：圆角胶囊 hover / active（原先只有一根下划线，且可点高度只有 8px） */
 .nav-menu-item {
   position: relative;
-  font-size: 0.93rem;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 550;
   color: inherit;
-  opacity: 0.88;
-  padding: 8px 0;
-  transition: opacity 0.2s ease, color 0.2s ease;
+  opacity: 0.9;
+  padding: 10px 18px;
+  border-radius: 999px;
+  letter-spacing: 0.01em;
+  transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
 }
 
 .nav-menu-item:hover {
   opacity: 1;
-  color: var(--primary);
+  color: var(--text-main);
+  background: var(--bg-subtle);
 }
 
+/* active 用主题色「背景」+ 常规深色文字：
+   若直接拿 --primary 当文字色，对比度仅 ~2.5:1，达不到 WCAG AA 4.5:1 */
 .nav-menu-item.active {
-  font-weight: 650;
+  font-weight: 700;
   opacity: 1;
-  color: var(--primary);
+  color: var(--text-main);
+  background: var(--primary-faint);
 }
 
-.nav-menu-item.active::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: currentColor;
-  border-radius: 999px;
+/* 键盘可见焦点（原先全站导航没有任何 focus 样式） */
+.nav-menu-item:focus-visible,
+.nav-action-btn:focus-visible,
+.nav-toggle-btn:focus-visible,
+.nav-avatar-btn:focus-visible,
+.site-brand:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .nav-right-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .nav-action-btn {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1266,18 +1383,13 @@ button {
 
 .nav-action-btn:hover {
   opacity: 1;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-subtle);
   transform: translateY(-1px);
 }
 
-.site-nav.scrolled .nav-action-btn:hover,
-.article-page-header .nav-action-btn:hover {
-  background: var(--bg-subtle);
-}
-
 .nav-avatar-btn {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: var(--accent-gradient);
   display: flex;
@@ -1285,14 +1397,15 @@ button {
   justify-content: center;
   color: #ffffff;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   box-shadow: 0 2px 8px var(--primary-faint);
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .nav-avatar-btn:hover {
   transform: scale(1.06);
+  box-shadow: 0 4px 14px var(--primary-glow);
 }
 
 /* ========================================================
@@ -1432,7 +1545,7 @@ button {
 /* ========================================================
    页面主内容包裹器与流式视口系统 (Fluid Viewport System)
    ======================================================== */
-.main-container, .post-container {
+.main-container {
   width: 100%;
   max-width: min(94vw, 1280px);
   margin: 0 auto;
@@ -1713,38 +1826,6 @@ button {
   transform: scale(1.03);
 }
 
-.featured-showcase-ctrl {
-  flex: 0 0 50px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 0;
-  border-left: 1px solid var(--border-subtle, var(--border-color));
-}
-
-.feat-counter {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text-light);
-  letter-spacing: 0.05em;
-}
-
-.feat-nav-arrows {
-  font-family: var(--font-mono, monospace);
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: color 0.2s;
-  user-select: none;
-}
-
-.feat-nav-arrows:hover {
-  color: var(--primary);
-}
-
 /* Chapter 3: SELECTED WRITINGS */
 .selected-writings {
   margin-bottom: 72px;
@@ -1832,9 +1913,9 @@ button {
   box-sizing: border-box;
   min-height: 380px;
   background-color: #0b132b;
-  background-image: linear-gradient(rgba(11, 19, 43, 0.72), rgba(11, 19, 43, 0.88)), var(--banner-bg);
+  background-image: linear-gradient(rgba(11, 19, 43, 0.72), rgba(11, 19, 43, 0.88)), var(--archive-bg);
   background-size: cover;
-  background-position: center;
+  background-position: center 20%;
   padding: 64px max(24px, calc((100vw - 1280px) / 2));
   color: #ffffff;
   margin-top: 36px;
@@ -1974,7 +2055,14 @@ button {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: grayscale(100%);
   display: block;
+  transition: filter 0.35s ease;
+}
+
+/* editorial spec 3.1：Monochromatic portrait —— 悬停时轻微回色 */
+.footprint-avatar-box:hover .footprint-avatar-img {
+  filter: grayscale(20%);
 }
 
 .footprint-info {
@@ -2105,7 +2193,9 @@ button {
   background-color: #0b132b;
   background-image: linear-gradient(rgba(11, 19, 43, 0.45), rgba(11, 19, 43, 0.75)), var(--banner-bg);
   background-size: cover;
-  background-position: center;
+  /* 月亮位于原图偏上区域：居中裁切会把它拦腰切断，故改为顶部对齐（等于把背景图整体下调）。
+     若还需微调，把 top 换成百分比即可：0%（=top）最低，50%（=center）居中，100%（=bottom）最高。 */
+  background-position: center top;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -2218,62 +2308,81 @@ button {
 /* ========================================================
    文章详情页排版与随动目录 (TOC)
    ======================================================== */
+/* 文章详情页：与其余四个页面共用同一套编辑部无边框版式。
+   原先 .article-main 是个大圆角盒子卡片，而首页/归档/分类页已经「彻底告别盒装卡片」，
+   因此同一站内两套视觉语言。现改为：无边框正文列 + 编辑部字号阶梯 + 等宽章节标。 */
+/* 文章页：容器指标直接复用 .main-content-wrapper / .main-container，
+   此处只叠加「正文列 + 目录侧栏」的双栏栅格，避免两份容器尺寸各自漂移 */
 .article-wrapper {
-  width: 100%;
-  max-width: min(94vw, 1280px);
-  margin: 40px auto 80px;
-  padding: 0 clamp(16px, 3.5vw, 48px);
-  box-sizing: border-box;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 48px;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 56px;
   align-items: start;
 }
 
 .article-main {
   min-width: 0;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
-  padding: 40px 48px;
-  box-shadow: var(--card-shadow);
 }
 
+/* 返回链接：等宽小字 + 克制灰。原先用 --primary 做 0.88rem 正文，对比度仅 ~3.7:1 */
 .back-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.88rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.82rem;
   font-weight: 600;
-  color: var(--primary);
-  margin-bottom: 20px;
-  transition: transform 0.2s ease;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-bottom: 24px;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .back-link:hover {
+  color: var(--text-main);
   transform: translateX(-3px);
 }
 
 .article-header {
-  margin-bottom: 32px;
-  padding-bottom: 24px;
+  margin-bottom: 40px;
+  padding-bottom: 28px;
   border-bottom: 1px solid var(--border-color);
+}
+
+/* 章节标（ARTICLE ——）：与 ARCHIVE —— / FEATURED —— 同一套语言 */
+.article-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.82rem;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .article-badge-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 4px;
 }
 
+/* 与其他页 Hero 标题完全同一档：clamp(1.85rem, 3.2vw, 2.6rem) / 850 / lh 1.28 */
 .article-title {
-  font-size: 2.1rem;
-  font-weight: 800;
-  line-height: 1.35;
+  font-size: clamp(1.85rem, 3.2vw, 2.6rem);
+  font-weight: 850;
+  line-height: 1.28;
+  letter-spacing: -0.025em;
   color: var(--text-main);
-  margin-bottom: 12px;
-  letter-spacing: -0.02em;
+  margin: 18px 0 0;
+}
+
+.article-digest-desc {
+  font-size: 0.96rem;
+  line-height: 1.68;
+  color: var(--text-muted);
+  margin: 16px 0 0;
 }
 
 .article-tags-row {
@@ -2281,29 +2390,60 @@ button {
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  margin-top: 18px;
+  margin-top: 22px;
 }
 
+/* 专注阅读开关。
+   原先放在顶部导航里，导致文章页比其余页面多一个 42px 按钮；
+   而 .nav-container 是 justify-content: space-between，右侧变宽会把中间导航项横向推动，
+   跨页跳转时顶部会肉眼可见地跳一下。移到文章元信息行后：导航几何全站一致，语义也更贴切。 */
+.article-focus-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  color: var(--pill-text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.article-focus-btn:hover {
+  border-color: var(--primary);
+  color: var(--text-main);
+}
+
+.article-focus-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* 侧栏改为无边框（与分类页 .tag-sidebar 一致），用发丝线建立层级 */
 .article-toc-sidebar {
   position: sticky;
-  top: 90px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 20px 22px;
-  box-shadow: var(--card-shadow);
+  top: 96px;
 }
 
 .toc-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.95rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
   font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--text-main);
   padding-bottom: 12px;
   margin-bottom: 12px;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .toc-list {
@@ -2331,12 +2471,13 @@ button {
 }
 
 .toc-item a:hover {
-  color: var(--primary);
+  color: var(--text-main);
   background: var(--bg-subtle);
 }
 
+/* active 用主题色底 + 常规深色文字（直接用 --primary 做文字对比度不足） */
 .toc-item.active a {
-  color: var(--primary);
+  color: var(--text-main);
   font-weight: 600;
   background: var(--primary-faint);
 }
@@ -2993,6 +3134,7 @@ button {
 }
 
 /* Bottom Pagination */
+/* 文章计数栏（原 1–5 假分页按钮与箭头已移除，仅保留计数） */
 .archive-pagination {
   display: flex;
   align-items: center;
@@ -3007,49 +3149,6 @@ button {
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--text-muted);
-}
-
-.archive-pagination-nav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.pagination-arrow,
-.pagination-page {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 34px;
-  height: 34px;
-  padding: 0 8px;
-  font-family: var(--font-mono, monospace);
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-decoration: none;
-  border-radius: 6px;
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
-}
-
-.pagination-arrow:hover:not(.disabled),
-.pagination-page:hover {
-  color: var(--primary);
-  border-color: var(--border-color);
-  background: var(--bg-subtle);
-}
-
-.pagination-page.active {
-  color: #ffffff !important;
-  background: var(--primary);
-  border-color: var(--primary);
-}
-
-.pagination-arrow.disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-  pointer-events: none;
 }
 
 
@@ -3153,7 +3252,7 @@ button {
 }
 
 .tag-hero-quote {
-  font-family: var(--font-serif, "Georgia", serif);
+  font-family: var(--font-cursive);
   font-size: 1.15rem;
   font-style: italic;
   line-height: 1.65;
@@ -3270,11 +3369,13 @@ button {
   transform: scale(1.03);
 }
 
+/* 中文引语：不用 italic（浏览器会对中文字形做伪斜，看起来是坏的），
+   改用站点自带的书法字 token --font-calligraphy（'Ma Shan Zheng'，之前定义了却从未被引用） */
 .sidebar-quote-text {
-  font-family: var(--font-serif, "Georgia", serif);
-  font-size: 0.94rem;
-  font-style: italic;
-  line-height: 1.65;
+  font-family: var(--font-calligraphy);
+  font-size: 1.06rem;
+  font-style: normal;
+  line-height: 1.75;
   color: var(--text-main);
   margin: 0;
 }
@@ -3296,50 +3397,14 @@ button {
   flex-direction: column;
 }
 
-.stream-tabs {
+/* 流头部：仅保留文章计数（原「最新 / 最热 / 最多阅读」假 Tabs 已移除） */
+.stream-header-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: 16px;
+  padding-bottom: 14px;
   margin-bottom: 8px;
-}
-
-.stream-tabs-nav {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-}
-
-.stream-tab {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-decoration: none;
-  position: relative;
-  padding-bottom: 16px;
-  margin-bottom: -17px;
-  transition: color 0.2s ease;
-  cursor: pointer;
-}
-
-.stream-tab:hover {
-  color: var(--primary);
-}
-
-.stream-tab.active {
-  color: var(--primary);
-  font-weight: 700;
-}
-
-.stream-tab-indicator {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--primary);
-  border-radius: 2px 2px 0 0;
 }
 
 .stream-total-count {
@@ -3477,6 +3542,20 @@ button {
   padding-top: 8px;
 }
 
+/* 4. posts/about.md 正文区（编辑部版式下方的 Markdown 长文） */
+.about-post-body {
+  max-width: min(94vw, 820px);
+  margin: 0 auto 72px;
+}
+
+.about-post-body > *:first-child {
+  margin-top: 0;
+}
+
+.about-post-body > *:last-child {
+  margin-bottom: 0;
+}
+
 /* 1. 3-Column Hero Trio */
 .about-hero-trio {
   display: flex;
@@ -3576,11 +3655,12 @@ button {
   min-width: 0;
 }
 
+/* 中文引语：同 .sidebar-quote-text，不用 italic、改用书法字 */
 .about-hero-quote {
-  font-family: var(--font-serif, "Georgia", serif);
-  font-size: 1.25rem;
-  font-style: italic;
-  line-height: 1.65;
+  font-family: var(--font-calligraphy);
+  font-size: 1.4rem;
+  font-style: normal;
+  line-height: 1.7;
   color: var(--text-main);
   margin: 0;
 }
@@ -3594,7 +3674,7 @@ button {
 }
 
 .about-hero-signature {
-  font-family: var(--font-serif, "Georgia", "Baskerville", serif);
+  font-family: var(--font-cursive);
   font-size: 1.5rem;
   font-style: italic;
   font-weight: 600;
@@ -3606,7 +3686,7 @@ button {
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.14em;
-  color: var(--text-light);
+  color: var(--text-muted);
   text-transform: uppercase;
 }
 
@@ -3723,7 +3803,7 @@ button {
 }
 
 .personal-signature {
-  font-family: var(--font-serif, "Georgia", serif);
+  font-family: var(--font-cursive);
   font-size: 1.3rem;
   font-style: italic;
   font-weight: 600;
@@ -3854,7 +3934,7 @@ button {
   margin-bottom: 56px;
   min-height: 300px;
   background-image: url('images/hero-bg.jpg');
-  background-position: center;
+  background-position: center 20%;
   background-size: cover;
   background-repeat: no-repeat;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
@@ -3937,7 +4017,7 @@ button {
 }
 
 .panoramic-about-cursive {
-  font-family: var(--font-serif, "Georgia", "Baskerville", cursive, serif);
+  font-family: var(--font-cursive);
   font-size: clamp(1.8rem, 3.5vw, 3rem);
   font-style: italic;
   color: rgba(255, 255, 255, 0.85);
@@ -3967,8 +4047,7 @@ button {
 }
 
 /* 专注阅读模式 (Focus Reading Mode) */
-body.focus-reading-mode .site-nav,
-body.focus-reading-mode .article-page-header,
+body.focus-reading-mode .page-header,
 body.focus-reading-mode .article-toc-sidebar,
 body.focus-reading-mode .back-link,
 body.focus-reading-mode .wechat-promo-card,
@@ -3980,16 +4059,9 @@ body.focus-reading-mode .site-footer {
 
 body.focus-reading-mode .article-wrapper {
   max-width: 820px;
-  margin: 30px auto 80px;
+  margin: 0 auto;
   grid-template-columns: 1fr;
-  padding: 0 20px;
-}
-
-body.focus-reading-mode .article-main {
-  box-shadow: none;
-  border-color: transparent;
-  background: transparent;
-  padding: 24px 0;
+  padding: 36px 20px;
 }
 
 .focus-mode-exit-btn {
@@ -4429,32 +4501,60 @@ body.focus-reading-mode .focus-mode-exit-btn {
     width: 100%;
   }
 
-  /* 移动端导航紧凑单行 */
+  /* 移动端导航 */
   .nav-container {
-    padding: 0 14px;
-    height: 54px;
+    padding: 0 16px;
+    justify-content: flex-start;
+    gap: 12px;
   }
-  .site-nav, .article-page-header {
-    height: 54px;
+  .page-header {
+    height: 64px;
   }
   .nav-menu {
     display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 14px 30px -14px rgba(0, 0, 0, 0.28);
+    padding: 6px 0;
+  }
+  .nav-menu.open {
+    display: flex;
+  }
+  .nav-menu .nav-menu-item {
+    padding: 14px 18px;
+    font-size: 1rem;
+    border-radius: 0;
+    opacity: 1;
+  }
+  .nav-toggle-btn {
+    display: inline-flex;
+    margin-left: auto;
+    width: 44px;
+    height: 44px;
   }
   .site-brand {
     gap: 6px;
   }
   .brand-text {
-    font-size: 1.15rem;
+    font-size: 1.18rem;
   }
   .brand-badge {
     display: none;
   }
   .nav-right-actions {
-    gap: 6px;
+    gap: 2px;
   }
+  /* 触控目标 ≥44px（原先 32px） */
   .nav-action-btn {
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
   }
   .nav-avatar-btn {
     display: none;
@@ -4483,16 +4583,10 @@ body.focus-reading-mode .focus-mode-exit-btn {
   }
 
   /* 移动端文章详情排版 (严格遵循微信图文排版规范) */
+  /* 栅格单列；容器 padding 交给 .main-container 的 clamp()，与其余页面保持一致 */
   .article-wrapper {
-    margin: 12px auto 40px;
-    padding: 0 16px;
     grid-template-columns: 1fr;
-  }
-  .article-main {
-    border-radius: 12px;
-    padding: 20px 16px;
-    border: 1px solid var(--border-color);
-    box-shadow: none;
+    gap: 0;
   }
   .article-header {
     margin-bottom: 24px;
@@ -4572,13 +4666,6 @@ body.focus-reading-mode .focus-mode-exit-btn {
     flex-direction: column;
     padding: 24px 18px;
     gap: 20px;
-  }
-  .featured-showcase-ctrl {
-    flex-direction: row;
-    width: 100%;
-    border-left: none;
-    border-top: 1px solid var(--border-color);
-    padding-top: 12px;
   }
   .selected-writings-stream {
     flex-direction: column;
@@ -4849,6 +4936,8 @@ function toggleThemeDropdown(force) {
   } else {
     menu.classList.toggle("open");
   }
+  var btn = document.getElementById("theme-picker-btn");
+  if (btn) btn.setAttribute("aria-expanded", menu.classList.contains("open") ? "true" : "false");
 }
 
 // 点击外部关闭下拉菜单
@@ -4914,34 +5003,77 @@ function copyToClipboard(text, msg = "已复制") {
   }
 }
 
+// 移动端汉堡菜单开闭
+function toggleNavMenu(open) {
+  const menu = document.getElementById("site-nav-menu");
+  if (!menu) return;
+  const btn = document.querySelector(".nav-toggle-btn");
+  const willOpen = typeof open === "boolean" ? open : !menu.classList.contains("open");
+  menu.classList.toggle("open", willOpen);
+  if (btn) btn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+}
+
+// 点击导航项或页面空白处时收起菜单
+// （点汉堡按钮本身由 onclick 处理，这里跳过以免被二次反转）
+document.addEventListener("click", (e) => {
+  const menu = document.getElementById("site-nav-menu");
+  if (!menu || !menu.classList.contains("open")) return;
+  const target = e.target;
+  if (target && target.closest && target.closest(".nav-toggle-btn")) return;
+  toggleNavMenu(false);
+});
+
+// 视口回到桌面宽度时收起菜单
+window.addEventListener("resize", () => {
+  if (window.innerWidth > 768) toggleNavMenu(false);
+});
+
 // 搜索模态框开闭与实时检索
+let searchSelectedIndex = -1;
+let searchReturnFocusEl = null;
+
+function resetSearchModal() {
+  searchSelectedIndex = -1;
+  const resultsBox = document.getElementById("search-results-box");
+  if (resultsBox) {
+    resultsBox.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-light);font-size:0.9rem;">输入关键词搜索全部文章 (支持标题、描述、分类与标签)...</div>';
+  }
+}
+
 function toggleSearchModal(open) {
   const modal = document.getElementById("search-modal");
   if (!modal) return;
+  const isOpen = modal.classList.contains("open");
   if (open) {
+    if (isOpen) return;
+    searchReturnFocusEl = document.activeElement;
     modal.classList.add("open");
     const input = document.getElementById("search-input");
     if (input) {
       input.value = "";
+      resetSearchModal();
       setTimeout(() => input.focus(), 50);
     }
   } else {
+    if (!isOpen) return;
     modal.classList.remove("open");
+    if (searchReturnFocusEl && document.contains(searchReturnFocusEl) && typeof searchReturnFocusEl.focus === "function") {
+      searchReturnFocusEl.focus();
+    }
+    searchReturnFocusEl = null;
   }
 }
-
-let searchSelectedIndex = -1;
 
 function onSearchModalInput(e) {
   const q = e.target.value.trim().toLowerCase();
   const resultsBox = document.getElementById("search-results-box");
   if (!resultsBox) return;
-  searchSelectedIndex = -1;
 
   if (!q) {
-    resultsBox.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-light);font-size:0.9rem;">输入关键词搜索全部文章 (支持标题、描述、分类与标签)...</div>';
+    resetSearchModal();
     return;
   }
+  searchSelectedIndex = -1;
 
   const inPosts = window.location.pathname.includes("/posts/");
   const index = window.__NOTES_INDEX__ || [];
@@ -4966,12 +5098,13 @@ function onSearchModalInput(e) {
     resultsBox.innerHTML = matches.map((m, idx) => {
       const escaped = q.split('').map(function(c){ return '.*+?^$()|{}[]\\\\'.indexOf(c) !== -1 ? '\\\\' + c : c; }).join('');
       const reg = new RegExp('(' + escaped + ')', 'gi');
-      const highTitle = m.title.replace(reg, '<mark class="search-highlight">$1</mark>');
-      const highDesc = m.desc ? m.desc.replace(reg, '<mark class="search-highlight">$1</mark>') : '';
-      const catBadge = (m.categories && m.categories[0]) ? '<span class="search-tag">' + m.categories[0] + '</span>' : '';
-      const dateText = m.date ? '<span>' + m.date + '</span>' : '';
+      const esc = function(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); };
+      const highTitle = esc(m.title).replace(reg, '<mark class="search-highlight">$1</mark>');
+      const highDesc = m.desc ? esc(m.desc).replace(reg, '<mark class="search-highlight">$1</mark>') : '';
+      const catBadge = (m.categories && m.categories[0]) ? '<span class="search-tag">' + esc(m.categories[0]) + '</span>' : '';
+      const dateText = m.date ? '<span>' + esc(m.date) + '</span>' : '';
 
-      return '<a href="' + m.url + '" class="search-result-item" data-index="' + idx + '">' +
+      return '<a href="' + esc(m.url) + '" class="search-result-item" data-index="' + idx + '">' +
         '<div class="search-result-title">' + highTitle + '</div>' +
         (highDesc ? '<div class="search-result-snippet">' + highDesc + '</div>' : '') +
         '<div class="search-result-meta">' + catBadge + dateText + '</div>' +
@@ -5130,10 +5263,25 @@ window.addEventListener("keydown", (e) => {
   if ((e.metaKey || e.ctrlKey) && e.key === "k") {
     e.preventDefault();
     toggleSearchModal(true);
+    return;
   }
+
+  // 「/」快速唤起搜索（interactive spec 3.5），正在输入时不劫持
+  if (e.key === "/" && !isOpen && !e.metaKey && !e.ctrlKey && !e.altKey) {
+    const el = document.activeElement;
+    const tag = (el && el.tagName) || "";
+    const typing = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || !!(el && el.isContentEditable);
+    if (!typing) {
+      e.preventDefault();
+      toggleSearchModal(true);
+      return;
+    }
+  }
+
   if (e.key === "Escape") {
     toggleSearchModal(false);
     toggleThemeDropdown(false);
+    toggleNavMenu(false);
   }
 });
 
@@ -5144,24 +5292,30 @@ document.addEventListener("DOMContentLoaded", () => {
 `;
 
 /**
+ * 全站导航项唯一来源（顶栏与页脚共用，避免两处各写一份而漂移）
+ */
+export const NAV_ITEMS = [
+  { key: "home", label: "首页", path: "index.html" },
+  { key: "articles", label: "文章", path: "articles.html" },
+  { key: "archives", label: "归档", path: "archives.html" },
+  { key: "about", label: "关于", path: "about.html" },
+];
+
+/**
  * 统一导航栏组件生成器
  */
 export function buildNavHtml(activeKey, isSubdir = false) {
   const prefix = isSubdir ? "../" : "";
-  const navItems = [
-    { key: "home", label: "首页", href: `${prefix}index.html` },
-    { key: "archives", label: "归档", href: `${prefix}archives.html` },
-    { key: "categories", label: "分类", href: `${prefix}categories.html` },
-    { key: "tags", label: "标签", href: `${prefix}tags.html` },
-    { key: "about", label: "关于", href: `${prefix}about.html` },
-  ];
 
   return `
-    <nav class="nav-menu">
-      ${navItems
+    <button class="nav-toggle-btn" type="button" aria-label="展开导航菜单" aria-expanded="false" aria-controls="site-nav-menu" onclick="toggleNavMenu()">
+      ${ICONS.menu}
+    </button>
+    <nav class="nav-menu" id="site-nav-menu">
+      ${NAV_ITEMS
         .map(
           (item) => `
-        <a href="${item.href}" class="nav-menu-item ${item.key === activeKey ? "active" : ""}">${item.label}</a>`
+        <a href="${prefix}${item.path}" class="nav-menu-item ${item.key === activeKey ? "active" : ""}">${item.label}</a>`
         )
         .join("")}
     </nav>
@@ -5173,20 +5327,13 @@ export function buildNavHtml(activeKey, isSubdir = false) {
  */
 export function buildFooterNavHtml(activeKey, isSubdir = false) {
   const prefix = isSubdir ? "../" : "";
-  const navItems = [
-    { key: "home", label: "首页", href: `${prefix}index.html` },
-    { key: "archives", label: "归档", href: `${prefix}archives.html` },
-    { key: "categories", label: "分类", href: `${prefix}categories.html` },
-    { key: "tags", label: "标签", href: `${prefix}tags.html` },
-    { key: "about", label: "关于", href: `${prefix}about.html` },
-  ];
 
   return `
     <div class="footer-nav-links">
-      ${navItems
+      ${NAV_ITEMS
         .map(
           (item) => `
-        <a href="${item.href}" class="footer-nav-link ${item.key === activeKey ? "active" : ""}">${item.label}</a>`
+        <a href="${prefix}${item.path}" class="footer-nav-link ${item.key === activeKey ? "active" : ""}">${item.label}</a>`
         )
         .join("")}
     </div>
@@ -5199,7 +5346,7 @@ export function buildFooterNavHtml(activeKey, isSubdir = false) {
 export function buildThemePickerHtml() {
   return `
     <div class="theme-picker-wrapper">
-      <button class="nav-action-btn theme-picker-trigger" id="theme-picker-btn" onclick="toggleThemeDropdown()" title="选择全站风格主题" aria-haspopup="true">
+      <button class="nav-action-btn theme-picker-trigger" id="theme-picker-btn" onclick="toggleThemeDropdown()" title="选择全站风格主题" aria-haspopup="menu" aria-expanded="false" aria-controls="theme-picker-dropdown">
         ${ICONS.palette}
         <span class="theme-active-indicator"></span>
       </button>
@@ -5207,7 +5354,7 @@ export function buildThemePickerHtml() {
         <div class="theme-dropdown-header">全站视觉风格 (THEMES)</div>
         ${SITE_THEMES.map(
           (t) => `
-          <div class="theme-dropdown-item" data-theme-id="${t.id}" onclick="selectSiteTheme('${t.id}')" role="menuitem">
+          <div class="theme-dropdown-item" data-theme-id="${t.id}" tabindex="0" role="menuitem" onclick="selectSiteTheme('${t.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectSiteTheme('${t.id}');}">
             <span class="theme-swatch" style="background: ${t.color};"></span>
             <div class="theme-info">
               <div class="theme-name">${t.name}</div>
@@ -5224,7 +5371,7 @@ export function buildThemePickerHtml() {
  * 统一搜索模态框与通用挂件
  */
 export function buildCommonWidgetsHtml(searchIndex = []) {
-  const indexJson = JSON.stringify(searchIndex);
+  const indexJson = JSON.stringify(searchIndex).replace(/</g, "\\u003c");
   return `
     <!-- 回到顶部按钮 -->
     <button id="back-to-top" onclick="scrollToTop()" title="回到顶部">
@@ -5270,6 +5417,201 @@ export function buildZeroFoucScript() {
 }
 
 /**
+ * 页面 <head> 资源链接：字体 + RSS 自动发现。
+ * RSS 用绝对 URL，这样文章页（dist/posts/ 子目录）无需区分相对路径。
+ */
+export function buildHeadLinksHtml() {
+  const feedUrl = `${SITE_CONFIG.siteUrl.replace(/\/+$/, "")}/feed.xml`;
+  return `
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="${FONT_STYLESHEET_URL}">
+    <link rel="alternate" type="application/rss+xml" title="${SITE_CONFIG.title} RSS" href="${feedUrl}">
+  `;
+}
+
+/* ==========================================================================
+   统一页面外壳
+   原先 6 个 builder 各抄一份 head + header + footer 骨架，任何全站改动都要改 6 处。
+   这里收敛为唯一来源，所有差异通过参数表达。
+   ========================================================================== */
+
+/**
+ * 外壳第一部分：<head> + <body> 开标签。
+ */
+export function buildPageHeadHtml({ title, description, isSubdir = false, referrer = false }) {
+  const prefix = isSubdir ? "../" : "";
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
+  <meta name="description" content="${description}">
+${referrer ? `  <meta name="referrer" content="no-referrer">\n` : ""}  ${buildHeadLinksHtml()}
+  ${buildZeroFoucScript()}
+  <style>
+:root {
+  --hero-bg: url('${prefix}images/hero-daily.jpg'), url('${prefix}images/hero-bg.jpg');
+  --banner-bg: url('${prefix}images/bottom-banner-clean.jpg'), url('${prefix}images/bottom-banner.jpg');
+  /* 首页 ARCHIVE 纵览带的背景图：刻意不用 --banner-bg，避免与底部「与我交流」横幅重复 */
+  --archive-bg: url('${prefix}images/hero-clean.jpg');
+}
+${SITE_STYLES}
+  </style>
+</head>
+<body>
+  <div id="read-progress"></div>`;
+}
+
+/**
+ * 外壳第二部分：顶部导航栏（全站唯一实现，所有页面共用，无变体差异）。
+ * activeKey 传 "" 表示不高亮任何项（文章页用）。
+ */
+export function buildPageHeaderHtml({ activeKey = "", isSubdir = false, extraActions = "" }) {
+  const prefix = isSubdir ? "../" : "";
+
+  return `  <header class="page-header" id="main-nav">
+    <div class="nav-container">
+      ${buildBrandHtml(isSubdir)}
+      ${buildNavHtml(activeKey, isSubdir)}
+      <div class="nav-right-actions">
+        <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
+          ${ICONS.search}
+        </button>
+        ${buildThemePickerHtml()}
+${extraActions}        <button class="nav-action-btn" onclick="toggleTheme()" title="切换日夜模式">
+          <span id="theme-toggle-icon">${ICONS.moon}</span>
+        </button>
+        <a href="${prefix}about.html" class="nav-avatar-btn" title="关于 ${SITE_CONFIG.author}">T</a>
+      </div>
+    </div>
+  </header>`;
+}
+
+/**
+ * 外壳第三部分：</main> 之后的底栏、通用挂件、页脚与脚本。
+ */
+export function buildPageTailHtml({
+  activeKey = "",
+  isSubdir = false,
+  searchIndex = [],
+  extraScript = "",
+  showBottomBanner = true,
+}) {
+  const bannerBlock = showBottomBanner ? `  ${buildBottomBannerHtml(isSubdir)}\n\n` : "";
+
+  return `${bannerBlock}  ${buildCommonWidgetsHtml(searchIndex)}
+
+  <footer class="site-footer">
+    <div class="footer-inner-container">
+      <div>© 2026 ${SITE_CONFIG.title}. All rights reserved.</div>
+      ${buildFooterNavHtml(activeKey, isSubdir)}
+    </div>
+  </footer>
+
+  <script>${CLIENT_SCRIPTS}</script>${extraScript}
+</body>
+</html>`;
+}
+
+/**
+ * 分类页 / 标签页侧栏筛选脚本
+ * 两页的脚本原先各抄一份 ~60 行，仅「取哪个 dataset 字段」与几个标识符不同，
+ * 这里用参数表达，保证生成的文本与原内容逐字符一致。
+ */
+function buildStreamFilterScript({ field, fnName, constName, paramName, hashPrefix }) {
+  return `
+  <script>
+    (function() {
+      const sidebarItems = document.querySelectorAll(".tag-sidebar-item");
+      const entries = document.querySelectorAll(".horizontal-entry-item");
+      const heroTitle = document.querySelector(".tag-hero-title");
+      const totalCount = document.querySelector(".stream-total-count");
+      const viewAllBtn = document.querySelector(".tag-hero-view-all");
+
+      function ${fnName}(${paramName}, count) {
+        sidebarItems.forEach(item => {
+          if (item.dataset.filter === ${paramName}) {
+            item.classList.add("active");
+            item.style.borderLeft = "3px solid var(--primary)";
+            item.style.color = "var(--text-main)";
+          } else {
+            item.classList.remove("active");
+            item.style.borderLeft = "";
+            item.style.color = "";
+          }
+        });
+
+        let visibleCount = 0;
+        entries.forEach(entry => {
+          const ${constName} = (entry.dataset.${field} || "").split(",");
+          if (!${paramName} || ${constName}.includes(${paramName})) {
+            entry.style.display = "flex";
+            visibleCount++;
+          } else {
+            entry.style.display = "none";
+          }
+        });
+
+        if (heroTitle) {
+          heroTitle.textContent = ${paramName} ? (${paramName} + " · " + visibleCount + " 篇文章") : ("全部 · " + entries.length + " 篇文章");
+        }
+        if (totalCount) {
+          totalCount.textContent = "共 " + visibleCount + " 篇文章";
+        }
+      }
+
+      // 深链：读取 #<prefix>-xxx 直接进入对应筛选。
+      // 原先全站没有任何 location.hash 读取，首页 / 归档页的分类链接点进来只是跳到本页、
+      // 并不真的筛选，看上去"点了都一样"。
+      function readHash() {
+        var raw = "";
+        try { raw = decodeURIComponent((location.hash || "").replace(/^#/, "")); } catch (e) { raw = ""; }
+        var prefix = "${hashPrefix}-";
+        var name = raw.indexOf(prefix) === 0 ? raw.slice(prefix.length) : "";
+        var hit = name && Array.prototype.some.call(sidebarItems, function (el) {
+          return (el.dataset.filter || "") === name;
+        });
+        return hit ? name : "";
+      }
+
+      function applyHash() {
+        ${fnName}(readHash(), 0);
+      }
+
+      sidebarItems.forEach(item => {
+        item.addEventListener("click", function(e) {
+          e.preventDefault();
+          var name = this.dataset.filter || "";
+          var url = location.pathname + location.search + (name ? "#${hashPrefix}-" + encodeURIComponent(name) : "");
+          history.replaceState(null, "", url);
+          ${fnName}(name, this.dataset.count);
+        });
+      });
+
+      if (viewAllBtn) {
+        viewAllBtn.addEventListener("click", function(e) {
+          e.preventDefault();
+          history.replaceState(null, "", location.pathname + location.search);
+          sidebarItems.forEach(item => {
+            item.classList.remove("active");
+            item.style.borderLeft = "";
+            item.style.color = "";
+          });
+          entries.forEach(entry => entry.style.display = "flex");
+          if (heroTitle) heroTitle.textContent = "全部 · " + entries.length + " 篇文章";
+          if (totalCount) totalCount.textContent = "共 " + entries.length + " 篇文章";
+        });
+      }
+
+      applyHash();
+      window.addEventListener("hashchange", applyHash);
+    })();
+  </script>`;
+}
+
+/**
  * 组装单个文章页面 HTML
  */
 export function buildPostPageHtml(post, renderedHtml, toc, allPosts = [], searchIndex = []) {
@@ -5296,25 +5638,12 @@ export function buildPostPageHtml(post, renderedHtml, toc, allPosts = [], search
   const githubInteractionHtml = buildPostGithubInteraction(post);
   const recommendationsHtml = buildPostRecommendations(relatedPosts);
 
-  return `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${post.meta.title} - ${SITE_CONFIG.title}</title>
-  <meta name="description" content="${post.meta.description || post.meta.title}">
-  <meta name="referrer" content="no-referrer">
-  ${buildZeroFoucScript()}
-  <style>
-:root {
-  --hero-bg: url('../images/hero-daily.jpg'), url('../images/hero-bg.jpg');
-  --banner-bg: url('../images/bottom-banner-clean.jpg'), url('../images/bottom-banner.jpg');
-}
-${SITE_STYLES}
-  </style>
-</head>
-<body>
-  <div id="read-progress"></div>
+  return `${buildPageHeadHtml({
+    title: `${post.meta.title} - ${SITE_CONFIG.title}`,
+    description: `${post.meta.description || post.meta.title}`,
+    isSubdir: true,
+    referrer: true,
+  })}
 
   <!-- 退出专注阅读模式悬浮按钮 -->
   <button class="focus-mode-exit-btn" onclick="toggleFocusMode(false)">
@@ -5322,38 +5651,18 @@ ${SITE_STYLES}
   </button>
 
   <!-- 顶部导航 -->
-  <header class="article-page-header">
-    <div class="nav-container">
-      ${buildBrandHtml(true)}
+${buildPageHeaderHtml({ activeKey: "", isSubdir: true })}
 
-      ${buildNavHtml("archives", true)}
-
-      <div class="nav-right-actions">
-        <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
-          ${ICONS.search}
-        </button>
-        ${buildThemePickerHtml()}
-        <button class="nav-action-btn" onclick="toggleFocusMode()" title="专注阅读模式" id="focus-mode-btn">
-          ${ICONS.bookOpen}
-        </button>
-        <button class="nav-action-btn" onclick="toggleTheme()" title="切换日夜模式">
-          <span id="theme-toggle-icon">${ICONS.moon}</span>
-        </button>
-        <a href="../about.html" class="nav-avatar-btn" title="关于 ${SITE_CONFIG.author}">T</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- 文章双栏排版主体 -->
-  <main class="article-wrapper post-container">
+  <!-- 文章主体：与其余四页同一个容器与无边框编辑部版式 -->
+  <main class="main-content-wrapper main-container article-wrapper">
     <article class="article-main">
       <header class="article-header">
         <a href="../index.html" class="back-link">
           ${ICONS.arrowLeft} 返回博客首页
         </a>
         <section class="article-badge-row" style="box-sizing:border-box;">
+          <span class="article-label">ARTICLE ——</span>
           ${categoryPill}
-          <span class="theme-pill status">2026 · Pro</span>
         </section>
         <h1 class="article-title">${post.meta.title}</h1>
         <section class="theme-accent-dash" style="box-sizing:border-box;">
@@ -5363,7 +5672,7 @@ ${SITE_STYLES}
         </section>
         ${post.meta.description ? `<p class="article-digest-desc">${post.meta.description}</p>` : ""}
         ${coverUrl ? `
-        <section class="article-cover-card" style="box-sizing:border-box;border-radius:14px;overflow:hidden;margin:18px 0 24px;border:1px solid var(--border-color);">
+        <section class="article-cover-card" style="box-sizing:border-box;border-radius:16px;overflow:hidden;margin:24px 0 28px;border:1px solid var(--border-color);">
           <img src="${coverUrl}" alt="${post.meta.title}" style="width:100%;max-height:420px;object-fit:cover;display:block;" onerror="this.parentElement.style.display='none'">
         </section>` : ""}
         <section class="article-tags-row" style="box-sizing:border-box;">
@@ -5371,6 +5680,9 @@ ${SITE_STYLES}
           ${tagsHtml}
           <span class="theme-pill meta">${ICONS.calendar} ${post.meta.date || "最近更新"}</span>
           <span class="theme-pill meta">${ICONS.clock} 约 ${post.readingStats.readingTimeMin} 分钟阅读</span>
+          <button type="button" class="article-focus-btn" onclick="toggleFocusMode()" title="专注阅读模式">
+            ${ICONS.bookOpen} 专注阅读
+          </button>
         </section>
       </header>
 
@@ -5419,24 +5731,18 @@ ${SITE_STYLES}
     }
   </main>
 
-  ${buildCommonWidgetsHtml(searchIndex)}
-
-  <footer class="site-footer">
-    <div class="footer-inner-container">
-      <div>© 2026 ${SITE_CONFIG.title}. All rights reserved.</div>
-      ${buildFooterNavHtml("archives", true)}
-    </div>
-  </footer>
-
-  <script>${CLIENT_SCRIPTS}</script>
-</body>
-</html>`;
+${buildPageTailHtml({
+    activeKey: "",
+    isSubdir: true,
+    searchIndex,
+  })}`;
 }
 
 /**
  * 组装底部 100vw 全屏月升夜景互动横幅 HTML（无框纯净悬浮设计）
  */
-export function buildBottomBannerHtml() {
+export function buildBottomBannerHtml(isSubdir = false) {
+  const prefix = isSubdir ? "../" : "";
   return `
   <!-- Section 3: 底部宽幅互动横幅 (100vw 全屏月升夜景 + 无框悬浮设计) -->
   <section class="bottom-comm-banner">
@@ -5449,8 +5755,9 @@ export function buildBottomBannerHtml() {
       </p>
       <div class="banner-social-row">
         <a href="mailto:${SITE_CONFIG.email}" class="social-circle-btn" title="发送邮件">${ICONS.mail}</a>
+        <a href="${prefix}feed.xml" class="social-circle-btn" title="RSS 订阅">${ICONS.rss}</a>
         <a href="${SITE_CONFIG.githubUrl}" target="_blank" rel="noopener" class="social-circle-btn" title="GitHub 个人主页">${ICONS.github}</a>
-        <a href="about.html" class="social-circle-btn" title="关于我">${ICONS.user}</a>
+        <a href="${prefix}about.html" class="social-circle-btn" title="关于我">${ICONS.user}</a>
       </div>
       <div class="banner-meta-footnote" style="margin-top: 18px; font-size: 0.78rem; opacity: 0.65;">
         <span>${getTodayFormattedDate()}</span> · <span>📷 今日壁纸：${(getDailyWallpaper() || {}).title || "晨曦之光"}</span>
@@ -5465,6 +5772,16 @@ export function buildBottomBannerHtml() {
 export function buildIndexPageHtml(posts, featuredPost, latestPosts, allCategories, searchIndex = []) {
   const dailyQuote = getDailyQuote();
   const dailyWallpaper = getDailyWallpaper();
+
+  // Hero 右侧分类导航：用真实分类动态生成。
+  // 原先写死 DESIGN / TECHNOLOGY / LIFE / NOTES —— 既不是本仓的真实分类
+  // （实际是 技术 / 生活 / 思考 / 成长 / 产品），四个链接还全部指向同一个 categories.html。
+  const heroCategoryNavHtml = (allCategories || [])
+    .map(
+      (c) =>
+        `          <a href="categories.html#cat-${encodeURIComponent(c)}" class="editorial-nav-item"><span>${c}</span> <span>→</span></a>`
+    )
+    .join("\n");
 
   // 精选文章
   const feat = featuredPost || posts[0];
@@ -5528,51 +5845,19 @@ export function buildIndexPageHtml(posts, featuredPost, latestPosts, allCategori
       </section>`;
   }).join("\n");
 
-  return `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${SITE_CONFIG.title} - ${SITE_CONFIG.hero.calligraphy.join("，")}</title>
-  <meta name="description" content="${SITE_CONFIG.description}">
-  ${buildZeroFoucScript()}
-  <style>
-:root {
-  --hero-bg: url('images/hero-daily.jpg'), url('images/hero-bg.jpg');
-  --banner-bg: url('images/bottom-banner-clean.jpg'), url('images/bottom-banner.jpg');
-}
-${SITE_STYLES}
-  </style>
-</head>
-<body>
-  <div id="read-progress"></div>
+  return `${buildPageHeadHtml({
+    title: `${SITE_CONFIG.title} - ${SITE_CONFIG.hero.calligraphy.join("，")}`,
+    description: SITE_CONFIG.description,
+  })}
 
-  <!-- 顶部透明随动导航 -->
-  <header class="site-nav" id="main-nav">
-    <div class="nav-container">
-      ${buildBrandHtml(false)}
-
-      ${buildNavHtml("home", false)}
-
-      <div class="nav-right-actions">
-        <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
-          ${ICONS.search}
-        </button>
-        ${buildThemePickerHtml()}
-        <button class="nav-action-btn" onclick="toggleTheme()" title="切换日夜模式">
-          <span id="theme-toggle-icon">${ICONS.moon}</span>
-        </button>
-        <a href="about.html" class="nav-avatar-btn" title="关于 ${SITE_CONFIG.author}">T</a>
-      </div>
-    </div>
-  </header>
+${buildPageHeaderHtml({ activeKey: "home" })}
 
   <!-- 页面主体内容 (纯 Section 架构，微信后台 0 塌陷保证) -->
   <main class="main-content-wrapper main-container">
     <!-- Chapter 1: 3-column Editorial Hero -->
     <section class="editorial-hero" style="box-sizing: border-box;">
       <section class="editorial-hero-col-left" style="box-sizing: border-box;">
-        <span class="editorial-date">${getTodayFormattedDate().replace(/\./g, " / ")}</span>
+        <span class="editorial-date" data-date="${getTodayFormattedDate()}">${getTodayFormattedDate().replace(/\./g, " / ")}</span>
         <h1 class="editorial-headline">记录设计、技术，以及那些值得思考的事。</h1>
         <p class="editorial-subheadline">I write about design, technology and everything in between.</p>
         <a href="#featured" class="editorial-more-link">READ MORE →</a>
@@ -5585,10 +5870,7 @@ ${SITE_STYLES}
       <section class="editorial-hero-col-right" style="box-sizing: border-box;">
         <span class="editorial-nav-label">CATEGORIES</span>
         <nav class="editorial-nav-list">
-          <a href="categories.html" class="editorial-nav-item"><span>DESIGN</span> <span>→</span></a>
-          <a href="categories.html" class="editorial-nav-item"><span>TECHNOLOGY</span> <span>→</span></a>
-          <a href="categories.html" class="editorial-nav-item"><span>LIFE</span> <span>→</span></a>
-          <a href="categories.html" class="editorial-nav-item"><span>NOTES</span> <span>→</span></a>
+${heroCategoryNavHtml}
         </nav>
       </section>
     </section>
@@ -5612,11 +5894,6 @@ ${SITE_STYLES}
           <a href="posts/${feat.slug}.html" style="display: block; width: 100%; height: 100%;">
             <img src="${featCover}" alt="${feat.meta.title}" class="featured-showcase-img" onerror="this.src='images/featured-fuji.jpg'">
           </a>
-        </section>
-
-        <section class="featured-showcase-ctrl" style="box-sizing: border-box;">
-          <span class="feat-counter">01 / 04</span>
-          <span class="feat-nav-arrows">↑ ↓</span>
         </section>
       </section>
     </section>
@@ -5668,29 +5945,20 @@ ${SITE_STYLES}
             <a href="about.html" class="footprint-more-link">MORE ABOUT →</a>
             <section class="footprint-social-links" style="box-sizing: border-box;">
               <a href="mailto:${SITE_CONFIG.email}" class="footprint-social-icon" title="发送邮件">${ICONS.mail}</a>
+              <a href="feed.xml" class="footprint-social-icon" title="RSS 订阅">${ICONS.rss}</a>
               <a href="${SITE_CONFIG.githubUrl}" target="_blank" rel="noopener" class="footprint-social-icon" title="GitHub 主页">${ICONS.github}</a>
               <a href="about.html" class="footprint-social-icon" title="关于我">${ICONS.user}</a>
             </section>
+          </section>
+          <section class="footprint-meta-footnote" style="box-sizing: border-box; margin-top: 18px; font-size: 0.78rem; opacity: 0.65;">
+            <span>${getTodayFormattedDate()}</span> · <span>📷 今日壁纸：${(dailyWallpaper || {}).title || "晨曦之光"}</span>
           </section>
         </section>
       </section>
     </section>
   </main>
 
-  ${buildBottomBannerHtml()}
-
-  ${buildCommonWidgetsHtml(searchIndex)}
-
-  <footer class="site-footer">
-    <div class="footer-inner-container">
-      <div>© 2026 ${SITE_CONFIG.title}. All rights reserved.</div>
-      ${buildFooterNavHtml("home", false)}
-    </div>
-  </footer>
-
-  <script>${CLIENT_SCRIPTS}</script>
-</body>
-</html>`;
+${buildPageTailHtml({ activeKey: "home", searchIndex, showBottomBanner: false })}`;
 }
 
 /**
@@ -5698,6 +5966,16 @@ ${SITE_STYLES}
  * 1:1 复刻编辑部杂志时间线 (Reference Image 2)
  */
 export function buildArchivesHtml(posts, searchIndex = []) {
+  // 右侧分类导航：同样用真实分类生成。
+  // 原先写死的 DESIGN / TECHNOLOGY / LIFE / NOTES 四项全部指向 categories.html。
+  const archivesCategoryNavHtml = [...new Set(posts.flatMap((p) => p.meta.categories || []))]
+    .filter((c) => c !== "关于")
+    .map(
+      (c) =>
+        `          <a href="categories.html#cat-${encodeURIComponent(c)}" class="archive-filter-link"><span>${c}</span> <span>→</span></a>`
+    )
+    .join("\n");
+
   // 按年份分组
   const yearGroups = {};
   const sorted = [...posts].sort((a, b) => {
@@ -5797,41 +6075,12 @@ export function buildArchivesHtml(posts, searchIndex = []) {
       </section>`;
   }).join("\n");
 
-  return `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>文章归档 (Archives) - ${SITE_CONFIG.title}</title>
-  <meta name="description" content="${SITE_CONFIG.title} 历年全部文章时间线归档索引">
-  ${buildZeroFoucScript()}
-  <style>
-:root {
-  --hero-bg: url('images/hero-daily.jpg'), url('images/hero-bg.jpg');
-  --banner-bg: url('images/bottom-banner-clean.jpg'), url('images/bottom-banner.jpg');
-}
-${SITE_STYLES}
-  </style>
-</head>
-<body>
-  <div id="read-progress"></div>
+  return `${buildPageHeadHtml({
+    title: `文章归档 (Archives) - ${SITE_CONFIG.title}`,
+    description: `${SITE_CONFIG.title} 历年全部文章时间线归档索引`,
+  })}
 
-  <header class="article-page-header">
-    <div class="nav-container">
-      ${buildBrandHtml(false)}
-      ${buildNavHtml("archives", false)}
-      <div class="nav-right-actions">
-        <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
-          ${ICONS.search}
-        </button>
-        ${buildThemePickerHtml()}
-        <button class="nav-action-btn" onclick="toggleTheme()" title="切换日夜模式">
-          <span id="theme-toggle-icon">${ICONS.moon}</span>
-        </button>
-        <a href="about.html" class="nav-avatar-btn" title="关于 ${SITE_CONFIG.author}">T</a>
-      </div>
-    </div>
-  </header>
+${buildPageHeaderHtml({ activeKey: "archives" })}
 
   <!-- 页面主体内容 (纯 Section 架构，微信后台 0 塌陷保证) -->
   <main class="main-content-wrapper main-container">
@@ -5850,11 +6099,8 @@ ${SITE_STYLES}
       <section class="archive-hero-col-right" style="box-sizing: border-box;">
         <span class="archive-filter-label">CATEGORIES</span>
         <nav class="archive-filter-list">
-          <a href="archives.html" class="archive-filter-link active"><span>ALL</span> <span>(${posts.length})</span></a>
-          <a href="categories.html" class="archive-filter-link"><span>DESIGN</span> <span>→</span></a>
-          <a href="categories.html" class="archive-filter-link"><span>TECHNOLOGY</span> <span>→</span></a>
-          <a href="categories.html" class="archive-filter-link"><span>LIFE</span> <span>→</span></a>
-          <a href="categories.html" class="archive-filter-link"><span>NOTES</span> <span>→</span></a>
+          <a href="archives.html" class="archive-filter-link active"><span>全部</span> <span>(${posts.length})</span></a>
+${archivesCategoryNavHtml}
         </nav>
       </section>
     </section>
@@ -5864,35 +6110,13 @@ ${SITE_STYLES}
       ${yearsHtml}
     </section>
 
-    <!-- Bottom Pagination -->
+    <!-- 文章计数（原 1–5 页码与箭头为纯装饰、点击无任何效果，已移除） -->
     <section class="archive-pagination" style="box-sizing: border-box;">
       <span class="archive-total-count">共 ${posts.length} 篇文章</span>
-      <nav class="archive-pagination-nav">
-        <a href="#" class="pagination-arrow disabled" aria-label="Previous page">&lt;</a>
-        <a href="#" class="pagination-page active">1</a>
-        <a href="#" class="pagination-page">2</a>
-        <a href="#" class="pagination-page">3</a>
-        <a href="#" class="pagination-page">4</a>
-        <a href="#" class="pagination-page">5</a>
-        <a href="#" class="pagination-arrow" aria-label="Next page">&gt;</a>
-      </nav>
     </section>
   </main>
 
-  ${buildBottomBannerHtml()}
-
-  ${buildCommonWidgetsHtml(searchIndex)}
-
-  <footer class="site-footer">
-    <div class="footer-inner-container">
-      <div>© 2026 ${SITE_CONFIG.title}. All rights reserved.</div>
-      ${buildFooterNavHtml("archives", false)}
-    </div>
-  </footer>
-
-  <script>${CLIENT_SCRIPTS}</script>
-</body>
-</html>`;
+${buildPageTailHtml({ activeKey: "archives", searchIndex })}`;
 }
 
 /**
@@ -5967,41 +6191,12 @@ export function buildCategoriesHtml(posts, categoriesMap, searchIndex = []) {
           </section>`;
   }).join("\n");
 
-  return `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>分类探索 (Categories) - ${SITE_CONFIG.title}</title>
-  <meta name="description" content="${SITE_CONFIG.title} 全部分类聚合与主题探索">
-  ${buildZeroFoucScript()}
-  <style>
-:root {
-  --hero-bg: url('images/hero-daily.jpg'), url('images/hero-bg.jpg');
-  --banner-bg: url('images/bottom-banner-clean.jpg'), url('images/bottom-banner.jpg');
-}
-${SITE_STYLES}
-  </style>
-</head>
-<body>
-  <div id="read-progress"></div>
+  return `${buildPageHeadHtml({
+    title: `分类探索 (Categories) - ${SITE_CONFIG.title}`,
+    description: `${SITE_CONFIG.title} 全部分类聚合与主题探索`,
+  })}
 
-  <header class="article-page-header">
-    <div class="nav-container">
-      ${buildBrandHtml(false)}
-      ${buildNavHtml("categories", false)}
-      <div class="nav-right-actions">
-        <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
-          ${ICONS.search}
-        </button>
-        ${buildThemePickerHtml()}
-        <button class="nav-action-btn" onclick="toggleTheme()" title="切换日夜模式">
-          <span id="theme-toggle-icon">${ICONS.moon}</span>
-        </button>
-        <a href="about.html" class="nav-avatar-btn" title="关于 ${SITE_CONFIG.author}">T</a>
-      </div>
-    </div>
-  </header>
+${buildPageHeaderHtml({ activeKey: "categories" })}
 
   <!-- 页面主体内容 (纯 Section 架构，微信后台 0 塌陷保证) -->
   <main class="main-content-wrapper main-container">
@@ -6045,20 +6240,8 @@ ${SITE_STYLES}
 
       <!-- Right Column Main Stream -->
       <section class="tag-main-stream" style="box-sizing: border-box;">
-        <!-- Tabs Header -->
-        <section class="stream-tabs" style="box-sizing: border-box;">
-          <nav class="stream-tabs-nav">
-            <a href="#latest" class="stream-tab active" onclick="return false;">
-              <span>最新</span>
-              <span class="stream-tab-indicator"></span>
-            </a>
-            <a href="#popular" class="stream-tab" onclick="return false;">
-              <span>最热</span>
-            </a>
-            <a href="#most-read" class="stream-tab" onclick="return false;">
-              <span>最多阅读</span>
-            </a>
-          </nav>
+        <!-- 文章计数（原「最新 / 最热 / 最多阅读」Tabs 为纯装饰、点击不会重排序，已移除） -->
+        <section class="stream-header-row" style="box-sizing: border-box;">
           <span class="stream-total-count">共 ${posts.length} 篇文章</span>
         </section>
 
@@ -6067,126 +6250,37 @@ ${SITE_STYLES}
           ${entriesHtml}
         </section>
 
-        <!-- Bottom Pagination -->
-        <section class="archive-pagination stream-pagination" style="box-sizing: border-box;">
-          <nav class="archive-pagination-nav">
-            <a href="#" class="pagination-arrow disabled" aria-label="Previous page">&lt;</a>
-            <a href="#" class="pagination-page active">1</a>
-            <a href="#" class="pagination-page">2</a>
-            <a href="#" class="pagination-page">3</a>
-            <a href="#" class="pagination-page">4</a>
-            <a href="#" class="pagination-page">5</a>
-            <a href="#" class="pagination-arrow" aria-label="Next page">&gt;</a>
-          </nav>
+        <!-- 原 1–5 页码与箭头为纯装饰、点击无效果，已移除 -->
+        <section class="stream-header-row" style="box-sizing: border-box;">
+          <span class="stream-total-count">共 ${posts.length} 篇文章</span>
         </section>
       </section>
     </section>
   </main>
 
-  ${buildBottomBannerHtml()}
-
-  ${buildCommonWidgetsHtml(searchIndex)}
-
-  <footer class="site-footer">
-    <div class="footer-inner-container">
-      <div>© 2026 ${SITE_CONFIG.title}. All rights reserved.</div>
-      ${buildFooterNavHtml("categories", false)}
-    </div>
-  </footer>
-
-  <script>${CLIENT_SCRIPTS}</script>
-  <script>
-    (function() {
-      const sidebarItems = document.querySelectorAll(".tag-sidebar-item");
-      const entries = document.querySelectorAll(".horizontal-entry-item");
-      const heroTitle = document.querySelector(".tag-hero-title");
-      const totalCount = document.querySelector(".stream-total-count");
-      const viewAllBtn = document.querySelector(".tag-hero-view-all");
-      const tabs = document.querySelectorAll(".stream-tab");
-
-      function filterCategory(catName, count) {
-        sidebarItems.forEach(item => {
-          if (item.dataset.filter === catName) {
-            item.classList.add("active");
-            item.style.borderLeft = "3px solid var(--primary)";
-            item.style.color = "var(--primary)";
-          } else {
-            item.classList.remove("active");
-            item.style.borderLeft = "";
-            item.style.color = "";
-          }
-        });
-
-        let visibleCount = 0;
-        entries.forEach(entry => {
-          const cats = (entry.dataset.categories || "").split(",");
-          if (!catName || cats.includes(catName)) {
-            entry.style.display = "flex";
-            visibleCount++;
-          } else {
-            entry.style.display = "none";
-          }
-        });
-
-        if (heroTitle) {
-          heroTitle.textContent = catName ? (catName + " · " + visibleCount + " 篇文章") : ("全部 · " + entries.length + " 篇文章");
-        }
-        if (totalCount) {
-          totalCount.textContent = "共 " + visibleCount + " 篇文章";
-        }
-      }
-
-      sidebarItems.forEach(item => {
-        item.addEventListener("click", function(e) {
-          e.preventDefault();
-          filterCategory(this.dataset.filter, this.dataset.count);
-        });
-      });
-
-      if (viewAllBtn) {
-        viewAllBtn.addEventListener("click", function(e) {
-          e.preventDefault();
-          sidebarItems.forEach(item => {
-            item.classList.remove("active");
-            item.style.borderLeft = "";
-            item.style.color = "";
-          });
-          entries.forEach(entry => entry.style.display = "flex");
-          if (heroTitle) heroTitle.textContent = "全部 · " + entries.length + " 篇文章";
-          if (totalCount) totalCount.textContent = "共 " + entries.length + " 篇文章";
-        });
-      }
-
-      tabs.forEach(tab => {
-        tab.addEventListener("click", function(e) {
-          e.preventDefault();
-          tabs.forEach(t => {
-            t.classList.remove("active");
-            const ind = t.querySelector(".stream-tab-indicator");
-            if (ind) ind.remove();
-          });
-          this.classList.add("active");
-          const ind = document.createElement("span");
-          ind.className = "stream-tab-indicator";
-          this.appendChild(ind);
-        });
-      });
-    })();
-  </script>
-</body>
-</html>`;
+${buildPageTailHtml({
+    activeKey: "categories",
+    searchIndex,
+    extraScript: buildStreamFilterScript({
+      field: "categories",
+      fnName: "filterCategory",
+      constName: "cats",
+      paramName: "catName",
+      hashPrefix: "cat",
+    }),
+  })}`;
 }
 
 /**
- * 组装标签云与检索页面 HTML (/tags.html) - 1:1 复刻 Reference Image 4
+ * 组装文章总览页面 HTML (/articles.html) - 1:1 复刻 Reference Image 4
  */
-export function buildTagsHtml(posts, tagsMap, searchIndex = []) {
-  if (!tagsMap) {
-    tagsMap = {};
+export function buildArticlesHtml(posts, categoriesMap, searchIndex = []) {
+  if (!categoriesMap) {
+    categoriesMap = {};
     for (const post of posts) {
-      for (const tag of post.meta.tags || []) {
-        if (!tagsMap[tag]) tagsMap[tag] = [];
-        tagsMap[tag].push(post);
+      for (const cat of post.meta.categories || ["未分类"]) {
+        if (!categoriesMap[cat]) categoriesMap[cat] = [];
+        categoriesMap[cat].push(post);
       }
     }
   }
@@ -6201,22 +6295,22 @@ export function buildTagsHtml(posts, tagsMap, searchIndex = []) {
     "images/hero-daily.jpg",
   ];
 
-  const sortedTags = Object.entries(tagsMap)
+  const sortedCategories = Object.entries(categoriesMap)
+    .filter(([c]) => c !== "关于")
     .sort((a, b) => b[1].length - a[1].length);
 
-  const activeName = sortedTags[0] ? sortedTags[0][0] : "全部";
-  const count = sortedTags[0] ? sortedTags[0][1].length : posts.length;
-
-  const sidebarItemsHtml = sortedTags.map(([tag, tagPosts], idx) => {
-    const isActive = idx === 0;
-    const activeClass = isActive ? " active" : "";
-    const activeStyle = isActive ? ` style="border-left: 3px solid var(--primary); color: var(--primary);"` : "";
-    return `
-          <a href="tags.html#tag-${encodeURIComponent(tag)}" class="tag-sidebar-item${activeClass}"${activeStyle} data-filter="${tag}" data-name="${tag}" data-count="${tagPosts.length}">
-            <span class="tag-sidebar-name"># ${tag}</span>
-            <span class="tag-sidebar-count">${tagPosts.length}</span>
-          </a>`;
-  }).join("\n");
+  const sidebarItemsHtml = [
+    `
+          <a href="articles.html" class="tag-sidebar-item active" style="border-left: 3px solid var(--primary); color: var(--primary);" data-filter="all" data-name="全部文章" data-count="${posts.length}">
+            <span class="tag-sidebar-name">全部文章</span>
+            <span class="tag-sidebar-count">${posts.length}</span>
+          </a>`,
+    ...sortedCategories.map(([cat, catPosts]) => `
+          <a href="articles.html#cat-${encodeURIComponent(cat)}" class="tag-sidebar-item" data-filter="${cat}" data-name="${cat}" data-count="${catPosts.length}">
+            <span class="tag-sidebar-name">${cat}</span>
+            <span class="tag-sidebar-count">${catPosts.length}</span>
+          </a>`)
+  ].join("\n");
 
   const entriesHtml = posts.map((post, idx) => {
     const idxStr = String(idx + 1).padStart(2, "0");
@@ -6248,55 +6342,26 @@ export function buildTagsHtml(posts, tagsMap, searchIndex = []) {
           </section>`;
   }).join("\n");
 
-  return `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>标签索引 (Tags) - ${SITE_CONFIG.title}</title>
-  <meta name="description" content="${SITE_CONFIG.title} 全部文章标签云与细分检索">
-  ${buildZeroFoucScript()}
-  <style>
-:root {
-  --hero-bg: url('images/hero-daily.jpg'), url('images/hero-bg.jpg');
-  --banner-bg: url('images/bottom-banner-clean.jpg'), url('images/bottom-banner.jpg');
-}
-${SITE_STYLES}
-  </style>
-</head>
-<body>
-  <div id="read-progress"></div>
+  return `${buildPageHeadHtml({
+    title: `文章总览 (Articles) - ${SITE_CONFIG.title}`,
+    description: `${SITE_CONFIG.title} 全部文章索引与深度阅读`,
+  })}
 
-  <header class="article-page-header">
-    <div class="nav-container">
-      ${buildBrandHtml(false)}
-      ${buildNavHtml("tags", false)}
-      <div class="nav-right-actions">
-        <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
-          ${ICONS.search}
-        </button>
-        ${buildThemePickerHtml()}
-        <button class="nav-action-btn" onclick="toggleTheme()" title="切换日夜模式">
-          <span id="theme-toggle-icon">${ICONS.moon}</span>
-        </button>
-        <a href="about.html" class="nav-avatar-btn" title="关于 ${SITE_CONFIG.author}">T</a>
-      </div>
-    </div>
-  </header>
+${buildPageHeaderHtml({ activeKey: "articles" })}
 
   <!-- 页面主体内容 (纯 Section 架构，微信后台 0 塌陷保证) -->
   <main class="main-content-wrapper main-container">
     <!-- Hero Header -->
     <section class="tag-hero" style="box-sizing: border-box;">
       <section class="tag-hero-left" style="box-sizing: border-box;">
-        <span class="tag-hero-label">TAG ——</span>
-        <h1 class="tag-hero-title">${activeName} · ${count} 篇文章</h1>
-        <p class="tag-hero-desc">按细分知识点与灵感关键词交叉索引，以敏锐的颗粒度穿透不同领域，快速定位感兴趣的深度内容。</p>
-        <a href="tags.html" class="tag-hero-view-all">VIEW ALL →</a>
+        <span class="tag-hero-label">ARTICLES ——</span>
+        <h1 class="tag-hero-title">文章 · 思考与沉淀</h1>
+        <p class="tag-hero-desc">探索体系化思考与技术实现的交汇点。按主题聚类的长文脉络，记录架构设计、工程实践与生活感悟。共 ${posts.length} 篇文章。</p>
+        <a href="articles.html" class="tag-hero-view-all">VIEW ALL →</a>
       </section>
 
       <section class="tag-hero-center" style="box-sizing: border-box;">
-        <img src="images/hero-daily.jpg" alt="Tag Hero Atmosphere" class="tag-hero-img" onerror="this.src='images/hero-architecture.jpg'">
+        <img src="images/hero-architecture.jpg" alt="Articles Hero Atmosphere" class="tag-hero-img" onerror="this.src='images/hero-daily.jpg'">
       </section>
 
       <section class="tag-hero-right" style="box-sizing: border-box;">
@@ -6308,7 +6373,7 @@ ${SITE_STYLES}
     <section class="tag-stream-layout" style="box-sizing: border-box;">
       <!-- Left Column Sidebar -->
       <section class="tag-sidebar" style="box-sizing: border-box;">
-        <span class="tag-sidebar-header">ALL TAGS ——</span>
+        <span class="tag-sidebar-header">ALL TOPICS ——</span>
         <nav class="tag-sidebar-list">
           ${sidebarItemsHtml}
         </nav>
@@ -6329,183 +6394,59 @@ ${SITE_STYLES}
         <!-- Tabs Header -->
         <section class="stream-tabs" style="box-sizing: border-box;">
           <nav class="stream-tabs-nav">
-            <a href="#latest" class="stream-tab active" onclick="return false;">
-              <span>最新</span>
-              <span class="stream-tab-indicator"></span>
-            </a>
-            <a href="#popular" class="stream-tab" onclick="return false;">
-              <span>最热</span>
-            </a>
-            <a href="#most-read" class="stream-tab" onclick="return false;">
-              <span>最多阅读</span>
-            </a>
+            <button class="stream-tab active" data-tab="latest" type="button">最新</button>
+            <button class="stream-tab" data-tab="hot" type="button">最热</button>
+            <button class="stream-tab" data-tab="featured" type="button">精选</button>
           </nav>
-          <span class="stream-total-count">共 ${posts.length} 篇文章</span>
+          <span class="stream-tab-count">共 ${posts.length} 篇文章</span>
         </section>
 
-        <!-- Horizontal Entries Stream -->
-        <section class="stream-entries-list" style="box-sizing: border-box;">
+        <!-- Horizontal Stream Items -->
+        <section class="horizontal-stream-list" style="box-sizing: border-box;">
           ${entriesHtml}
         </section>
 
-        <!-- Bottom Pagination -->
-        <section class="archive-pagination stream-pagination" style="box-sizing: border-box;">
-          <nav class="archive-pagination-nav">
-            <a href="#" class="pagination-arrow disabled" aria-label="Previous page">&lt;</a>
-            <a href="#" class="pagination-page active">1</a>
-            <a href="#" class="pagination-page">2</a>
-            <a href="#" class="pagination-page">3</a>
-            <a href="#" class="pagination-page">4</a>
-            <a href="#" class="pagination-page">5</a>
-            <a href="#" class="pagination-arrow" aria-label="Next page">&gt;</a>
-          </nav>
+        <section class="stream-header-row" style="box-sizing: border-box;">
+          <span class="stream-total-count">共 ${posts.length} 篇文章</span>
         </section>
       </section>
     </section>
   </main>
 
-  ${buildBottomBannerHtml()}
-
-  ${buildCommonWidgetsHtml(searchIndex)}
-
-  <footer class="site-footer">
-    <div class="footer-inner-container">
-      <div>© 2026 ${SITE_CONFIG.title}. All rights reserved.</div>
-      ${buildFooterNavHtml("tags", false)}
-    </div>
-  </footer>
-
-  <script>${CLIENT_SCRIPTS}</script>
-  <script>
-    (function() {
-      const sidebarItems = document.querySelectorAll(".tag-sidebar-item");
-      const entries = document.querySelectorAll(".horizontal-entry-item");
-      const heroTitle = document.querySelector(".tag-hero-title");
-      const totalCount = document.querySelector(".stream-total-count");
-      const viewAllBtn = document.querySelector(".tag-hero-view-all");
-      const tabs = document.querySelectorAll(".stream-tab");
-
-      function filterTag(tagName, count) {
-        sidebarItems.forEach(item => {
-          if (item.dataset.filter === tagName) {
-            item.classList.add("active");
-            item.style.borderLeft = "3px solid var(--primary)";
-            item.style.color = "var(--primary)";
-          } else {
-            item.classList.remove("active");
-            item.style.borderLeft = "";
-            item.style.color = "";
-          }
-        });
-
-        let visibleCount = 0;
-        entries.forEach(entry => {
-          const tags = (entry.dataset.tags || "").split(",");
-          if (!tagName || tags.includes(tagName)) {
-            entry.style.display = "flex";
-            visibleCount++;
-          } else {
-            entry.style.display = "none";
-          }
-        });
-
-        if (heroTitle) {
-          heroTitle.textContent = tagName ? (tagName + " · " + visibleCount + " 篇文章") : ("全部 · " + entries.length + " 篇文章");
-        }
-        if (totalCount) {
-          totalCount.textContent = "共 " + visibleCount + " 篇文章";
-        }
-      }
-
-      sidebarItems.forEach(item => {
-        item.addEventListener("click", function(e) {
-          e.preventDefault();
-          filterTag(this.dataset.filter, this.dataset.count);
-        });
-      });
-
-      if (viewAllBtn) {
-        viewAllBtn.addEventListener("click", function(e) {
-          e.preventDefault();
-          sidebarItems.forEach(item => {
-            item.classList.remove("active");
-            item.style.borderLeft = "";
-            item.style.color = "";
-          });
-          entries.forEach(entry => entry.style.display = "flex");
-          if (heroTitle) heroTitle.textContent = "全部 · " + entries.length + " 篇文章";
-          if (totalCount) totalCount.textContent = "共 " + entries.length + " 篇文章";
-        });
-      }
-
-      tabs.forEach(tab => {
-        tab.addEventListener("click", function(e) {
-          e.preventDefault();
-          tabs.forEach(t => {
-            t.classList.remove("active");
-            const ind = t.querySelector(".stream-tab-indicator");
-            if (ind) ind.remove();
-          });
-          this.classList.add("active");
-          const ind = document.createElement("span");
-          ind.className = "stream-tab-indicator";
-          this.appendChild(ind);
-        });
-      });
-    })();
-  </script>
-</body>
-</html>`;
+${buildPageTailHtml({
+    activeKey: "articles",
+    searchIndex,
+    extraScript: buildStreamFilterScript({
+      field: "categories",
+      fnName: "filterCategory",
+      constName: "cats",
+      paramName: "catName",
+      hashPrefix: "cat",
+    }),
+  })}`;
 }
 
-/**
- * 组装关于我页面 HTML (/about.html - 1:1 Reference Image 1)
- */
-export function buildAboutHtml(aboutPost, arg2, arg3, arg4) {
-  let searchIndex = [];
-  if (Array.isArray(arg2)) {
-    searchIndex = arg2;
-  } else if (Array.isArray(arg4)) {
-    searchIndex = arg4;
-  } else if (Array.isArray(arg3)) {
-    searchIndex = arg3;
-  }
+export function buildAboutHtml(aboutPost, bodyHtml = "", searchIndex = []) {
+  const aboutMeta = (aboutPost && aboutPost.meta) || {};
+  const pageTitle = aboutMeta.title || "关于我 (About Me)";
+  const pageDesc =
+    aboutMeta.description ||
+    `关于 ${SITE_CONFIG.author}，全栈开发者与独立创造者，记录技术、产品、生活与成长。`;
+  // posts/about.md 的正文：由 obw 出版引擎渲染，兑现 OBSIDIAN_SYNC_GUIDE 1.1 契约
+  const bodySectionHtml = bodyHtml
+    ? `
+    <!-- 4. posts/about.md 正文（obw 出版引擎渲染） -->
+    <section class="about-post-body" style="box-sizing: border-box;">
+      ${bodyHtml}
+    </section>`
+    : "";
 
-  return `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>关于我 (About Me) - ${SITE_CONFIG.title}</title>
-  <meta name="description" content="关于 ${SITE_CONFIG.author}，全栈开发者与独立创造者，记录技术、产品、生活与成长。">
-  ${buildZeroFoucScript()}
-  <style>
-:root {
-  --hero-bg: url('images/hero-daily.jpg'), url('images/hero-bg.jpg');
-  --banner-bg: url('images/bottom-banner-clean.jpg'), url('images/bottom-banner.jpg');
-}
-${SITE_STYLES}
-  </style>
-</head>
-<body>
-  <div id="read-progress"></div>
+  return `${buildPageHeadHtml({
+    title: `${pageTitle} - ${SITE_CONFIG.title}`,
+    description: pageDesc,
+  })}
 
-  <header class="article-page-header">
-    <div class="nav-container">
-      ${buildBrandHtml(false)}
-      ${buildNavHtml("about", false)}
-      <div class="nav-right-actions">
-        <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
-          ${ICONS.search}
-        </button>
-        ${buildThemePickerHtml()}
-        <button class="nav-action-btn" onclick="toggleTheme()" title="切换日夜模式">
-          <span id="theme-toggle-icon">${ICONS.moon}</span>
-        </button>
-        <a href="about.html" class="nav-avatar-btn" title="关于 ${SITE_CONFIG.author}">T</a>
-      </div>
-    </div>
-  </header>
+${buildPageHeaderHtml({ activeKey: "about" })}
 
   <!-- 页面主体内容 (纯 Section 架构，微信后台 0 塌陷保证，无任何 div 标签) -->
   <main class="main-content-wrapper main-container about-main-page">
@@ -6557,7 +6498,7 @@ ${SITE_STYLES}
             </section>
             <section class="personal-detail-row" style="box-sizing: border-box;">
               <span class="detail-label">邮箱</span>
-              <span class="detail-value"><a href="mailto:tan@example.com" class="detail-email-link">tan@example.com</a></span>
+              <span class="detail-value"><a href="mailto:${SITE_CONFIG.email}" class="detail-email-link">${SITE_CONFIG.email}</a></span>
             </section>
             <section class="personal-detail-row" style="box-sizing: border-box;">
               <span class="detail-label">喜欢</span>
@@ -6656,22 +6597,10 @@ ${SITE_STYLES}
         </section>
       </section>
     </section>
+${bodySectionHtml}
   </main>
 
-  ${buildBottomBannerHtml()}
-
-  ${buildCommonWidgetsHtml(searchIndex)}
-
-  <footer class="site-footer">
-    <div class="footer-inner-container">
-      <div>© 2026 ${SITE_CONFIG.title}. All rights reserved.</div>
-      ${buildFooterNavHtml("about", false)}
-    </div>
-  </footer>
-
-  <script>${CLIENT_SCRIPTS}</script>
-</body>
-</html>`;
+${buildPageTailHtml({ activeKey: "about", searchIndex })}`;
 }
 
 /**
@@ -6681,9 +6610,14 @@ export async function main() {
   console.log("🚀 开始全量构建 TAN / Weaving's Notes 个人站点...");
 
   // 1. 初始化并清空目录
-  if (!fs.existsSync(DIST_DIR)) fs.mkdirSync(DIST_DIR, { recursive: true });
-  if (!fs.existsSync(DIST_POSTS_DIR)) fs.mkdirSync(DIST_POSTS_DIR, { recursive: true });
-  if (!fs.existsSync(DIST_IMAGES_DIR)) fs.mkdirSync(DIST_IMAGES_DIR, { recursive: true });
+  // 真正清空：否则删掉的文章会在 dist/ 留下旧 HTML，并被 GitHub Pages 继续对外提供
+  if (path.basename(DIST_DIR) !== "dist") {
+    throw new Error(`拒绝清空非 dist 输出目录: ${DIST_DIR}`);
+  }
+  fs.rmSync(DIST_DIR, { recursive: true, force: true });
+  fs.mkdirSync(DIST_DIR, { recursive: true });
+  fs.mkdirSync(DIST_POSTS_DIR, { recursive: true });
+  fs.mkdirSync(DIST_IMAGES_DIR, { recursive: true });
 
   // 2. 拷贝静态图片资源
   if (fs.existsSync(IMAGES_DIR)) {
@@ -6711,13 +6645,30 @@ export async function main() {
     const slug = path.basename(file, ".md");
     const readingStats = calculateReadingStats(body);
 
+    const rawTitle = meta.title || slug;
+    const rawDescription = meta.description || "";
+    const rawAuthor = meta.author || SITE_CONFIG.author;
+    const rawCategories = Array.isArray(meta.categories) ? meta.categories : [];
+    const rawTags = Array.isArray(meta.tags) ? meta.tags : [];
+
     const postItem = {
       slug,
       meta: {
         ...meta,
-        title: meta.title || slug,
+        // HTML 注入防护：展示字段统一转义；原始值另存 metaRaw 供 JSON / URL 消费方使用。
+        title: escapeHtml(rawTitle),
+        description: escapeHtml(rawDescription),
+        categories: rawCategories.map(escapeHtml),
+        tags: rawTags.map(escapeHtml),
         date: meta.date || "2026-09-22",
-        author: meta.author || SITE_CONFIG.author,
+        author: escapeHtml(rawAuthor),
+      },
+      metaRaw: {
+        title: rawTitle,
+        description: rawDescription,
+        categories: rawCategories,
+        tags: rawTags,
+        author: rawAuthor,
       },
       body,
       readingStats,
@@ -6743,18 +6694,13 @@ export async function main() {
     return dateB - dateA;
   });
 
-  // 5. 动态收集全部分类与标签
+  // 5. 动态收集全部分类
   const categoriesMap = {};
-  const tagsMap = {};
 
   for (const post of posts) {
     for (const cat of post.meta.categories || ["未分类"]) {
       if (!categoriesMap[cat]) categoriesMap[cat] = [];
       categoriesMap[cat].push(post);
-    }
-    for (const tag of post.meta.tags || []) {
-      if (!tagsMap[tag]) tagsMap[tag] = [];
-      tagsMap[tag].push(post);
     }
   }
 
@@ -6765,10 +6711,7 @@ export async function main() {
 
   // 6. 生成每篇文章详情页 (dist/posts/*.html)
   for (const post of posts) {
-    const preprocessed = preprocessMarkdown(post.body, true);
-    const rawRenderedHtml = renderWithObw(preprocessed, SITE_CONFIG.theme);
-    const adaptedHtml = adaptObwHtmlForWeb(rawRenderedHtml);
-    const { toc, html: processedHtml } = extractToc(adaptedHtml);
+    const { toc, html: processedHtml } = renderMarkdownForWeb(post.body, true);
 
     const postHtml = buildPostPageHtml(post, processedHtml, toc, posts, searchIndex);
     fs.writeFileSync(path.join(DIST_POSTS_DIR, `${post.slug}.html`), postHtml, "utf-8");
@@ -6796,18 +6739,19 @@ export async function main() {
   fs.writeFileSync(path.join(DIST_DIR, "categories.html"), categoriesHtml, "utf-8");
   console.log(`✅ 已生成分类页: dist/categories.html`);
 
-  // 11. 生成标签页 (dist/tags.html)
-  const tagsHtml = buildTagsHtml(posts, tagsMap, searchIndex);
-  fs.writeFileSync(path.join(DIST_DIR, "tags.html"), tagsHtml, "utf-8");
-  console.log(`✅ 已生成标签页: dist/tags.html`);
+  // 11. 生成文章页 (dist/articles.html)
+  const articlesHtml = buildArticlesHtml(posts, categoriesMap, searchIndex);
+  fs.writeFileSync(path.join(DIST_DIR, "articles.html"), articlesHtml, "utf-8");
+  console.log(`✅ 已生成文章页: dist/articles.html`);
+
+  // 12. 生成 RSS 2.0 订阅源 (dist/feed.xml)
+  fs.writeFileSync(path.join(DIST_DIR, "feed.xml"), buildRssFeed(posts), "utf-8");
+  console.log(`📡 已生成 RSS 订阅源: dist/feed.xml (${posts.length} 篇文章)`);
 
   // 12. 生成关于我页面 (dist/about.html)
   if (aboutPost) {
-    const preprocessed = preprocessMarkdown(aboutPost.body, false);
-    const rawRendered = renderWithObw(preprocessed, SITE_CONFIG.theme);
-    const adapted = adaptObwHtmlForWeb(rawRendered);
-    const { toc, html: processedHtml } = extractToc(adapted);
-    const aboutHtml = buildAboutHtml(aboutPost, searchIndex);
+    const { html: processedHtml } = renderMarkdownForWeb(aboutPost.body, false);
+    const aboutHtml = buildAboutHtml(aboutPost, processedHtml, searchIndex);
     fs.writeFileSync(path.join(DIST_DIR, "about.html"), aboutHtml, "utf-8");
     console.log(`✅ 已从 posts/about.md 生成关于我页面: dist/about.html`);
   } else {
@@ -6827,10 +6771,18 @@ highlight | “生活不在别处，就在当下的每一个选择里。”
 你好！我是 Tan（在网络上也常以 Weaving 活跃）。一名热爱创造、专注细节的前端架构与全栈开发者。
 在日常工作中，我专注于现代前端工程体系、全端跨平台架构与高性能服务设计；在工作之余，我喜欢探索人机交互美学、排版艺术以及如何用技术提升日常工作与生活的幸福感。
 `;
-    const rawRendered = renderWithObw(defaultAboutBody, SITE_CONFIG.theme);
-    const adapted = adaptObwHtmlForWeb(rawRendered);
-    const { toc, html: processedHtml } = extractToc(adapted);
-    const aboutHtml = buildAboutHtml({ meta: { title: "关于我" }, readingStats: { totalWords: 300, readingTimeMin: 1 } }, searchIndex);
+    const { html: processedHtml } = renderMarkdownForWeb(defaultAboutBody, false);
+    const aboutHtml = buildAboutHtml(
+      {
+        meta: {
+          title: "关于我",
+          description: `关于 ${SITE_CONFIG.author}，全栈开发者与独立创造者，记录技术、产品、生活与成长。`,
+        },
+        readingStats: { totalWords: 300, readingTimeMin: 1 },
+      },
+      processedHtml,
+      searchIndex
+    );
     fs.writeFileSync(path.join(DIST_DIR, "about.html"), aboutHtml, "utf-8");
     console.log(`✅ 已生成默认关于我页面: dist/about.html`);
   }
