@@ -19,6 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+import YAML from "yaml";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,6 +31,7 @@ const DIST_POSTS_DIR = path.join(DIST_DIR, "posts");
 const DIST_IMAGES_DIR = path.join(DIST_DIR, "images");
 const DATA_DIR = path.join(ROOT_DIR, "data");
 const QUOTE_FILE = path.join(DATA_DIR, "daily-quote.json");
+const WALLPAPERS_FILE = path.join(DATA_DIR, "daily-wallpapers.json");
 
 /**
  * 动态获取今天日期 (YYYY.MM.DD)
@@ -41,6 +43,153 @@ export function getTodayFormattedDate() {
   const d = String(now.getDate()).padStart(2, "0");
   return `${y}.${m}.${d}`;
 }
+
+/**
+ * 默认全站数据基座（出版级高审美兜底）
+ */
+export const DEFAULT_SITE_DATA = {
+  title: "TAN",
+  author: "Tan",
+  description: "这是我的个人博客，记录技术、产品、生活与成长。希望这些文字，能在某个时刻，给你带来一点启发。",
+  siteUrl: "https://weavingtan.github.io/notes",
+  theme: "mint-emerald",
+  githubUrl: "https://github.com/weavingtan",
+  email: "weavingtan@gmail.com",
+  wechatName: "Weaving Notes",
+  wechatQrUrl: "images/wechat-qr.png",
+  motto: "保持好奇，保持温柔。",
+  bio: "一个喜欢思考、记录和创造的人。在这里，我分享一些关于设计、技术、生活的所见所想。",
+  quote: {
+    date: "2026.09.22",
+    weather: "24° ☀️",
+    text: "“生活不在别处，<br>就在当下的每一个选择里。”",
+    author: "Tan",
+  },
+  hero: {
+    calligraphy: ["记录思考", "也记录生活"],
+    cursive: "Better Me, Better Life",
+    bio: "这是我的个人数字花园，记录技术、产品、生活与成长。<br>希望这些文字，能在某个时刻，给你带来一点启发。",
+  },
+  banner: {
+    calligraphy: ["总有一些思考", "值得被认真记录"],
+  },
+  nav: [
+    { label: "首页", href: "index.html", key: "home" },
+    { label: "文章", href: "articles.html", key: "articles" },
+    { label: "归档", href: "archives.html", key: "archives" },
+    { label: "关于", href: "about.html", key: "about" }
+  ],
+  personal_info: {
+    "坐标": "北京 · 朝阳",
+    "职业": "全栈架构师 / 产品设计师",
+    "状态": "🌱 正在深度打磨数字花园与出版排版",
+    "邮箱": "tan@example.com",
+    "GitHub": "https://github.com/weavingtan",
+    "微信": "weaving_tan",
+    "喜欢": "架构演进、开源、阅读、摄影、咖啡"
+  },
+  social_links: [
+    { platform: "mail", title: "发送邮件", href: "mailto:tan@example.com" },
+    { platform: "rss", title: "RSS 订阅", href: "feed.xml" },
+    { platform: "github", title: "GitHub 主页", href: "https://github.com/weavingtan" },
+    { platform: "about", title: "关于我", href: "about.html" }
+  ],
+  pages: {
+    home: {
+      hero_headline: "记录设计、技术，以及那些值得思考的事。",
+      hero_subheadline: "I write about design, technology and everything in between.",
+      hero_cta: "READ MORE →",
+      archive_quote: "时间会筛选出真正重要的东西。"
+    },
+    articles: {
+      title: "文章专题",
+      subtitle: "探索体系化思考与技术实现的交汇点。按主题聚类的长文脉络，记录架构设计、工程实践与生活感悟。",
+      sidebar_quote: "写作，是我与世界对话的方式。",
+      sidebar_signature: "Tan"
+    },
+    archives: {
+      title: "归档 · 时间里的思考",
+      subtitle: "时间会筛选出真正重要的东西。在这里，按时间脉络归档记录所有关于架构思考、工程设计与生活哲学的文字足迹。",
+      reflections: {
+        "2026": "这一年，我更关注生活的质感与思考的深度。重构感知，在代码与文字间探寻数字世界的温度与秩序。",
+        "2025": "在代码与现实的交织中寻找秩序，沉淀关于架构、设计与自我成长的答案。",
+        "2024": "探索未知与可能，跨越不同技术栈的边界，以文字作为思考的锚点与心智的索引。"
+      }
+    },
+    about: {
+      hero_title: "你好，我是 Tan。<br>一个喜欢思考、记录和<br>创造的人。",
+      hero_subtitle: "在这里，我分享一些关于设计、技术、生活的所见所想。",
+      hero_quote: "保持好奇，保持温柔。",
+      hero_date: "BEIJING · 2026",
+      banner_title: "在生活的缝隙里，寻找热爱的方向。",
+      banner_subtitle: "写下思考 · 记录成长 · 分享生活",
+      banner_cursive: "Better Things Ahead"
+    },
+    comm_banner: {
+      title: "与我交流",
+      desc: "如果你对文章有任何想法，或者有技术、产品、生活方面的问题，欢迎在评论区留言，或通过其他方式联系我。"
+    }
+  }
+};
+
+/**
+ * 递归深度合并对象
+ */
+function deepMerge(target, source) {
+  if (!source || typeof source !== "object") return target;
+  const result = Array.isArray(target) ? [...target] : { ...target };
+  for (const key of Object.keys(source)) {
+    const srcVal = source[key];
+    const tgtVal = target ? target[key] : undefined;
+    if (srcVal && typeof srcVal === "object" && !Array.isArray(srcVal) && tgtVal && typeof tgtVal === "object" && !Array.isArray(tgtVal)) {
+      result[key] = deepMerge(tgtVal, srcVal);
+    } else if (srcVal !== undefined && srcVal !== null && srcVal !== "") {
+      result[key] = srcVal;
+    }
+  }
+  return result;
+}
+
+/**
+ * 动态加载全站 Markdown 配置
+ */
+export function loadSiteConfig() {
+  let loadedData = {};
+  const configCandidates = [
+    path.join(POSTS_DIR, "site.md"),
+    path.join(POSTS_DIR, "about.md")
+  ];
+
+  for (const candidate of configCandidates) {
+    if (fs.existsSync(candidate)) {
+      try {
+        const raw = fs.readFileSync(candidate, "utf-8");
+        const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+        if (match) {
+          const parsed = YAML.parse(match[1]);
+          if (parsed && typeof parsed === "object") {
+            loadedData = parsed;
+            break;
+          }
+        }
+      } catch (err) {
+        console.warn(`⚠️ 解析 ${path.basename(candidate)} 出现异常，自愈回退:`, err.message);
+      }
+    }
+  }
+
+  // 映射顶层字段
+  const mapped = { ...loadedData };
+  if (mapped.site_name) mapped.title = mapped.site_name;
+  if (mapped.site_description) mapped.description = mapped.site_description;
+  if (mapped.email) mapped.email = mapped.email;
+  if (mapped.github) mapped.githubUrl = mapped.github;
+
+  return deepMerge(DEFAULT_SITE_DATA, mapped);
+}
+
+// 站点元数据配置 (动态驱动 + 默认值保障)
+export const SITE_CONFIG = loadSiteConfig();
 
 /**
  * 读取每日金句（优先读取 GitHub Action 定时抓取的 data/daily-quote.json，带优雅降级）
@@ -67,32 +216,48 @@ export function getDailyQuote() {
   };
 }
 
-// 站点元数据配置 (与设计稿视觉体系完全对齐)
-export const SITE_CONFIG = {
-  title: "TAN",
-  author: "Tan",
-  description: "这是我的个人博客，记录技术、产品、生活与成长。希望这些文字，能在某个时刻，给你带来一点启发。",
-  siteUrl: "https://weavingtan.github.io/notes",
-  theme: "mint-emerald",
-  githubUrl: "https://github.com/weavingtan",
-  email: "weavingtan@gmail.com",
-  wechatName: "Weaving Notes",
-  wechatQrUrl: "images/wechat-qr.png",
-  quote: {
-    date: "2026.09.22",
-    weather: "24° ☀️",
-    text: "“生活不在别处，<br>就在当下的每一个选择里。”",
-    author: "Tan",
-  },
-  hero: {
-    calligraphy: ["记录思考", "也记录生活"],
-    cursive: "Better Me, Better Life",
-    bio: "这是我的个人数字花园，记录技术、产品、生活与成长。<br>希望这些文字，能在某个时刻，给你带来一点启发。",
-  },
-  banner: {
-    calligraphy: ["总有一些思考", "值得被认真记录"],
+/**
+ * 读取多源每日壁纸元数据矩阵
+ */
+export function getDailyWallpapers() {
+  if (fs.existsSync(WALLPAPERS_FILE)) {
+    try {
+      return JSON.parse(fs.readFileSync(WALLPAPERS_FILE, "utf-8"));
+    } catch {}
   }
-};
+  return {
+    updatedAt: getTodayFormattedDate().replace(/\./g, "-"),
+    scenes: {
+      hero: { title: "金秋平分，地坛染黄", copyright: "地坛公园秋日美景，北京，中国 (© by Wei/Adobestock)", file: "images/daily/hero.webp" },
+      archive: { title: "金色时节", copyright: "瓜兹曼山口附近的秋日山杨林，犹他州，美国", file: "images/daily/archive.webp" },
+      footer: { title: "终获巴黎青睐的铁塔", copyright: "日落时分的埃菲尔铁塔，巴黎，法国", file: "images/daily/footer.webp" },
+      about: { title: "穿越山口腹地", copyright: "温纳茨山口，峰区国家公园，英格兰", file: "images/daily/about.webp" },
+      banner: { title: "为丰收举杯", copyright: "桑特奈葡萄酒产区葡萄园中的索林风车，伯恩丘，勃艮第，法国", file: "images/daily/banner.webp" }
+    }
+  };
+}
+
+/**
+ * 获取指定场景的今日壁纸
+ */
+export function getDailyWallpaper(scene = "hero") {
+  const all = getDailyWallpapers();
+  if (all && all.scenes && all.scenes[scene]) {
+    return all.scenes[scene];
+  }
+  const wallpaperPath = path.resolve(ROOT_DIR, "data/daily-wallpaper.json");
+  if (fs.existsSync(wallpaperPath)) {
+    try {
+      return JSON.parse(fs.readFileSync(wallpaperPath, "utf-8"));
+    } catch {}
+  }
+  return {
+    title: "金色时节",
+    copyright: "瓜兹曼山口附近的秋日山杨林，犹他州，美国",
+    url: "images/hero-daily.jpg",
+    updatedAt: "2026-09-23",
+  };
+}
 
 // 5 款精选全站风格定义
 export const SITE_THEMES = [
@@ -165,25 +330,6 @@ export const SITE_THEME_TO_OBW = {
   "minimalist-ink": "nordic-minimal",
 };
 
-/**
- * 获取今日高清自然壁纸元数据 (平滑降级机制)
- */
-export function getDailyWallpaper() {
-  const wallpaperPath = path.resolve(ROOT_DIR, "data/daily-wallpaper.json");
-  if (fs.existsSync(wallpaperPath)) {
-    try {
-      return JSON.parse(fs.readFileSync(wallpaperPath, "utf-8"));
-    } catch (e) {
-      // fallback below
-    }
-  }
-  return {
-    title: "金色时节",
-    copyright: "瓜兹曼山口附近的秋日山杨林，犹他州，美国",
-    url: "images/hero-daily.jpg",
-    updatedAt: "2026-09-22",
-  };
-}
 
 /**
  * 组装统一的品牌 TAN Logo HTML
@@ -723,6 +869,13 @@ export const SITE_STYLES = `
   --pill-border: rgba(16, 185, 129, 0.28);
   --pill-text: #065f46;
   --theme-hero-gradient: radial-gradient(ellipse 90% 60% at 50% -10%, rgba(16, 185, 129, 0.16) 0%, rgba(5, 150, 105, 0.04) 60%, transparent 100%);
+
+  /* 多场景每日壁纸变量池 (支持 WebP 主路径 + 本地优质回退) */
+  --bg-hero-daily: url('images/daily/hero.webp'), url('images/hero-architecture.jpg');
+  --bg-archive-daily: url('images/daily/archive.webp'), url('images/hero-bg.jpg');
+  --bg-footer-daily: url('images/daily/footer.webp'), url('images/bottom-banner.jpg');
+  --bg-about-daily: url('images/daily/about.webp'), url('images/hero-workspace.jpg');
+  --bg-banner-daily: url('images/daily/banner.webp'), url('images/hero-daily.jpg');
 }
 
 /* ========================================================
@@ -2187,22 +2340,115 @@ button {
   width: 100vw;
   margin-left: calc(50% - 50vw);
   box-sizing: border-box;
-  min-height: 320px;
+  min-height: 340px;
   border-radius: 0;
   overflow: hidden;
   background-color: #0b132b;
-  background-image: linear-gradient(rgba(11, 19, 43, 0.45), rgba(11, 19, 43, 0.75)), var(--banner-bg);
+  background-image: linear-gradient(rgba(11, 19, 43, 0.72), rgba(11, 19, 43, 0.88)), var(--bg-footer-daily);
   background-size: cover;
-  /* 月亮位于原图偏上区域：居中裁切会把它拦腰切断，故改为顶部对齐（等于把背景图整体下调）。
-     若还需微调，把 top 换成百分比即可：0%（=top）最低，50%（=center）居中，100%（=bottom）最高。 */
-  background-position: center top;
+  background-position: center 20%;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  padding: 64px max(24px, calc((100vw - 1140px) / 2));
+  justify-content: space-between;
+  padding: 64px max(24px, calc((100vw - 1280px) / 2));
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
-  margin-top: 48px;
+  margin-top: clamp(64px, 8vw, 96px);
   margin-bottom: 0;
+  gap: 36px;
+}
+
+/* 拍立得 3D 双面翻转卡片 */
+.banner-photocard-wrap {
+  perspective: 1000px;
+  width: 320px;
+  min-height: 190px;
+  flex-shrink: 0;
+}
+
+.photocard-card {
+  width: 100%;
+  height: 100%;
+  min-height: 190px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.photocard-card:hover,
+.photocard-card.flipped {
+  transform: rotateY(180deg);
+}
+
+.photocard-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  color: #ffffff;
+}
+
+.photocard-back {
+  transform: rotateY(180deg);
+  background: rgba(16, 24, 40, 0.88);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.photocard-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+.photocard-text {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 8px 0;
+}
+
+.photocard-author {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.75);
+  text-align: right;
+}
+
+.photocard-flip-hint {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 4px;
+}
+
+.photocard-scene-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 8px 0 4px;
+}
+
+.photocard-scene-desc {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.photocard-date {
+  font-size: 0.75rem;
+  color: var(--primary);
+  text-align: right;
 }
 
 .banner-left {
@@ -4047,21 +4293,200 @@ button {
 }
 
 /* 专注阅读模式 (Focus Reading Mode) */
+/* ========================================================
+   Zen 出版级沉浸式阅读系统 (Zen Publication Mode)
+   ======================================================== */
+.zen-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 2.5px;
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary-glow);
+  z-index: 99999;
+  transition: width 0.1s ease;
+  pointer-events: none;
+}
+
+.zen-progress-capsule {
+  position: fixed;
+  top: 18px;
+  right: 22px;
+  z-index: 999;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 0.78rem;
+  font-family: var(--font-mono, monospace);
+  color: var(--text-muted);
+  box-shadow: var(--card-shadow);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.zen-progress-capsule.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.zen-progress-capsule .capsule-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: inline-block;
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.zen-progress-capsule .capsule-sep {
+  opacity: 0.4;
+}
+
+/* 悬浮 Zen 控制坞 (Floating Zen Dock) */
+.zen-floating-dock {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9998;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 6px 14px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.82rem;
+  color: var(--text-main);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-mode="dark"] .zen-floating-dock,
+[data-theme="dark"] .zen-floating-dock {
+  background: rgba(15, 23, 42, 0.88);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+}
+
+.zen-dock-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+}
+
+.zen-dock-btn:hover {
+  background: var(--bg-subtle);
+  color: var(--primary);
+}
+
+.zen-dock-indicator {
+  font-size: 0.78rem;
+  color: var(--primary);
+  font-weight: 700;
+  min-width: 32px;
+  text-align: center;
+}
+
+.zen-dock-divider {
+  width: 1px;
+  height: 14px;
+  background: var(--border-color);
+}
+
+.zen-timer-wrap {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.zen-toggle-btn {
+  background: var(--primary-faint);
+  color: var(--primary);
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.zen-toggle-btn:hover {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+/* 专注 / Zen 模式状态下的页面重构 */
+body.focus-reading-mode {
+  --zen-current-width: 680px;
+}
+
+body.focus-reading-mode.zen-wide {
+  --zen-current-width: 840px;
+}
+
 body.focus-reading-mode .page-header,
 body.focus-reading-mode .article-toc-sidebar,
 body.focus-reading-mode .back-link,
 body.focus-reading-mode .wechat-promo-card,
 body.focus-reading-mode .post-github-interaction,
 body.focus-reading-mode .post-recommendations,
-body.focus-reading-mode .site-footer {
+body.focus-reading-mode .site-footer,
+body.focus-reading-mode .bottom-comm-banner,
+body.focus-reading-mode .fixed-theme-picker {
   display: none !important;
 }
 
 body.focus-reading-mode .article-wrapper {
-  max-width: 820px;
-  margin: 0 auto;
-  grid-template-columns: 1fr;
-  padding: 36px 20px;
+  max-width: var(--zen-current-width, 680px) !important;
+  margin: 0 auto !important;
+  grid-template-columns: 1fr !important;
+  padding: 56px clamp(16px, 4vw, 36px) !important;
+  transition: max-width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body.focus-reading-mode .article-header {
+  text-align: center;
+  max-width: 100%;
+}
+
+body.focus-reading-mode .article-badge-row,
+body.focus-reading-mode .article-tags-row {
+  justify-content: center;
+}
+
+body.focus-reading-mode .zen-floating-dock {
+  bottom: 32px;
+  right: 50%;
+  transform: translateX(50%);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22);
+}
+
+body.focus-reading-mode .zen-toggle-btn {
+  background: #ef4444;
+  color: #ffffff;
 }
 
 .focus-mode-exit-btn {
@@ -4092,6 +4517,54 @@ body.focus-reading-mode .article-wrapper {
 
 body.focus-reading-mode .focus-mode-exit-btn {
   display: inline-flex;
+}
+
+/* 读完全文庆祝条 (Completion Celebration Toast) */
+.zen-celebrate-toast {
+  position: fixed;
+  bottom: 96px;
+  right: 50%;
+  transform: translateX(50%) translateY(20px);
+  background: var(--bg-card);
+  border: 1px solid var(--primary);
+  border-radius: 999px;
+  padding: 10px 22px;
+  box-shadow: 0 12px 36px var(--primary-glow);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-main);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10000;
+  white-space: nowrap;
+}
+
+.zen-celebrate-toast.show {
+  opacity: 1;
+  transform: translateX(50%) translateY(0);
+}
+
+/* 移动端 Zen 控制坞自适应 */
+@media (max-width: 768px) {
+  .zen-floating-dock {
+    bottom: 16px;
+    right: 16px;
+    left: 16px;
+    justify-content: space-around;
+    padding: 6px 10px;
+    border-radius: 14px;
+    gap: 4px;
+  }
+  body.focus-reading-mode .zen-floating-dock {
+    transform: none;
+    right: 16px;
+    left: 16px;
+    bottom: 16px;
+  }
+  .zen-timer-wrap {
+    display: none;
+  }
 }
 
 /* 代码块一键复制按钮与全宽排版 */
@@ -4743,7 +5216,24 @@ body.focus-reading-mode .focus-mode-exit-btn {
     text-align: center;
   }
   .bottom-comm-banner {
-    padding: 36px 16px;
+    padding: 48px 18px;
+    flex-direction: column;
+    text-align: center;
+    gap: 32px;
+  }
+  .banner-left {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .banner-social-row {
+    justify-content: center;
+  }
+  .banner-photocard-wrap {
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;
   }
   .footer-inner-container {
     flex-direction: column;
@@ -5142,13 +5632,134 @@ function filterCategory(cat, btn) {
   });
 }
 
+// ========================================================
+// Zen 出版级沉浸式阅读系统 (Zen Publication Mode)
+// ========================================================
+let zenTimerSeconds = 0;
+let zenTimerInterval = null;
+let zenCelebrated = false;
+const ZEN_FONT_SIZES = [15, 16.5, 18, 20];
+let zenFontSizeIndex = 1; // 默认 16.5px
+
+function initZenReadingMode() {
+  const content = document.querySelector(".article-content");
+  if (!content) return; // 仅在文章页执行
+
+  // 1. 读取 localStorage 偏好设置
+  try {
+    const savedSize = localStorage.getItem("zen_font_size");
+    if (savedSize) {
+      const idx = ZEN_FONT_SIZES.indexOf(parseFloat(savedSize));
+      if (idx !== -1) zenFontSizeIndex = idx;
+      content.style.fontSize = ZEN_FONT_SIZES[zenFontSizeIndex] + "px";
+      const curSizeEl = document.getElementById("zen-current-size");
+      if (curSizeEl) curSizeEl.textContent = ZEN_FONT_SIZES[zenFontSizeIndex];
+    }
+
+    const savedWidth = localStorage.getItem("zen_width");
+    if (savedWidth === "840px") {
+      document.body.classList.add("zen-wide");
+      const widthLabel = document.getElementById("zen-width-label");
+      if (widthLabel) widthLabel.textContent = "840px";
+    }
+  } catch (e) {}
+
+  // 2. 启动计时器
+  if (!zenTimerInterval) {
+    zenTimerInterval = setInterval(() => {
+      zenTimerSeconds++;
+      const mins = String(Math.floor(zenTimerSeconds / 60)).padStart(2, "0");
+      const secs = String(zenTimerSeconds % 60).padStart(2, "0");
+      const display = document.getElementById("zen-timer-display");
+      if (display) display.textContent = mins + ":" + secs;
+    }, 1000);
+  }
+
+  // 3. 键盘快捷键监听：Z 键切换，ESC 键退出
+  window.addEventListener("keydown", (e) => {
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable)) return;
+    if (e.key === "z" || e.key === "Z") {
+      e.preventDefault();
+      toggleFocusMode();
+    } else if (e.key === "Escape") {
+      if (document.body.classList.contains("focus-reading-mode")) {
+        toggleFocusMode(false);
+      }
+    }
+  });
+}
+
+function adjustZenFontSize(delta) {
+  const content = document.querySelector(".article-content");
+  if (!content) return;
+  zenFontSizeIndex = Math.max(0, Math.min(ZEN_FONT_SIZES.length - 1, zenFontSizeIndex + delta));
+  const newSize = ZEN_FONT_SIZES[zenFontSizeIndex];
+  content.style.fontSize = newSize + "px";
+  const curSizeEl = document.getElementById("zen-current-size");
+  if (curSizeEl) curSizeEl.textContent = newSize;
+  try { localStorage.setItem("zen_font_size", newSize); } catch (e) {}
+}
+
+function toggleZenWidth() {
+  const isWide = document.body.classList.toggle("zen-wide");
+  const widthLabel = document.getElementById("zen-width-label");
+  const widthVal = isWide ? "840px" : "680px";
+  if (widthLabel) widthLabel.textContent = widthVal;
+  try { localStorage.setItem("zen_width", widthVal); } catch (e) {}
+}
+
 // 专注阅读模式切换
 function toggleFocusMode(force) {
-  if (typeof force === "boolean") {
-    document.body.classList.toggle("focus-reading-mode", force);
-  } else {
-    document.body.classList.toggle("focus-reading-mode");
+  const isNowFocus = typeof force === "boolean"
+    ? document.body.classList.toggle("focus-reading-mode", force)
+    : document.body.classList.toggle("focus-reading-mode");
+
+  const modeText = document.getElementById("zen-mode-text");
+  if (modeText) {
+    modeText.textContent = isNowFocus ? "✕ 退出" : "专注";
   }
+}
+
+function updateZenProgress(scrolled) {
+  const bar = document.getElementById("zen-progress-bar");
+  if (bar) bar.style.width = scrolled + "%";
+
+  const capsule = document.getElementById("zen-progress-capsule");
+  const num = document.getElementById("zen-progress-num");
+  const remain = document.getElementById("zen-reading-remain");
+
+  if (capsule) {
+    if (window.scrollY > 150) {
+      capsule.classList.add("visible");
+    } else {
+      capsule.classList.remove("visible");
+    }
+  }
+
+  if (num) num.textContent = Math.round(scrolled) + "%";
+  if (remain) {
+    remain.textContent = scrolled >= 95 ? "即将读完" : "阅读中";
+  }
+
+  if (scrolled >= 98 && !zenCelebrated) {
+    zenCelebrated = true;
+    showZenCelebration();
+  }
+}
+
+function showZenCelebration() {
+  let toast = document.querySelector(".zen-celebrate-toast");
+  if (!toast) {
+    toast = document.createElement("section");
+    toast.className = "zen-celebrate-toast";
+    toast.style.boxSizing = "border-box";
+    toast.innerHTML = "🎉 已读完全文！感谢深度阅读";
+    document.body.appendChild(toast);
+  }
+  toast.classList.add("show");
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 4500);
 }
 
 // 代码块一键复制
@@ -5195,6 +5806,7 @@ window.addEventListener("scroll", () => {
   const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
   const bar = document.getElementById("read-progress");
   if (bar) bar.style.width = scrolled + "%";
+  updateZenProgress(scrolled);
 
   // 回到顶部按钮
   const btt = document.getElementById("back-to-top");
@@ -5288,6 +5900,7 @@ window.addEventListener("keydown", (e) => {
 document.addEventListener("DOMContentLoaded", () => {
   initSiteTheme();
   initCodeCopy();
+  initZenReadingMode();
 });
 `;
 
@@ -5306,13 +5919,16 @@ export const NAV_ITEMS = [
  */
 export function buildNavHtml(activeKey, isSubdir = false) {
   const prefix = isSubdir ? "../" : "";
+  const navList = (SITE_CONFIG.nav && Array.isArray(SITE_CONFIG.nav) && SITE_CONFIG.nav.length > 0)
+    ? SITE_CONFIG.nav.map(n => ({ key: n.key || (n.href || "").replace(/\.html$/, ""), label: n.label, path: n.href || n.path }))
+    : NAV_ITEMS;
 
   return `
     <button class="nav-toggle-btn" type="button" aria-label="展开导航菜单" aria-expanded="false" aria-controls="site-nav-menu" onclick="toggleNavMenu()">
       ${ICONS.menu}
     </button>
     <nav class="nav-menu" id="site-nav-menu">
-      ${NAV_ITEMS
+      ${navList
         .map(
           (item) => `
         <a href="${prefix}${item.path}" class="nav-menu-item ${item.key === activeKey ? "active" : ""}">${item.label}</a>`
@@ -5327,10 +5943,13 @@ export function buildNavHtml(activeKey, isSubdir = false) {
  */
 export function buildFooterNavHtml(activeKey, isSubdir = false) {
   const prefix = isSubdir ? "../" : "";
+  const navList = (SITE_CONFIG.nav && Array.isArray(SITE_CONFIG.nav) && SITE_CONFIG.nav.length > 0)
+    ? SITE_CONFIG.nav.map(n => ({ key: n.key || (n.href || "").replace(/\.html$/, ""), label: n.label, path: n.href || n.path }))
+    : NAV_ITEMS;
 
   return `
     <div class="footer-nav-links">
-      ${NAV_ITEMS
+      ${navList
         .map(
           (item) => `
         <a href="${prefix}${item.path}" class="footer-nav-link ${item.key === activeKey ? "active" : ""}">${item.label}</a>`
@@ -5456,6 +6075,11 @@ ${referrer ? `  <meta name="referrer" content="no-referrer">\n` : ""}  ${buildHe
   --banner-bg: url('${prefix}images/bottom-banner-clean.jpg'), url('${prefix}images/bottom-banner.jpg');
   /* 首页 ARCHIVE 纵览带的背景图：刻意不用 --banner-bg，避免与底部「与我交流」横幅重复 */
   --archive-bg: url('${prefix}images/hero-clean.jpg');
+  --bg-hero-daily: url('${prefix}images/daily/hero.webp'), url('${prefix}images/hero-architecture.jpg');
+  --bg-archive-daily: url('${prefix}images/daily/archive.webp'), url('${prefix}images/hero-bg.jpg');
+  --bg-footer-daily: url('${prefix}images/daily/footer.webp'), url('${prefix}images/bottom-banner.jpg');
+  --bg-about-daily: url('${prefix}images/daily/about.webp'), url('${prefix}images/hero-workspace.jpg');
+  --bg-banner-daily: url('${prefix}images/daily/banner.webp'), url('${prefix}images/hero-daily.jpg');
 }
 ${SITE_STYLES}
   </style>
@@ -5645,6 +6269,32 @@ export function buildPostPageHtml(post, renderedHtml, toc, allPosts = [], search
     referrer: true,
   })}
 
+  <!-- Zen 沉浸式阅读模式：顶部细微进度条与右上角胶囊 -->
+  <section id="zen-progress-bar" class="zen-progress-bar" style="box-sizing: border-box;"></section>
+  <section id="zen-progress-capsule" class="zen-progress-capsule" style="box-sizing: border-box;">
+    <span class="capsule-dot"></span>
+    <span id="zen-progress-num">0%</span>
+    <span class="capsule-sep">·</span>
+    <span id="zen-reading-remain">约 ${post.readingStats.readingTimeMin} 分钟</span>
+  </section>
+
+  <!-- 悬浮 Zen 控制坞 (Floating Zen Dock) -->
+  <section id="zen-floating-dock" class="zen-floating-dock" style="box-sizing: border-box;" aria-label="Zen 阅读控制坞">
+    <button type="button" class="zen-dock-btn" onclick="adjustZenFontSize(-1)" title="缩小字号 (A-)">A-</button>
+    <span id="zen-current-size" class="zen-dock-indicator">16.5</span>
+    <button type="button" class="zen-dock-btn" onclick="adjustZenFontSize(1)" title="放大字号 (A+)">A+</button>
+    <span class="zen-dock-divider"></span>
+    <button type="button" class="zen-dock-btn zen-width-toggle" onclick="toggleZenWidth()" title="切换版心宽度">
+      <span id="zen-width-label">680px</span>
+    </button>
+    <span class="zen-dock-divider"></span>
+    <span class="zen-timer-wrap">⏱️ <span id="zen-timer-display">00:00</span></span>
+    <span class="zen-dock-divider"></span>
+    <button type="button" class="zen-dock-btn zen-toggle-btn" onclick="toggleFocusMode()" title="切换沉浸专注 (快捷键 Z)">
+      <span id="zen-mode-text">专注</span>
+    </button>
+  </section>
+
   <!-- 退出专注阅读模式悬浮按钮 -->
   <button class="focus-mode-exit-btn" onclick="toggleFocusMode(false)">
     ${ICONS.cross} 退出专注模式
@@ -5739,30 +6389,78 @@ ${buildPageTailHtml({
 }
 
 /**
- * 组装底部 100vw 全屏月升夜景互动横幅 HTML（无框纯净悬浮设计）
+ * 组装底部 100vw 全屏互动横幅 HTML（无框纯净悬浮设计 + 今日壁纸故事与金句拍立得 3D 翻转卡片）
  */
 export function buildBottomBannerHtml(isSubdir = false) {
   const prefix = isSubdir ? "../" : "";
+  const bannerConfig = (SITE_CONFIG.pages && SITE_CONFIG.pages.comm_banner) || {
+    title: "与我交流",
+    desc: "如果你对文章有任何想法，或者有技术、产品、生活方面的问题，欢迎在评论区留言，或通过其他方式联系我。",
+  };
+  const dailyQuote = getDailyQuote();
+  const footerWallpaper = getDailyWallpaper("footer") || getDailyWallpaper("hero") || {};
+
+  const socialLinks = SITE_CONFIG.social_links || [
+    { platform: "mail", title: "发送邮件", href: `mailto:${SITE_CONFIG.email}` },
+    { platform: "rss", title: "RSS 订阅", href: `${prefix}feed.xml` },
+    { platform: "github", title: "GitHub 个人主页", href: SITE_CONFIG.githubUrl },
+    { platform: "about", title: "关于我", href: `${prefix}about.html` },
+  ];
+
+  const socialIconsHtml = socialLinks.map(s => {
+    let icon = ICONS[s.platform] || ICONS.user;
+    if (s.platform === "mail") icon = ICONS.mail;
+    else if (s.platform === "rss") icon = ICONS.rss;
+    else if (s.platform === "github") icon = ICONS.github;
+    else if (s.platform === "about" || s.platform === "user") icon = ICONS.user;
+    else if (s.platform === "wechat") icon = ICONS.chat;
+
+    let href = s.href || "#";
+    if (href.startsWith("about.html") && isSubdir) href = `../${href}`;
+    if (href.startsWith("feed.xml") && isSubdir) href = `../${href}`;
+    const target = href.startsWith("http") ? ' target="_blank" rel="noopener"' : '';
+    return `<a href="${href}"${target} class="social-circle-btn" title="${s.title}">${icon}</a>`;
+  }).join("\n        ");
+
+  const quoteText = dailyQuote.hitokoto || "保持好奇，保持温柔。";
+  const quoteFrom = dailyQuote.from ? `—— ${dailyQuote.from}` : `—— ${SITE_CONFIG.author || "Tan"}`;
+  const wallpaperTitle = footerWallpaper.title || "山峦晨雾";
+  const wallpaperStory = footerWallpaper.story || footerWallpaper.copyright || "大自然的静谧与壮美，记录每一次心灵的触动。";
+
   return `
-  <!-- Section 3: 底部宽幅互动横幅 (100vw 全屏月升夜景 + 无框悬浮设计) -->
-  <section class="bottom-comm-banner">
-    <div class="banner-left">
-      <div class="banner-title">
-        ${ICONS.chat} <span>与我交流</span>
-      </div>
+  <!-- Section: 底部宽幅互动横幅 (100vw 全屏每日壁纸 + 拍立得 3D 翻转卡片，严格 Section 语义化) -->
+  <section class="bottom-comm-banner" style="box-sizing: border-box;">
+    <section class="banner-left" style="box-sizing: border-box;">
+      <section class="banner-title" style="box-sizing: border-box;">
+        ${ICONS.chat} <span>${bannerConfig.title || "与我交流"}</span>
+      </section>
       <p class="banner-desc">
-        如果你对文章有任何想法，或者有技术、产品、生活方面的问题，欢迎在评论区留言，或通过其他方式联系我。
+        ${bannerConfig.desc}
       </p>
-      <div class="banner-social-row">
-        <a href="mailto:${SITE_CONFIG.email}" class="social-circle-btn" title="发送邮件">${ICONS.mail}</a>
-        <a href="${prefix}feed.xml" class="social-circle-btn" title="RSS 订阅">${ICONS.rss}</a>
-        <a href="${SITE_CONFIG.githubUrl}" target="_blank" rel="noopener" class="social-circle-btn" title="GitHub 个人主页">${ICONS.github}</a>
-        <a href="${prefix}about.html" class="social-circle-btn" title="关于我">${ICONS.user}</a>
-      </div>
-      <div class="banner-meta-footnote" style="margin-top: 18px; font-size: 0.78rem; opacity: 0.65;">
-        <span>${getTodayFormattedDate()}</span> · <span>📷 今日壁纸：${(getDailyWallpaper() || {}).title || "晨曦之光"}</span>
-      </div>
-    </div>
+      <section class="banner-social-row" style="box-sizing: border-box;">
+        ${socialIconsHtml}
+      </section>
+      <section class="banner-meta-footnote" style="box-sizing: border-box; margin-top: 18px; font-size: 0.78rem; opacity: 0.65;">
+        <span>${getTodayFormattedDate()}</span> · <span>📷 今日壁纸：${wallpaperTitle}</span>
+      </section>
+    </section>
+
+    <section class="banner-photocard-wrap" style="box-sizing: border-box;">
+      <section class="photocard-card" style="box-sizing: border-box;" onclick="this.classList.toggle('flipped')" title="点击翻转查看今日壁纸故事">
+        <section class="photocard-face photocard-front" style="box-sizing: border-box;">
+          <span class="photocard-badge">DAILY QUOTE · 今日金句</span>
+          <p class="photocard-text">“${quoteText}”</p>
+          <span class="photocard-author">${quoteFrom}</span>
+          <span class="photocard-flip-hint">点击翻转查看壁纸故事 ↺</span>
+        </section>
+        <section class="photocard-face photocard-back" style="box-sizing: border-box;">
+          <span class="photocard-badge">BING WALLPAPER · 今日壁纸</span>
+          <h4 class="photocard-scene-title">${wallpaperTitle}</h4>
+          <p class="photocard-scene-desc">${wallpaperStory}</p>
+          <span class="photocard-date">${getTodayFormattedDate()}</span>
+        </section>
+      </section>
+    </section>
   </section>`;
 }
 
@@ -5858,13 +6556,13 @@ ${buildPageHeaderHtml({ activeKey: "home" })}
     <section class="editorial-hero" style="box-sizing: border-box;">
       <section class="editorial-hero-col-left" style="box-sizing: border-box;">
         <span class="editorial-date" data-date="${getTodayFormattedDate()}">${getTodayFormattedDate().replace(/\./g, " / ")}</span>
-        <h1 class="editorial-headline">记录设计、技术，以及那些值得思考的事。</h1>
-        <p class="editorial-subheadline">I write about design, technology and everything in between.</p>
-        <a href="#featured" class="editorial-more-link">READ MORE →</a>
+        <h1 class="editorial-headline">${(SITE_CONFIG.pages && SITE_CONFIG.pages.home && SITE_CONFIG.pages.home.hero_headline) || "记录设计、技术，以及那些值得思考的事。"}</h1>
+        <p class="editorial-subheadline">${(SITE_CONFIG.pages && SITE_CONFIG.pages.home && SITE_CONFIG.pages.home.hero_subheadline) || "I write about design, technology and everything in between."}</p>
+        <a href="#featured" class="editorial-more-link">${(SITE_CONFIG.pages && SITE_CONFIG.pages.home && SITE_CONFIG.pages.home.hero_cta) || "READ MORE →"}</a>
       </section>
 
       <section class="editorial-hero-col-center" style="box-sizing: border-box;">
-        <img src="images/hero-architecture.jpg" alt="Editorial Hero Cover" class="editorial-hero-img" onerror="this.src='images/hero-daily.jpg'">
+        <img src="images/daily/hero.webp" alt="Editorial Hero Cover" class="editorial-hero-img" onerror="this.src='images/hero-architecture.jpg'">
       </section>
 
       <section class="editorial-hero-col-right" style="box-sizing: border-box;">
@@ -5915,7 +6613,7 @@ ${heroCategoryNavHtml}
         <section class="panoramic-header" style="box-sizing: border-box;">
           <h2 class="panoramic-title">
             <span>ARCHIVE ——</span>
-            <span class="panoramic-sub">时间会筛选出真正重要的东西。</span>
+            <span class="panoramic-sub">${(SITE_CONFIG.pages && SITE_CONFIG.pages.home && SITE_CONFIG.pages.home.archive_quote) || "时间会筛选出真正重要的东西。"}</span>
           </h2>
           <a href="archives.html" class="panoramic-view-all">VIEW ALL →</a>
         </section>
@@ -5958,7 +6656,7 @@ ${heroCategoryNavHtml}
     </section>
   </main>
 
-${buildPageTailHtml({ activeKey: "home", searchIndex, showBottomBanner: false })}`;
+${buildPageTailHtml({ activeKey: "home", searchIndex, showBottomBanner: true })}`;
 }
 
 /**
@@ -5990,11 +6688,13 @@ export function buildArchivesHtml(posts, searchIndex = []) {
     yearGroups[year].push(p);
   }
 
-  const YEAR_REFLECTIONS = {
+  const DEFAULT_REFLECTIONS = {
     "2026": "这一年，我更关注生活的质感与思考的深度。重构感知，在代码与文字间探寻数字世界的温度与秩序。",
     "2025": "在代码与现实的交织中寻找秩序，沉淀关于架构、设计与自我成长的答案。",
     "2024": "探索未知与可能，跨越不同技术栈的边界，以文字作为思考的锚点与心智的索引。",
   };
+  const userReflections = (SITE_CONFIG.pages && SITE_CONFIG.pages.archives && SITE_CONFIG.pages.archives.reflections) || {};
+  const YEAR_REFLECTIONS = { ...DEFAULT_REFLECTIONS, ...userReflections };
 
   const fallbackImages = [
     "images/post-design.jpg",
@@ -6088,12 +6788,12 @@ ${buildPageHeaderHtml({ activeKey: "archives" })}
     <section class="archive-hero" style="box-sizing: border-box;">
       <section class="archive-hero-col-left" style="box-sizing: border-box;">
         <span class="chapter-label">ARCHIVE ——</span>
-        <h1 class="archive-hero-title">归档 · 时间里的思考</h1>
-        <p class="archive-hero-desc">时间会筛选出真正重要的东西。在这里，按时间脉络归档记录所有关于架构思考、工程设计与生活哲学的文字足迹。</p>
+        <h1 class="archive-hero-title">${(SITE_CONFIG.pages && SITE_CONFIG.pages.archives && SITE_CONFIG.pages.archives.title) || "归档 · 时间里的思考"}</h1>
+        <p class="archive-hero-desc">${(SITE_CONFIG.pages && SITE_CONFIG.pages.archives && SITE_CONFIG.pages.archives.subtitle) || "时间会筛选出真正重要的东西。在这里，按时间脉络归档记录所有关于架构思考、工程设计与生活哲学的文字足迹。"}</p>
       </section>
 
       <section class="archive-hero-col-center" style="box-sizing: border-box;">
-        <img src="images/hero-daily.jpg" alt="Archive Hero Cover" class="archive-hero-img" onerror="this.src='images/hero-architecture.jpg'">
+        <img src="images/daily/archive.webp" alt="Archive Hero Cover" class="archive-hero-img" onerror="this.src='images/hero-architecture.jpg'">
       </section>
 
       <section class="archive-hero-col-right" style="box-sizing: border-box;">
@@ -6355,13 +7055,13 @@ ${buildPageHeaderHtml({ activeKey: "articles" })}
     <section class="tag-hero" style="box-sizing: border-box;">
       <section class="tag-hero-left" style="box-sizing: border-box;">
         <span class="tag-hero-label">ARTICLES ——</span>
-        <h1 class="tag-hero-title">文章 · 思考与沉淀</h1>
-        <p class="tag-hero-desc">探索体系化思考与技术实现的交汇点。按主题聚类的长文脉络，记录架构设计、工程实践与生活感悟。共 ${posts.length} 篇文章。</p>
+        <h1 class="tag-hero-title">${(SITE_CONFIG.pages && SITE_CONFIG.pages.articles && SITE_CONFIG.pages.articles.title) || "文章 · 思考与沉淀"}</h1>
+        <p class="tag-hero-desc">${(SITE_CONFIG.pages && SITE_CONFIG.pages.articles && SITE_CONFIG.pages.articles.subtitle) || "探索体系化思考与技术实现的交汇点。按主题聚类的长文脉络，记录架构设计、工程实践与生活感悟。"} 共 ${posts.length} 篇文章。</p>
         <a href="articles.html" class="tag-hero-view-all">VIEW ALL →</a>
       </section>
 
       <section class="tag-hero-center" style="box-sizing: border-box;">
-        <img src="images/hero-architecture.jpg" alt="Articles Hero Atmosphere" class="tag-hero-img" onerror="this.src='images/hero-daily.jpg'">
+        <img src="images/daily/banner.webp" alt="Articles Hero Atmosphere" class="tag-hero-img" onerror="this.src='images/hero-architecture.jpg'">
       </section>
 
       <section class="tag-hero-right" style="box-sizing: border-box;">
@@ -6383,9 +7083,9 @@ ${buildPageHeaderHtml({ activeKey: "articles" })}
             <img src="images/hero-bg.jpg" alt="Author Workspace" class="sidebar-quote-img" onerror="this.src='images/hero-daily.jpg'">
           </section>
           <blockquote class="sidebar-quote-text">
-            "写作，是我与世界对话的方式。"
+            "${(SITE_CONFIG.pages && SITE_CONFIG.pages.articles && SITE_CONFIG.pages.articles.sidebar_quote) || "写作，是我与世界对话的方式。"}"
           </blockquote>
-          <span class="sidebar-quote-signature">—— Tan</span>
+          <span class="sidebar-quote-signature">—— ${(SITE_CONFIG.pages && SITE_CONFIG.pages.articles && SITE_CONFIG.pages.articles.sidebar_signature) || SITE_CONFIG.author || "Tan"}</span>
         </section>
       </section>
 
@@ -6441,6 +7141,29 @@ export function buildAboutHtml(aboutPost, bodyHtml = "", searchIndex = []) {
     </section>`
     : "";
 
+  const personalInfoData = SITE_CONFIG.personal_info || {
+    "坐标": "北京 · 朝阳",
+    "职业": "全栈架构师 / 产品设计师",
+    "邮箱": SITE_CONFIG.email,
+    "喜欢": "架构演进、开源、阅读、摄影、咖啡"
+  };
+
+  const personalDetailsHtml = Object.entries(personalInfoData).map(([key, val]) => {
+    let valHtml = val;
+    if (String(val).includes("@") && !String(val).startsWith("http")) {
+      valHtml = `<a href="mailto:${val}" class="detail-email-link">${val}</a>`;
+    } else if (String(val).startsWith("http")) {
+      valHtml = `<a href="${val}" target="_blank" rel="noopener" class="detail-email-link">${val}</a>`;
+    }
+    return `
+            <section class="personal-detail-row" style="box-sizing: border-box;">
+              <span class="detail-label">${key}</span>
+              <span class="detail-value">${valHtml}</span>
+            </section>`;
+  }).join("\n");
+
+  const aboutPages = (SITE_CONFIG.pages && SITE_CONFIG.pages.about) || {};
+
   return `${buildPageHeadHtml({
     title: `${pageTitle} - ${SITE_CONFIG.title}`,
     description: pageDesc,
@@ -6454,15 +7177,15 @@ ${buildPageHeaderHtml({ activeKey: "about" })}
     <section class="about-hero-trio" style="box-sizing: border-box;">
       <section class="about-hero-statement" style="box-sizing: border-box;">
         <span class="about-hero-label">ABOUT ME ——</span>
-        <h1 class="about-hero-title">你好，我是 Tan。<br>一个喜欢思考、记录和<br>创造的人。</h1>
+        <h1 class="about-hero-title">${aboutPages.hero_title || "你好，我是 Tan。<br>一个喜欢思考、记录和<br>创造的人。"}</h1>
         <p class="about-hero-intro">
-          在技术的演进中寻找确定性，在设计的克制中注入温度。这里是我的个人思考集散地，记录架构、产品、生活与长期主义实践。
+          ${aboutPages.hero_subtitle || "在技术的演进中寻找确定性，在设计的克制中注入温度。这里是我的个人思考集散地，记录架构、产品、生活与长期主义实践。"}
         </p>
         <a href="#about-profile" class="about-hero-read-more">READ MORE →</a>
       </section>
 
       <section class="about-hero-center" style="box-sizing: border-box;">
-        <img src="images/hero-daily.jpg" alt="Tan's Workspace Sunlight" class="about-hero-img" onerror="this.src='images/hero-bg.jpg'">
+        <img src="images/daily/about.webp" alt="Tan's Workspace Sunlight" class="about-hero-img" onerror="this.src='images/hero-daily.jpg'">
       </section>
 
       <section class="about-hero-quote-col" style="box-sizing: border-box;">
@@ -6470,7 +7193,7 @@ ${buildPageHeaderHtml({ activeKey: "about" })}
           “保持好奇，保持温柔。”
         </blockquote>
         <section class="about-hero-signature-block" style="box-sizing: border-box;">
-          <span class="about-hero-signature">Tan</span>
+          <span class="about-hero-signature">${SITE_CONFIG.author || "Tan"}</span>
           <span class="about-hero-location">BEIJING · 2026</span>
         </section>
       </section>
@@ -6488,26 +7211,11 @@ ${buildPageHeaderHtml({ activeKey: "about" })}
             <span class="personal-header-label">PERSONAL INFO</span>
           </header>
           <section class="personal-details-list" style="box-sizing: border-box;">
-            <section class="personal-detail-row" style="box-sizing: border-box;">
-              <span class="detail-label">坐标</span>
-              <span class="detail-value">北京 · 朝阳</span>
-            </section>
-            <section class="personal-detail-row" style="box-sizing: border-box;">
-              <span class="detail-label">职业</span>
-              <span class="detail-value">全栈架构师 / 产品设计师</span>
-            </section>
-            <section class="personal-detail-row" style="box-sizing: border-box;">
-              <span class="detail-label">邮箱</span>
-              <span class="detail-value"><a href="mailto:${SITE_CONFIG.email}" class="detail-email-link">${SITE_CONFIG.email}</a></span>
-            </section>
-            <section class="personal-detail-row" style="box-sizing: border-box;">
-              <span class="detail-label">喜欢</span>
-              <span class="detail-value">架构演进、开源、阅读、摄影、咖啡</span>
-            </section>
+            ${personalDetailsHtml}
           </section>
           <section class="personal-card-divider" style="box-sizing: border-box;"></section>
           <section class="personal-footer-block" style="box-sizing: border-box;">
-            <span class="personal-signature">Tan</span>
+            <span class="personal-signature">${SITE_CONFIG.author || "Tan"}</span>
             <span class="personal-motto">Good things take time.</span>
           </section>
         </section>
@@ -6588,12 +7296,12 @@ ${buildPageHeaderHtml({ activeKey: "about" })}
       <section class="panoramic-about-overlay" style="box-sizing: border-box;">
         <section class="panoramic-about-left" style="box-sizing: border-box;">
           <span class="panoramic-about-label">A LITTLE MORE ——</span>
-          <h2 class="panoramic-about-title">在生活的缝隙里，寻找热爱的方向。</h2>
-          <p class="panoramic-about-sub">写下思考 · 记录成长 · 分享生活</p>
+          <h2 class="panoramic-about-title">${aboutPages.banner_title || "在生活的缝隙里，寻找热爱的方向。"}</h2>
+          <p class="panoramic-about-sub">${aboutPages.banner_subtitle || "写下思考 · 记录成长 · 分享生活"}</p>
           <a href="archives.html" class="panoramic-about-link">EXPLORE MORE →</a>
         </section>
         <section class="panoramic-about-right" style="box-sizing: border-box;">
-          <span class="panoramic-about-cursive">Better Things Ahead</span>
+          <span class="panoramic-about-cursive">${aboutPages.banner_cursive || "Better Things Ahead"}</span>
         </section>
       </section>
     </section>
@@ -6619,14 +7327,24 @@ export async function main() {
   fs.mkdirSync(DIST_POSTS_DIR, { recursive: true });
   fs.mkdirSync(DIST_IMAGES_DIR, { recursive: true });
 
-  // 2. 拷贝静态图片资源
+  // 2. 拷贝静态图片资源 (支持 images/daily 递归同步)
   if (fs.existsSync(IMAGES_DIR)) {
-    const images = fs.readdirSync(IMAGES_DIR);
-    for (const img of images) {
-      if (img.startsWith(".")) continue;
-      fs.copyFileSync(path.join(IMAGES_DIR, img), path.join(DIST_IMAGES_DIR, img));
-    }
-    console.log(`🖼️ 已同步 ${images.length} 个图片资源至 dist/images/`);
+    const copyDirRecursive = (src, dest) => {
+      fs.mkdirSync(dest, { recursive: true });
+      const entries = fs.readdirSync(src, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.name.startsWith(".")) continue;
+        const srcPath = path.join(src, entry.name);
+        const destPath = path.join(dest, entry.name);
+        if (entry.isDirectory()) {
+          copyDirRecursive(srcPath, destPath);
+        } else {
+          fs.copyFileSync(srcPath, destPath);
+        }
+      }
+    };
+    copyDirRecursive(IMAGES_DIR, DIST_IMAGES_DIR);
+    console.log(`🖼️ 已同步图片资源至 dist/images/`);
   }
 
   // 3. 扫描并解析文章

@@ -29,7 +29,10 @@ jobs:
         with:
           node-version: 20
 
-      - name: Fetch Daily Quote
+      - name: Install WebP Tools
+        run: sudo apt-get update && sudo apt-get install -y webp
+
+      - name: Fetch Daily Quote and Wallpapers
         run: node scripts/fetch-daily-assets.mjs
 
       - name: Test and Build

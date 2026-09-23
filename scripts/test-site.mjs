@@ -743,7 +743,7 @@ console.log("\n▶ [Test 15/15] CSS 变量完整性断言");
 // ========================================================
 // 16. 文章页与导航交互细节断言
 // ========================================================
-console.log("\n▶ [Test 16/16] 文章页与导航交互细节断言");
+console.log("\n▶ [Test 16/17] 文章页与导航交互细节断言");
 {
   const articlesHtml = fs.readFileSync(path.join(DIST_DIR, "articles.html"), "utf-8");
   assert.ok(articlesHtml.includes("tag-hero"), "articles.html 必须包含 tag-hero 头部");
@@ -757,11 +757,54 @@ console.log("\n▶ [Test 16/16] 文章页与导航交互细节断言");
 
   const indexHtml = fs.readFileSync(path.join(DIST_DIR, "index.html"), "utf-8");
   assert.ok(indexHtml.includes('href="articles.html"'), "首页导航栏必须包含文章页入口 (articles.html)");
-  assert.ok(!indexHtml.includes('<section class="bottom-comm-banner"'), "首页严禁残留 bottom-comm-banner 标签与 footprint-about 重叠");
+  assert.ok(indexHtml.includes('class="bottom-comm-banner"'), "首页必须恢复独立的 bottom-comm-banner 与我交流底栏");
+  assert.ok(indexHtml.includes('banner-photocard-wrap'), "首页底栏必须包含拍立得 3D 双面卡片");
 
-  console.log("  ✓ 文章页 (articles.html) 双栏流式排版、导航入口与首页无重叠断言通过");
+  const bottomBannerMatch = indexHtml.match(/<section class="bottom-comm-banner"[\s\S]*?<\/section>\s*<\/section>/i);
+  assert.ok(bottomBannerMatch, "首页必须包含 bottom-comm-banner 节点");
+  assert.equal(bottomBannerMatch[0].match(/<div\b/i), null, "bottom-comm-banner 内部严禁出现 <div 标签！");
+
+  console.log("  ✓ 文章页 (articles.html) 双栏流式排版、导航入口与独立底栏恢复断言通过");
 }
 
-console.log("\n🎉 全部 16 大测试套件 100% 验证通过！出版级质量门禁就绪！");
+// ========================================================
+// 17. 全站 Markdown 动态化、多源壁纸与 Zen 沉浸式阅读断言
+// ========================================================
+console.log("\n▶ [Test 17/17] 全站 Markdown 动态化、多源壁纸与 Zen 沉浸式阅读断言");
+{
+  const indexHtml = fs.readFileSync(path.join(DIST_DIR, "index.html"), "utf-8");
+
+  // 1. 多源壁纸变量池校验
+  assert.ok(indexHtml.includes("--bg-hero-daily"), "CSS 必须定义 --bg-hero-daily");
+  assert.ok(indexHtml.includes("--bg-archive-daily"), "CSS 必须定义 --bg-archive-daily");
+  assert.ok(indexHtml.includes("--bg-footer-daily"), "CSS 必须定义 --bg-footer-daily");
+  assert.ok(indexHtml.includes("--bg-about-daily"), "CSS 必须定义 --bg-about-daily");
+  assert.ok(indexHtml.includes("--bg-banner-daily"), "CSS 必须定义 --bg-banner-daily");
+
+  // 2. posts/about.md 动态 Frontmatter 渲染校验
+  const aboutHtml = fs.readFileSync(path.join(DIST_DIR, "about.html"), "utf-8");
+  assert.ok(aboutHtml.includes("personal-detail-row"), "about.html 必须包含动态个人档案行");
+  assert.ok(aboutHtml.includes("坐标"), "about.html 必须包含坐标键");
+  assert.ok(aboutHtml.includes("职业"), "about.html 必须包含职业键");
+
+  // 3. Zen 出版级沉浸式阅读模式断言
+  const samplePostPath = path.join(DIST_DIR, "posts/frontend-architecture-2026.html");
+  const postHtml = fs.readFileSync(samplePostPath, "utf-8");
+  assert.ok(postHtml.includes('id="zen-progress-bar"'), "文章详情页必须挂载 #zen-progress-bar 顶部细微进度条");
+  assert.ok(postHtml.includes('id="zen-progress-capsule"'), "文章详情页必须挂载 #zen-progress-capsule 右上角进度胶囊");
+  assert.ok(postHtml.includes('id="zen-floating-dock"'), "文章详情页必须挂载 #zen-floating-dock 悬浮控制坞");
+  assert.ok(postHtml.includes("adjustZenFontSize"), "文章详情页必须包含字号缩放交互");
+  assert.ok(postHtml.includes("toggleZenWidth"), "文章详情页必须包含版心切换交互");
+  assert.ok(postHtml.includes("initZenReadingMode"), "客户端脚本必须初始化 Zen 沉浸阅读模式");
+
+  // 4. 详情页 <main> 内部严禁包含 <div>
+  const postMainMatch = postHtml.match(/<main\b[\s\S]*?<\/main>/i);
+  assert.ok(postMainMatch, "详情页必须包含 <main> 标签");
+  assert.equal(postMainMatch[0].match(/<div\b/i), null, "详情页 <main> 内部严禁出现 <div 标签！");
+
+  console.log("  ✓ 全站多源壁纸、Markdown 动态 Frontmatter 绑定与 Zen 沉浸式阅读模式断言全数通过！");
+}
+
+console.log("\n🎉 全部 17 大测试套件 100% 验证通过！出版级质量门禁就绪！");
 
 
