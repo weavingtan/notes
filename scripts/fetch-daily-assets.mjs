@@ -227,16 +227,16 @@ async function fetchGithubPulse() {
  * 抓取历史上的今天 (Wikimedia On-This-Day)
  */
 async function fetchOnThisDay() {
-  console.log("📜 正在从 Wikimedia 获取历史上的今天...");
+  console.log("📜 正在从 Wikimedia (中文) 获取历史上的今天...");
   const date = new Date();
   const mm = String(date.getMonth() + 1).padStart(2, "0");
   const dd = String(date.getDate()).padStart(2, "0");
 
   const fallbackEvent = {
-    year: 1889,
-    text: "任天堂在京都创立，最初生产花札纸牌，后演进为全球电子游戏先驱。",
+    year: 1846,
+    text: "根据法国数学家勒威耶的推算预测，德国天文学家伽勒首次观测发现海王星，开启人类对太阳系边缘的科学探索。",
     category: "历史上的今天",
-    display: "1889 年的今天：任天堂在京都创立，最初生产花札纸牌，后演进为全球先锋。",
+    display: "1846 年的今天：根据法国数学家勒威耶的推算预测，德国天文学家伽勒首次观测发现海王星，开启人类对太阳系边缘的科学探索。",
     updatedAt: date.toISOString().slice(0, 10)
   };
 
@@ -244,7 +244,7 @@ async function fetchOnThisDay() {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 4000);
 
-    const res = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/selected/${mm}/${dd}`, {
+    const res = await fetch(`https://zh.wikipedia.org/api/rest_v1/feed/onthisday/selected/${mm}/${dd}`, {
       signal: controller.signal,
       headers: { "User-Agent": "Mozilla/5.0 (Notes-Site-OnThisDay)" }
     });
@@ -253,16 +253,23 @@ async function fetchOnThisDay() {
     if (res.ok) {
       const data = await res.json();
       if (data && Array.isArray(data.selected) && data.selected.length > 0) {
-        const item = data.selected[0];
-        const year = item.year || 1900;
-        const text = item.text || "";
-        return {
-          year: year,
-          text: text,
-          category: "历史上的今天",
-          display: `${year} 年的今天：${text}`,
-          updatedAt: date.toISOString().slice(0, 10)
-        };
+        // 优先筛选科学、技术、艺术、探索等里程碑事件，过滤负面事件
+        const bestItem = data.selected.find(item => {
+          const t = item.text || "";
+          return /发现|发明|创立|建立|诞生|首座|首次|登月|发射|出版|公布|落成/.test(t) && !/吞併|战役|暗杀|坠毁|爆炸|罹难/.test(t);
+        }) || data.selected[data.selected.length - 1] || data.selected[0];
+
+        const year = bestItem.year || 1900;
+        let cleanText = (bestItem.text || "").replace(/（圖）|（图）|\(pictured\)|\(图\)/gi, "").trim();
+        if (cleanText) {
+          return {
+            year: year,
+            text: cleanText,
+            category: "历史上的今天",
+            display: `${year} 年的今天：${cleanText}`,
+            updatedAt: date.toISOString().slice(0, 10)
+          };
+        }
       }
     }
   } catch (err) {

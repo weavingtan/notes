@@ -469,6 +469,10 @@ console.log("\n▶ [Test 9/9] 流式视口系统与全站宽幅布局断言");
     !indexHtml.includes("max-width: 760px") && !samplePost.includes("max-width: 760px"),
     "全站不得包含刚性阅读夹紧 max-width: 760px"
   );
+  assert.ok(
+    !samplePost.includes("max-width: 960px; margin: 0 auto 36px auto;"),
+    "文章详情页头部不得刚性锁定 960px 居中导致与正文错位"
+  );
 
   // 9.3 验证 .article-content 舒适行高 line-height: 1.82 与字号 16.5px
   assert.ok(
@@ -749,9 +753,12 @@ console.log("\n▶ [Test 16/17] 文章页与导航交互细节断言");
   assert.ok(articlesHtml.includes("tag-hero"), "articles.html 必须包含 tag-hero 头部");
   assert.ok(articlesHtml.includes("tag-stream-layout"), "articles.html 必须包含双栏流式布局");
   assert.ok(articlesHtml.includes("horizontal-entry-item"), "articles.html 必须包含水平条目流");
+  assert.ok(articlesHtml.includes("stream-entries-list"), "articles.html 必须包含 stream-entries-list 容器类");
   
   const mainMatch = articlesHtml.match(/<main\b[\s\S]*?<\/main>/i);
   assert.ok(mainMatch, "articles.html 必须包含 <main> 标签");
+  assert.ok(!mainMatch[0].includes("horizontal-stream-list"), "articles.html 严禁包含无样式的 horizontal-stream-list");
+  assert.ok(!mainMatch[0].includes("stream-tabs"), "articles.html 严禁包含无功能假 Tabs (stream-tabs)");
   const divInMain = mainMatch[0].match(/<div\b/i);
   assert.equal(divInMain, null, "articles.html <main> 内部严禁出现 <div 标签！");
 
@@ -863,7 +870,12 @@ console.log("\n▶ [Test 18/18] 电影感沉浸巨幕、人文排版、开放 AP
   assert.ok(indexHtml.includes("weather-capsule"), "首页主角区必须注入真实时辰与气象感应胶囊");
   assert.ok(indexHtml.includes("github-pulse-badge"), "首页必须注入 GitHub 真实活跃脉搏徽标");
   assert.ok(indexHtml.includes("pulse-dot"), "GitHub 脉搏徽标必须包含呼吸绿点 pulse-dot");
+  assert.ok(indexHtml.includes("pulse-repo-name"), "GitHub 脉搏徽标必须展示仓库名 pulse-repo-name");
+  assert.ok(indexHtml.includes("pulse-msg-row"), "GitHub 脉搏徽标必须展示最新提交信息 pulse-msg-row");
+  assert.ok(indexHtml.includes("pulse-sparkline"), "GitHub 脉搏徽标必须展示近期活跃微图 pulse-sparkline");
   assert.ok(archivesHtml.includes("on-this-day-banner"), "归档页必须注入 Wikimedia 历史上的今天事件横幅");
+  assert.ok(archivesHtml.includes("archive-on-this-day"), "归档页必须包含独立策展横幅 archive-on-this-day");
+  assert.ok(!aboutHtml.includes('<section class="bottom-comm-banner"'), "关于我页以全景大横幅为收尾，严禁出现重复的 bottom-comm-banner 底栏");
 
   // 18.4 3D 拟物黑胶唱片卡片 (Vinyl Card) 全站落地断言
   const vinylPages = [categoriesHtml, articlesHtml, aboutHtml];

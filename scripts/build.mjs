@@ -1939,13 +1939,114 @@ button {
   min-width: 0;
 }
 
+.editorial-date-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
 .editorial-date {
   font-family: var(--font-mono, monospace);
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--primary-light, #34d399);
   letter-spacing: 0.08em;
-  margin-bottom: 18px;
+}
+
+/* 真实 GitHub 代码脉搏卡片 (Sleek Glassmorphic Widget) */
+.github-pulse-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  text-decoration: none;
+  color: #f8fafc;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: 18px 0 24px 0;
+  max-width: 440px;
+  box-sizing: border-box;
+}
+.github-pulse-badge:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: var(--primary-light, #34d399);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+.pulse-indicator-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.pulse-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  display: inline-block;
+  animation: pulseBreathing 2s infinite ease-in-out;
+}
+@keyframes pulseBreathing {
+  0%, 100% { transform: scale(1); opacity: 0.9; box-shadow: 0 0 8px #10b981; }
+  50% { transform: scale(1.25); opacity: 1; box-shadow: 0 0 16px #34d399; }
+}
+.pulse-content-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.pulse-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.pulse-repo-name {
+  font-family: var(--font-mono, monospace);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--primary-light, #34d399);
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.pulse-time-tag {
+  font-family: var(--font-mono, monospace);
+  font-size: 10.5px;
+  color: rgba(248, 250, 252, 0.6);
+}
+.pulse-msg-row {
+  font-size: 12px;
+  color: rgba(248, 250, 252, 0.92);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 270px;
+}
+.pulse-sparkline {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 24px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+}
+.spark-bar {
+  width: 3px;
+  background: var(--primary-light, #34d399);
+  border-radius: 2px;
+  opacity: 0.85;
 }
 
 .editorial-headline {
@@ -3343,6 +3444,80 @@ button {
   transform: translateX(3px);
 }
 
+/* 历史上的今天 · 编年史策展横幅 */
+.archive-on-this-day {
+  margin: -24px auto 44px auto;
+  max-width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 16px 24px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  position: relative;
+  z-index: 5;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+.archive-on-this-day:hover {
+  border-color: var(--primary-light, #34d399);
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-2px);
+}
+.on-this-day-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+}
+.on-this-day-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+.on-this-day-icon {
+  font-size: 1.1rem;
+}
+.on-this-day-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: var(--primary-faint, rgba(16, 185, 129, 0.08));
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+.on-this-day-year {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+.on-this-day-text {
+  flex: 1;
+  min-width: 240px;
+  font-family: var(--font-serif-cn);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-main);
+  margin: 0;
+}
+.on-this-day-footnote {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+
 /* Year Blocks Container */
 .archive-years-container {
   display: flex;
@@ -4178,7 +4353,7 @@ button {
   font-size: 1.5rem;
   font-style: italic;
   font-weight: 600;
-  color: var(--text-main);
+  color: #ffffff;
 }
 
 .about-hero-location {
@@ -4186,7 +4361,7 @@ button {
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.14em;
-  color: var(--text-muted);
+  color: rgba(248, 250, 252, 0.75);
   text-transform: uppercase;
 }
 
@@ -4201,6 +4376,13 @@ button {
 .about-personal-col {
   flex: 0 0 320px;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.about-personal-col .vinyl-capsule {
+  margin-top: 0;
 }
 
 .personal-info-card {
@@ -4211,7 +4393,6 @@ button {
   box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
-  height: 100%;
 }
 
 .personal-portrait-wrap {
@@ -4827,14 +5008,6 @@ body.focus-reading-mode .focus-mode-exit-btn {
   width: 100%;
   box-sizing: border-box;
   position: relative;
-}
-
-@media (min-width: 1200px) {
-  .post-header,
-  .article-header {
-    max-width: 960px;
-    margin: 0 auto 36px auto;
-  }
 }
 
 .code-copy-btn {
@@ -7135,15 +7308,31 @@ ${buildPageHeaderHtml({ activeKey: "home" })}
     <!-- Chapter 1: 3-column Editorial Hero (100vw 全宽沉浸巨幕) -->
     <section class="editorial-hero" style="box-sizing: border-box;">
       <section class="editorial-hero-col-left" style="box-sizing: border-box;">
-        <section class="editorial-status-capsule github-pulse-badge" style="box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 12px; font-family: var(--font-mono); color: var(--primary-light, #34d399); letter-spacing: 0.06em;">
-          <span class="live-dot pulse-dot" style="width: 7px; height: 7px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 8px var(--primary); display: inline-block;"></span>
+        <section class="editorial-date-wrap" style="box-sizing: border-box;">
           <span class="editorial-date" data-date="${getTodayFormattedDate()}">${getTodayFormattedDate().replace(/\./g, " / ")} · ${weather.solarTerm}</span>
-          <span style="opacity: 0.4;">|</span>
-          <span class="editorial-github-pulse" title="${githubPulse.message}">● ${githubPulse.statusText}</span>
         </section>
         <h1 class="editorial-headline">${(SITE_CONFIG.pages && SITE_CONFIG.pages.home && SITE_CONFIG.pages.home.hero_headline) || "记录设计、技术，以及那些值得思考的事。"}</h1>
         <p class="editorial-subheadline">${(SITE_CONFIG.pages && SITE_CONFIG.pages.home && SITE_CONFIG.pages.home.hero_subheadline) || "I write about design, technology and everything in between."}</p>
         <a href="#featured" class="editorial-more-link">${(SITE_CONFIG.pages && SITE_CONFIG.pages.home && SITE_CONFIG.pages.home.hero_cta) || "READ MORE →"}</a>
+
+        <a href="https://github.com/${githubPulse.username || 'weavingtan'}/${githubPulse.repo || 'obw'}" target="_blank" rel="noopener noreferrer" class="github-pulse-badge" title="查看 GitHub 实时提交与活跃脉搏">
+          <span class="pulse-indicator-wrap">
+            <span class="pulse-dot"></span>
+          </span>
+          <span class="pulse-content-col">
+            <span class="pulse-top-row">
+              <span class="pulse-repo-name">
+                <svg height="13" width="13" viewBox="0 0 16 16" fill="currentColor" style="display:inline-block;vertical-align:text-bottom;"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                ${githubPulse.username || 'weavingtan'} / ${githubPulse.repo || 'obw'}
+              </span>
+              <span class="pulse-time-tag">${githubPulse.relativeTime || '刚刚'}</span>
+            </span>
+            <span class="pulse-msg-row">${githubPulse.message || githubPulse.statusText}</span>
+          </span>
+          <span class="pulse-sparkline" title="近期提交频次">
+            ${(githubPulse.sparkline || [4, 6, 8, 3, 7, 5, 9]).map(v => `<span class="spark-bar" style="height: ${Math.max(4, Math.round(v * 2.4))}px;"></span>`).join('')}
+          </span>
+        </a>
       </section>
 
       <section class="editorial-hero-col-center" style="box-sizing: border-box;">
@@ -7383,10 +7572,6 @@ ${buildPageHeaderHtml({ activeKey: "archives" })}
         <span class="chapter-label">ARCHIVE ——</span>
         <h1 class="archive-hero-title">${(SITE_CONFIG.pages && SITE_CONFIG.pages.archives && SITE_CONFIG.pages.archives.title) || "归档 · 时间里的思考"}</h1>
         <p class="archive-hero-desc">${(SITE_CONFIG.pages && SITE_CONFIG.pages.archives && SITE_CONFIG.pages.archives.subtitle) || "时间会筛选出真正重要的东西。在这里，按时间脉络归档记录所有关于架构思考、工程设计与生活哲学的文字足迹。"}</p>
-        <section class="archive-on-this-day on-this-day-banner" style="box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 6px 14px; border-radius: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); font-size: 12.5px; color: rgba(248,250,252,0.9);">
-          <span style="color: var(--primary-light, #34d399); font-weight: 600;">📜 历史上的今天</span>
-          <span>${onThisDay.display}</span>
-        </section>
       </section>
 
       <section class="archive-hero-col-center" style="box-sizing: border-box;">
@@ -7399,6 +7584,19 @@ ${buildPageHeaderHtml({ activeKey: "archives" })}
           <a href="archives.html" class="archive-filter-link active"><span>全部</span> <span>(${posts.length})</span></a>
 ${archivesCategoryNavHtml}
         </nav>
+      </section>
+    </section>
+
+    <!-- 历史上的今天 · 编年史策展横幅 -->
+    <section class="archive-on-this-day on-this-day-banner" style="box-sizing: border-box;">
+      <section class="on-this-day-inner" style="box-sizing: border-box;">
+        <section class="on-this-day-header" style="box-sizing: border-box;">
+          <span class="on-this-day-icon">📜</span>
+          <span class="on-this-day-badge">历史上的今天</span>
+          <span class="on-this-day-year">${onThisDay.year ? `${onThisDay.year} 年` : ''}</span>
+        </section>
+        <p class="on-this-day-text">${onThisDay.text || onThisDay.display}</p>
+        <span class="on-this-day-footnote">CHRONICLE ARCHIVE</span>
       </section>
     </section>
 
@@ -7756,18 +7954,12 @@ ${buildPageHeaderHtml({ activeKey: "articles" })}
 
       <!-- Right Column Main Stream -->
       <section class="tag-main-stream" style="box-sizing: border-box;">
-        <!-- Tabs Header -->
-        <section class="stream-tabs" style="box-sizing: border-box;">
-          <nav class="stream-tabs-nav">
-            <button class="stream-tab active" data-tab="latest" type="button">最新</button>
-            <button class="stream-tab" data-tab="hot" type="button">最热</button>
-            <button class="stream-tab" data-tab="featured" type="button">精选</button>
-          </nav>
-          <span class="stream-tab-count">共 ${posts.length} 篇文章</span>
+        <section class="stream-header-row" style="box-sizing: border-box;">
+          <span class="stream-total-count">共 ${posts.length} 篇文章</span>
         </section>
 
         <!-- Horizontal Stream Items -->
-        <section class="horizontal-stream-list" style="box-sizing: border-box;">
+        <section class="stream-entries-list" style="box-sizing: border-box;">
           ${entriesHtml}
         </section>
 
@@ -7800,8 +7992,8 @@ export function buildAboutHtml(aboutPost, bodyHtml = "", searchIndex = []) {
   // posts/about.md 的正文：由 obw 出版引擎渲染，兑现 OBSIDIAN_SYNC_GUIDE 1.1 契约
   const bodySectionHtml = bodyHtml
     ? `
-    <!-- 4. posts/about.md 正文（obw 出版引擎渲染） -->
-    <section class="about-post-body" style="box-sizing: border-box;">
+    <!-- 3. posts/about.md 正文故事（obw 出版引擎渲染） -->
+    <section class="about-post-body article-content" style="box-sizing: border-box;">
       ${bodyHtml}
     </section>`
     : "";
@@ -7975,7 +8167,9 @@ ${buildPageHeaderHtml({ activeKey: "about" })}
       </section>
     </section>
 
-    <!-- 3. Panoramic Landscape Banner -->
+${bodySectionHtml}
+
+    <!-- 4. Panoramic Landscape Banner -->
     <section class="panoramic-about-banner" style="box-sizing: border-box;">
       <section class="panoramic-about-overlay" style="box-sizing: border-box;">
         <section class="panoramic-about-left" style="box-sizing: border-box;">
@@ -7989,10 +8183,9 @@ ${buildPageHeaderHtml({ activeKey: "about" })}
         </section>
       </section>
     </section>
-${bodySectionHtml}
   </main>
 
-${buildPageTailHtml({ activeKey: "about", searchIndex })}`;
+${buildPageTailHtml({ activeKey: "about", searchIndex, showBottomBanner: false })}`;
 }
 
 /**
