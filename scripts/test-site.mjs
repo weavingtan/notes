@@ -873,6 +873,12 @@ console.log("\n▶ [Test 18/18] 电影感沉浸巨幕、人文排版、开放 AP
   assert.ok(indexHtml.includes("pulse-repo-name"), "GitHub 脉搏徽标必须展示仓库名 pulse-repo-name");
   assert.ok(indexHtml.includes("pulse-msg-row"), "GitHub 脉搏徽标必须展示最新提交信息 pulse-msg-row");
   assert.ok(indexHtml.includes("pulse-sparkline"), "GitHub 脉搏徽标必须展示近期活跃微图 pulse-sparkline");
+  assert.ok(indexHtml.includes("hero-daily-quote"), "首页主角区必须注入 Hitokoto 每日名言卡片 hero-daily-quote");
+  assert.ok(indexHtml.includes("每日名言 · HITOKOTO"), "首页主角区必须包含每日名言徽标");
+  assert.ok(categoriesHtml.includes("sidebar-daily-quote-wrap"), "分类页侧边栏必须注入每日名言 sidebar-daily-quote-wrap");
+  assert.ok(articlesHtml.includes("sidebar-daily-quote-wrap"), "文章页侧边栏必须注入每日名言 sidebar-daily-quote-wrap");
+  assert.ok(!indexHtml.includes("background: rgba(255, 255, 255, 0.08);\n  border: 1px solid rgba(255, 255, 255, 0.16);"), "GitHub 脉搏卡片严禁硬编码纯白半透明底色，必须绑定 CSS 主题变量");
+  assert.ok(!archivesHtml.includes("margin: -24px auto"), "历史上的今天策展横幅严禁使用负 margin 引起视口重叠错位");
   assert.ok(archivesHtml.includes("on-this-day-banner"), "归档页必须注入 Wikimedia 历史上的今天事件横幅");
   assert.ok(archivesHtml.includes("archive-on-this-day"), "归档页必须包含独立策展横幅 archive-on-this-day");
   assert.ok(!aboutHtml.includes('<section class="bottom-comm-banner"'), "关于我页以全景大横幅为收尾，严禁出现重复的 bottom-comm-banner 底栏");
@@ -887,6 +893,7 @@ console.log("\n▶ [Test 18/18] 电影感沉浸巨幕、人文排版、开放 AP
   for (const page of vinylPages) {
     assert.ok(page.includes("vinyl-capsule"), "页面必须包含 3D 拟物黑胶唱片容器 vinyl-capsule");
     assert.ok(page.includes("vinyl-jacket"), "黑胶唱片组件必须包含封套 jacket");
+    assert.ok(page.includes('width="52" height="52"'), "黑胶唱片封套图片必须显式声明 width=52 height=52 防止无样式时图片撑爆视口");
     assert.ok(page.includes("vinyl-disc"), "黑胶唱片组件必须包含 33RPM 旋转黑胶盘 vinyl-disc");
     assert.ok(page.includes("NOW PLAYING"), "黑胶唱片必须展示播放状态 NOW PLAYING");
     assert.ok(page.includes("site-vinyl-audio"), "黑胶唱片必须集成真实 HTML5 音频试听播放器");

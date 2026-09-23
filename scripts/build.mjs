@@ -278,20 +278,33 @@ export function getDailyQuote() {
   try {
     if (fs.existsSync(QUOTE_FILE)) {
       const content = JSON.parse(fs.readFileSync(QUOTE_FILE, "utf-8"));
-      if (content && content.text) {
+      if (content && (content.text || content.hitokoto)) {
+        const text = content.text || content.hitokoto;
+        const author = content.author || content.from || SITE_CONFIG.author || "Tan";
+        const source = content.source || "";
         return {
           date: getTodayFormattedDate(),
           weather: "24° ☀️",
-          text: content.text,
-          author: content.author || SITE_CONFIG.author,
+          text,
+          hitokoto: text,
+          author,
+          from: author,
+          source,
         };
       }
     }
   } catch (err) {
     // 优雅降级
   }
+  const defaultText = (SITE_CONFIG.quote && SITE_CONFIG.quote.text) || "保持好奇，保持温柔。";
+  const defaultAuthor = (SITE_CONFIG.quote && SITE_CONFIG.quote.author) || SITE_CONFIG.author || "Tan";
   return {
     ...SITE_CONFIG.quote,
+    text: defaultText,
+    hitokoto: defaultText,
+    author: defaultAuthor,
+    from: defaultAuthor,
+    source: (SITE_CONFIG.quote && SITE_CONFIG.quote.source) || "",
     date: getTodayFormattedDate(),
   };
 }
@@ -427,7 +440,7 @@ export function getVinylData() {
 }
 
 /**
- * 组装网易云音乐 3D 拟物黑胶唱片交互式播放器组件 (严格遵循 section 语义化)
+ * 组装网易云音乐 3D 拟物黑胶唱片交互式播放器组件 (严格遵循 section 语义化 + 100% 物理尺寸防爆锁死)
  */
 export function buildVinylCapsuleHtml(vinyl = getVinylData()) {
   const sourceName = vinyl.source || "网易云音乐";
@@ -438,30 +451,30 @@ export function buildVinylCapsuleHtml(vinyl = getVinylData()) {
 
   return `
         <!-- 3D 拟物网易云音乐黑胶唱片交互式播放器 (严格 Section 语义化，点击直接播放真实曲目) -->
-        <section class="vinyl-capsule" id="vinyl-capsule" style="box-sizing: border-box;" onclick="toggleVinylPlay()" title="点击试听 / 暂停 · ${title} - ${artist}">
-          <section class="vinyl-wrapper" style="box-sizing: border-box;">
-            <section class="vinyl-jacket" style="box-sizing: border-box;">
-              <img src="${jacket}" alt="${title}" onerror="this.src='images/hero-architecture.jpg'">
-              <span class="vinyl-play-overlay">
-                <svg class="vinyl-play-icon" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                <svg class="vinyl-pause-icon" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        <section class="vinyl-capsule" id="vinyl-capsule" style="box-sizing: border-box; display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 14px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--card-shadow); cursor: pointer; user-select: none; position: relative; max-width: 100%; overflow: hidden;" onclick="toggleVinylPlay()" title="点击试听 / 暂停 · ${title} - ${artist}">
+          <section class="vinyl-wrapper" style="box-sizing: border-box; position: relative; width: 56px; height: 56px; min-width: 56px; max-width: 56px; flex-shrink: 0;">
+            <section class="vinyl-jacket" style="box-sizing: border-box; position: relative; z-index: 2; width: 52px; height: 52px; min-width: 52px; max-width: 52px; max-height: 52px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.22); background: #1e293b;">
+              <img src="${jacket}" alt="${title}" width="52" height="52" style="width: 52px; height: 52px; min-width: 52px; max-width: 52px; min-height: 52px; max-height: 52px; object-fit: cover; display: block; border-radius: 8px;" onerror="this.src='images/hero-architecture.jpg'">
+              <span class="vinyl-play-overlay" style="box-sizing: border-box; position: absolute; inset: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.38); display: flex; align-items: center; justify-content: center; color: #ffffff; border-radius: 8px;">
+                <svg class="vinyl-play-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:block;width:14px;height:14px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <svg class="vinyl-pause-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none;width:14px;height:14px;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
               </span>
             </section>
-            <section class="vinyl-disc" style="box-sizing: border-box;">
-              <span class="vinyl-disc-center"></span>
+            <section class="vinyl-disc" style="box-sizing: border-box; position: absolute; top: 3px; left: 3px; z-index: 1; width: 46px; height: 46px; border-radius: 50%;">
+              <span class="vinyl-disc-center" style="box-sizing: border-box;"></span>
             </section>
           </section>
-          <section class="vinyl-meta" style="box-sizing: border-box;">
-            <section class="vinyl-label-row" style="box-sizing: border-box;">
-              <span class="vinyl-label">NOW PLAYING · ${sourceName}</span>
-              <span class="vinyl-eq-bars" aria-hidden="true">
+          <section class="vinyl-meta" style="box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1;">
+            <section class="vinyl-label-row" style="box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <span class="vinyl-label" style="font-size: 10px; font-weight: 700; color: var(--primary); text-transform: uppercase;">NOW PLAYING · ${sourceName}</span>
+              <span class="vinyl-eq-bars" aria-hidden="true" style="display: inline-flex; align-items: flex-end; gap: 2.5px; height: 12px;">
                 <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
               </span>
             </section>
-            <span class="vinyl-title">${title}</span>
-            <section class="vinyl-bottom-row" style="box-sizing: border-box;">
-              <span class="vinyl-artist">${artist}</span>
-              <span class="vinyl-status-hint">点击试听</span>
+            <span class="vinyl-title" style="font-size: 13.5px; font-weight: 650; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">${title}</span>
+            <section class="vinyl-bottom-row" style="box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <span class="vinyl-artist" style="font-size: 11.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; display: block;">${artist}</span>
+              <span class="vinyl-status-hint" style="font-size: 10px; font-weight: 600; color: var(--primary); background: var(--primary-faint, rgba(16,185,129,0.08)); padding: 2px 6px; border-radius: 4px; flex-shrink: 0;">点击试听</span>
             </section>
           </section>
           <audio id="site-vinyl-audio" preload="none" src="${audioUrl}" onplay="onVinylAudioPlay()" onpause="onVinylAudioPause()" onended="onVinylAudioEnded()"></audio>
@@ -2001,29 +2014,28 @@ button {
   letter-spacing: 0.08em;
 }
 
-/* 真实 GitHub 代码脉搏卡片 (Sleek Glassmorphic Widget) */
+/* 真实 GitHub 代码脉搏卡片 (Sleek Glassmorphic Widget，完全契合日夜主题) */
 .github-pulse-badge {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--card-shadow);
   text-decoration: none;
-  color: #f8fafc;
+  color: var(--text-main);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  margin: 18px 0 24px 0;
+  margin: 18px 0 20px 0;
   max-width: 440px;
   box-sizing: border-box;
 }
 .github-pulse-badge:hover {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: var(--primary-light, #34d399);
+  background: var(--bg-card);
+  border-color: var(--primary);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  box-shadow: var(--card-shadow-hover);
 }
 .pulse-indicator-wrap {
   display: flex;
@@ -2035,14 +2047,14 @@ button {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 10px #10b981;
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary);
   display: inline-block;
   animation: pulseBreathing 2s infinite ease-in-out;
 }
 @keyframes pulseBreathing {
-  0%, 100% { transform: scale(1); opacity: 0.9; box-shadow: 0 0 8px #10b981; }
-  50% { transform: scale(1.25); opacity: 1; box-shadow: 0 0 16px #34d399; }
+  0%, 100% { transform: scale(1); opacity: 0.9; box-shadow: 0 0 8px var(--primary); }
+  50% { transform: scale(1.25); opacity: 1; box-shadow: 0 0 16px var(--primary-light, var(--primary)); }
 }
 .pulse-content-col {
   flex: 1;
@@ -2061,7 +2073,7 @@ button {
   font-family: var(--font-mono, monospace);
   font-size: 11.5px;
   font-weight: 700;
-  color: var(--primary-light, #34d399);
+  color: var(--primary);
   letter-spacing: 0.04em;
   display: flex;
   align-items: center;
@@ -2070,11 +2082,11 @@ button {
 .pulse-time-tag {
   font-family: var(--font-mono, monospace);
   font-size: 10.5px;
-  color: rgba(248, 250, 252, 0.6);
+  color: var(--text-muted);
 }
 .pulse-msg-row {
   font-size: 12px;
-  color: rgba(248, 250, 252, 0.92);
+  color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2086,14 +2098,71 @@ button {
   gap: 3px;
   height: 24px;
   padding-left: 10px;
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 .spark-bar {
   width: 3px;
-  background: var(--primary-light, #34d399);
+  background: var(--primary);
   border-radius: 2px;
   opacity: 0.85;
+}
+
+/* 每日名言 · 一言开放 API 实时策展卡片 */
+.hero-daily-quote {
+  margin: 0 0 24px 0;
+  padding: 14px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--primary);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 440px;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+}
+.hero-daily-quote:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
+  border-color: var(--primary);
+}
+.quote-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.quote-pill-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: var(--primary-faint, rgba(16, 185, 129, 0.08));
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.quote-source-tag {
+  font-family: var(--font-serif-cn, serif);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.hero-quote-content {
+  font-family: var(--font-serif-cn, serif);
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--text-main);
+  margin: 0;
+  font-style: italic;
+}
+.hero-quote-author {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: var(--text-muted);
+  align-self: flex-end;
 }
 
 .editorial-headline {
@@ -3390,7 +3459,7 @@ button {
   gap: 36px;
   padding: clamp(52px, 6vw, 76px) max(24px, calc((100vw - 1280px) / 2));
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  margin-bottom: 56px;
+  margin-bottom: 36px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
   color: #f8fafc;
 }
@@ -3493,7 +3562,7 @@ button {
 
 /* 历史上的今天 · 编年史策展横幅 */
 .archive-on-this-day {
-  margin: -24px auto 44px auto;
+  margin: 0 auto 44px auto;
   max-width: 100%;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -5894,20 +5963,28 @@ body.focus-reading-mode .focus-mode-exit-btn {
   flex-shrink: 0;
 }
 .vinyl-jacket {
-  position: relative;
-  z-index: 2;
-  width: 54px;
-  height: 54px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
-  background: #1e293b;
+  position: relative !important;
+  z-index: 2 !important;
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px !important;
+  max-width: 52px !important;
+  max-height: 52px !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22) !important;
+  background: #1e293b !important;
 }
 .vinyl-jacket img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px !important;
+  max-width: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  object-fit: cover !important;
+  display: block !important;
+  border-radius: 8px !important;
 }
 .vinyl-play-overlay {
   position: absolute;
@@ -7346,8 +7423,10 @@ export function buildBottomBannerHtml(isSubdir = false) {
     return `<a href="${href}"${target} class="social-circle-btn" title="${s.title}">${icon}</a>`;
   }).join("\n        ");
 
-  const quoteText = dailyQuote.hitokoto || "保持好奇，保持温柔。";
-  const quoteFrom = dailyQuote.from ? `—— ${dailyQuote.from}` : `—— ${SITE_CONFIG.author || "Tan"}`;
+  const quoteText = (dailyQuote.text || dailyQuote.hitokoto || "保持好奇，保持温柔。").replace(/^“|”$/g, "");
+  const quoteFrom = (dailyQuote.author || dailyQuote.from) 
+    ? `—— ${dailyQuote.author || dailyQuote.from}${dailyQuote.source ? `《${dailyQuote.source}》` : ''}` 
+    : `—— ${SITE_CONFIG.author || "Tan"}`;
   const wallpaperTitle = footerWallpaper.title || "山峦晨雾";
   const wallpaperStory = footerWallpaper.story || footerWallpaper.copyright || "大自然的静谧与壮美，记录每一次心灵的触动。";
 
@@ -7506,6 +7585,16 @@ ${buildPageHeaderHtml({ activeKey: "home" })}
             ${(githubPulse.sparkline || [4, 6, 8, 3, 7, 5, 9]).map(v => `<span class="spark-bar" style="height: ${Math.max(4, Math.round(v * 2.4))}px;"></span>`).join('')}
           </span>
         </a>
+
+        <!-- 每日名言 · 一言开放 API 实时策展 (Hitokoto) -->
+        <section class="hero-daily-quote" style="box-sizing: border-box;">
+          <section class="quote-badge-row" style="box-sizing: border-box;">
+            <span class="quote-pill-badge">每日名言 · HITOKOTO</span>
+            ${dailyQuote.source ? `<span class="quote-source-tag">《${dailyQuote.source}》</span>` : ''}
+          </section>
+          <blockquote class="hero-quote-content">“${(dailyQuote.text || '').replace(/^“|”$/g, '')}”</blockquote>
+          <span class="hero-quote-author">—— ${dailyQuote.author || SITE_CONFIG.author}</span>
+        </section>
       </section>
 
       <section class="editorial-hero-col-center" style="box-sizing: border-box;">
@@ -7793,6 +7882,7 @@ ${buildPageTailHtml({ activeKey: "archives", searchIndex })}`;
 export function buildCategoriesHtml(posts, categoriesMap, searchIndex = []) {
   const weather = getDailyWeather();
   const vinyl = getVinylData();
+  const dailyQuote = getDailyQuote();
 
   if (!categoriesMap) {
     categoriesMap = {};
@@ -7920,6 +8010,13 @@ ${buildPageHeaderHtml({ activeKey: "categories" })}
             "写作，是我与世界对话的方式。"
           </blockquote>
           <span class="sidebar-quote-signature">—— Tan</span>
+          <section class="sidebar-daily-quote-wrap" style="box-sizing: border-box; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border-color);">
+            <section class="quote-badge-row" style="box-sizing: border-box; margin-bottom: 6px;">
+              <span class="quote-pill-badge">每日名言 · HITOKOTO</span>
+            </section>
+            <p style="font-size: 12.5px; font-family: var(--font-serif-cn); color: var(--text-muted); line-height: 1.6; margin: 0; font-style: italic;">“${(dailyQuote.text || '').replace(/^“|”$/g, '')}”</p>
+            <span style="font-size: 11px; font-family: var(--font-mono); color: var(--text-light); display: block; text-align: right; margin-top: 4px;">—— ${dailyQuote.author || SITE_CONFIG.author}${dailyQuote.source ? `《${dailyQuote.source}》` : ''}</span>
+          </section>
         </section>
 
 ${buildVinylCapsuleHtml(vinyl)}
@@ -7964,6 +8061,7 @@ ${buildPageTailHtml({
 export function buildArticlesHtml(posts, categoriesMap, searchIndex = []) {
   const weather = getDailyWeather();
   const vinyl = getVinylData();
+  const dailyQuote = getDailyQuote();
 
   if (!categoriesMap) {
     categoriesMap = {};
@@ -8090,6 +8188,13 @@ ${buildPageHeaderHtml({ activeKey: "articles" })}
             "${(SITE_CONFIG.pages && SITE_CONFIG.pages.articles && SITE_CONFIG.pages.articles.sidebar_quote) || "写作，是我与世界对话的方式。"}"
           </blockquote>
           <span class="sidebar-quote-signature">—— ${(SITE_CONFIG.pages && SITE_CONFIG.pages.articles && SITE_CONFIG.pages.articles.sidebar_signature) || SITE_CONFIG.author || "Tan"}</span>
+          <section class="sidebar-daily-quote-wrap" style="box-sizing: border-box; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border-color);">
+            <section class="quote-badge-row" style="box-sizing: border-box; margin-bottom: 6px;">
+              <span class="quote-pill-badge">每日名言 · HITOKOTO</span>
+            </section>
+            <p style="font-size: 12.5px; font-family: var(--font-serif-cn); color: var(--text-muted); line-height: 1.6; margin: 0; font-style: italic;">“${(dailyQuote.text || '').replace(/^“|”$/g, '')}”</p>
+            <span style="font-size: 11px; font-family: var(--font-mono); color: var(--text-light); display: block; text-align: right; margin-top: 4px;">—— ${dailyQuote.author || SITE_CONFIG.author}${dailyQuote.source ? `《${dailyQuote.source}》` : ''}</span>
+          </section>
         </section>
 
 ${buildVinylCapsuleHtml(vinyl)}
@@ -8165,6 +8270,7 @@ export function buildAboutHtml(aboutPost, bodyHtml = "", searchIndex = []) {
   const aboutPages = (SITE_CONFIG.pages && SITE_CONFIG.pages.about) || {};
   const weather = getDailyWeather();
   const vinyl = getVinylData();
+  const dailyQuote = getDailyQuote();
 
   return `${buildPageHeadHtml({
     title: `${pageTitle} - ${SITE_CONFIG.title}`,
