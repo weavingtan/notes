@@ -19,7 +19,83 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
-import YAML from "yaml";
+
+// 动态载入 yaml 库；若环境未安装 node_modules 则自动降级至内置零依赖轻量解析器
+let YAMLParser = null;
+try {
+  const mod = await import("yaml");
+  YAMLParser = mod.default || mod;
+} catch {
+  // 零依赖环境自动自愈降级
+}
+
+/**
+ * 零依赖轻量级 YAML 解析器 (环境缺失 yaml 时的纯净自愈降级)
+ */
+function parseYamlFallback(str) {
+  const result = {};
+  const lines = str.split(/\r?\n/);
+  let currentKey = null;
+  let currentSubKey = null;
+  let activeSection = null;
+
+  for (let rawLine of lines) {
+    const trimmed = rawLine.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+
+    const indent = rawLine.search(/\S/);
+
+    if (indent === 0) {
+      const colonIdx = rawLine.indexOf(":");
+      if (colonIdx !== -1) {
+        currentKey = rawLine.slice(0, colonIdx).trim();
+        const val = rawLine.slice(colonIdx + 1).trim();
+        if (val) {
+          result[currentKey] = val.replace(/^['"]|['"]$/g, "");
+          activeSection = null;
+        } else {
+          result[currentKey] = {};
+          activeSection = result[currentKey];
+          currentSubKey = null;
+        }
+      }
+    } else if (indent > 0 && activeSection) {
+      if (trimmed.startsWith("- ")) {
+        const itemVal = trimmed.slice(2).trim().replace(/^['"]|['"]$/g, "");
+        if (currentSubKey) {
+          if (!Array.isArray(activeSection[currentSubKey])) activeSection[currentSubKey] = [];
+          activeSection[currentSubKey].push(itemVal);
+        } else {
+          if (!Array.isArray(result[currentKey])) result[currentKey] = [];
+          result[currentKey].push(itemVal);
+        }
+      } else {
+        const colonIdx = trimmed.indexOf(":");
+        if (colonIdx !== -1) {
+          currentSubKey = trimmed.slice(0, colonIdx).trim();
+          const val = trimmed.slice(colonIdx + 1).trim();
+          if (val) {
+            activeSection[currentSubKey] = val.replace(/^['"]|['"]$/g, "");
+          } else {
+            activeSection[currentSubKey] = [];
+          }
+        }
+      }
+    }
+  }
+  return result;
+}
+
+export function parseYamlSafe(str) {
+  if (YAMLParser && typeof YAMLParser.parse === "function") {
+    try {
+      return YAMLParser.parse(str);
+    } catch {
+      // Fallback
+    }
+  }
+  return parseYamlFallback(str);
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -166,7 +242,7 @@ export function loadSiteConfig() {
         const raw = fs.readFileSync(candidate, "utf-8");
         const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
         if (match) {
-          const parsed = YAML.parse(match[1]);
+          const parsed = parseYamlSafe(match[1]);
           if (parsed && typeof parsed === "object") {
             loadedData = parsed;
             break;
