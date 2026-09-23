@@ -805,6 +805,112 @@ console.log("\n▶ [Test 17/17] 全站 Markdown 动态化、多源壁纸与 Zen 
   console.log("  ✓ 全站多源壁纸、Markdown 动态 Frontmatter 绑定与 Zen 沉浸式阅读模式断言全数通过！");
 }
 
-console.log("\n🎉 全部 17 大测试套件 100% 验证通过！出版级质量门禁就绪！");
+// ========================================================
+// 18. 电影感沉浸巨幕、人文排版、开放 API 资产与 Command Palette 指令中心综合断言
+// ========================================================
+console.log("\n▶ [Test 18/18] 电影感沉浸巨幕、人文排版、开放 API 资产与 Command Palette 综合断言");
+{
+  const indexHtml = fs.readFileSync(path.join(DIST_DIR, "index.html"), "utf-8");
+  const archivesHtml = fs.readFileSync(path.join(DIST_DIR, "archives.html"), "utf-8");
+  const categoriesHtml = fs.readFileSync(path.join(DIST_DIR, "categories.html"), "utf-8");
+  const articlesHtml = fs.readFileSync(path.join(DIST_DIR, "articles.html"), "utf-8");
+  const aboutHtml = fs.readFileSync(path.join(DIST_DIR, "about.html"), "utf-8");
+
+  // 18.1 100vw 全宽电影巨幕 (Cinematic Full-Bleed Hero) 穿透架构断言
+  assert.ok(
+    indexHtml.includes("width: 100vw") && indexHtml.includes("calc(50% - 50vw)"),
+    "全站 CSS 必须包含 width: 100vw 与 calc(50% - 50vw) 穿透巨幕架构"
+  );
+  assert.ok(indexHtml.includes("editorial-hero"), "首页必须包含 .editorial-hero 100vw 电影巨幕");
+  assert.ok(archivesHtml.includes("archive-hero"), "归档页必须包含 .archive-hero 100vw 电影巨幕");
+  assert.ok(categoriesHtml.includes("tag-hero"), "分类页必须包含 .tag-hero 100vw 电影巨幕");
+  assert.ok(articlesHtml.includes("tag-hero"), "文章页必须包含 .tag-hero 100vw 电影巨幕");
+  assert.ok(aboutHtml.includes("about-hero-trio"), "关于我页必须包含 .about-hero-trio 100vw 巨幕横幅");
+  assert.ok(
+    indexHtml.includes("overflow-x: hidden"),
+    "全站 CSS 必须定义 overflow-x: hidden 防止 100vw 穿透产生水平滚动条"
+  );
+
+  // 18.2 人文出版级字体 (Noto Serif SC + Newsreader) 与死白消除策展断言
+  assert.ok(indexHtml.includes("Noto+Serif+SC"), "全站字体链接必须引入 Noto Serif SC 思源宋体");
+  assert.ok(indexHtml.includes("Newsreader"), "全站字体链接必须引入 Newsreader 现代西文衬线体");
+  assert.ok(indexHtml.includes("--font-serif-cn"), "CSS 变量必须定义 --font-serif-cn");
+  assert.ok(indexHtml.includes("--font-serif-en"), "CSS 变量必须定义 --font-serif-en");
+  assert.ok(
+    aboutHtml.includes("「保持好奇，保持温柔。」"),
+    "关于页格言必须采用出版级宋体与中文全角引号「保持好奇，保持温柔。」"
+  );
+  assert.ok(
+    categoriesHtml.includes("curated-footnote"),
+    "分类页必须包含 .curated-footnote 消除死白并承载策展印记"
+  );
+  assert.ok(
+    articlesHtml.includes("curated-footnote"),
+    "文章列表页必须包含 .curated-footnote 消除死白并承载策展印记"
+  );
+
+  // 18.3 开放 API 资产与数据管线注入断言 (Weather, GitHub Pulse, On This Day, Vinyl)
+  const weatherFile = path.join(ROOT_DIR, "data/weather.json");
+  const githubPulseFile = path.join(ROOT_DIR, "data/github-pulse.json");
+  const onThisDayFile = path.join(ROOT_DIR, "data/on-this-day.json");
+  const vinylFile = path.join(ROOT_DIR, "data/vinyl.json");
+
+  assert.ok(fs.existsSync(weatherFile), "开放 API 数据必须存在 data/weather.json");
+  assert.ok(fs.existsSync(githubPulseFile), "开放 API 数据必须存在 data/github-pulse.json");
+  assert.ok(fs.existsSync(onThisDayFile), "开放 API 数据必须存在 data/on-this-day.json");
+  assert.ok(fs.existsSync(vinylFile), "开放 API 数据必须存在 data/vinyl.json");
+
+  assert.ok(indexHtml.includes("weather-capsule"), "首页主角区必须注入真实时辰与气象感应胶囊");
+  assert.ok(indexHtml.includes("github-pulse-badge"), "首页必须注入 GitHub 真实活跃脉搏徽标");
+  assert.ok(indexHtml.includes("pulse-dot"), "GitHub 脉搏徽标必须包含呼吸绿点 pulse-dot");
+  assert.ok(archivesHtml.includes("on-this-day-banner"), "归档页必须注入 Wikimedia 历史上的今天事件横幅");
+
+  // 18.4 3D 拟物黑胶唱片卡片 (Vinyl Card) 全站落地断言
+  const vinylPages = [categoriesHtml, articlesHtml, aboutHtml];
+  for (const page of vinylPages) {
+    assert.ok(page.includes("vinyl-capsule"), "页面必须包含 3D 拟物黑胶唱片容器 vinyl-capsule");
+    assert.ok(page.includes("vinyl-jacket"), "黑胶唱片组件必须包含封套 jacket");
+    assert.ok(page.includes("vinyl-disc"), "黑胶唱片组件必须包含 33RPM 旋转黑胶盘 vinyl-disc");
+    assert.ok(page.includes("NOW PLAYING"), "黑胶唱片必须展示播放状态 NOW PLAYING");
+  }
+
+  // 18.5 Raycast 级 Command Palette (Cmd+K) 原生指令中心断言
+  assert.ok(indexHtml.includes("nav-cmd-k-btn"), "顶部导航栏必须包含 ⌘K 搜索与指令中心入口");
+  assert.ok(indexHtml.includes("search-modal"), "页面必须挂载 Command Palette 模态 DOM 结构");
+  assert.ok(indexHtml.includes("QUICK_ACTIONS"), "客户端交互脚本必须包含快捷指令中心定义 QUICK_ACTIONS");
+  assert.ok(indexHtml.includes("toggleTheme()"), "快捷指令必须支持一键切换日夜模式");
+  assert.ok(indexHtml.includes("selectSiteTheme"), "快捷指令必须支持 5 套核心主题实时切换");
+  assert.ok(indexHtml.includes("copyCurrentUrl"), "快捷指令必须支持复制当前页面永久链接");
+  assert.ok(indexHtml.includes("copyRssFeed"), "快捷指令必须支持一键复制 RSS 订阅源");
+  assert.ok(
+    indexHtml.includes('e.key === "k"'),
+    "客户端键盘监听必须支持 Cmd+K / Ctrl+K 快捷呼出 Command Palette"
+  );
+
+  // 18.6 AGENTS.md 微信生态零 <div> 硬约束全覆盖复核
+  const allHtmlPages = [
+    { name: "index.html", content: indexHtml },
+    { name: "archives.html", content: archivesHtml },
+    { name: "categories.html", content: categoriesHtml },
+    { name: "articles.html", content: articlesHtml },
+    { name: "about.html", content: aboutHtml }
+  ];
+
+  for (const { name, content } of allHtmlPages) {
+    const mainMatch = content.match(/<main\b[\s\S]*?<\/main>/i);
+    assert.ok(mainMatch, `${name} 必须包含 <main> 主体`);
+    const divInMain = mainMatch[0].match(/<div\b/i);
+    assert.equal(
+      divInMain,
+      null,
+      `${name} <main> 内部违背 AGENTS.md 硬红线！发现了 <div 标签！必须全部使用 <section> 标签`
+    );
+  }
+
+  console.log("  ✓ 100vw 电影全宽巨幕、思源宋体排版、开放 API 数据流、3D 黑胶与 Command Palette 全数验收通过！");
+  console.log("  ✓ 全站核心页面 <main> 零 <div> 微信排版硬约束 100% 达成！");
+}
+
+console.log("\n🎉 全部 18 大测试套件 100% 验证通过！出版级质量门禁就绪！");
 
 

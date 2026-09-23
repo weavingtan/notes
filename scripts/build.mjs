@@ -108,6 +108,10 @@ const DIST_IMAGES_DIR = path.join(DIST_DIR, "images");
 const DATA_DIR = path.join(ROOT_DIR, "data");
 const QUOTE_FILE = path.join(DATA_DIR, "daily-quote.json");
 const WALLPAPERS_FILE = path.join(DATA_DIR, "daily-wallpapers.json");
+const WEATHER_FILE = path.join(DATA_DIR, "weather.json");
+const GITHUB_PULSE_FILE = path.join(DATA_DIR, "github-pulse.json");
+const ON_THIS_DAY_FILE = path.join(DATA_DIR, "on-this-day.json");
+const VINYL_FILE = path.join(DATA_DIR, "vinyl.json");
 
 /**
  * 动态获取今天日期 (YYYY.MM.DD)
@@ -332,6 +336,88 @@ export function getDailyWallpaper(scene = "hero") {
     copyright: "瓜兹曼山口附近的秋日山杨林，犹他州，美国",
     url: "images/hero-daily.jpg",
     updatedAt: "2026-09-23",
+  };
+}
+
+/**
+ * 读取气象与时辰数据 (带优雅兜底)
+ */
+export function getDailyWeather() {
+  if (fs.existsSync(WEATHER_FILE)) {
+    try {
+      return JSON.parse(fs.readFileSync(WEATHER_FILE, "utf-8"));
+    } catch {}
+  }
+  return {
+    city: "Beijing",
+    cityCn: "北京",
+    coordinates: "39°54'N, 116°23'E",
+    temp: 24,
+    condition: "晴朗",
+    icon: "☀️",
+    solarTerm: "秋分",
+    chineseHour: "申时",
+    summary: "北京 · 晴 24°C / 秋分 · 申时",
+    updatedAt: getTodayFormattedDate().replace(/\./g, "-")
+  };
+}
+
+/**
+ * 读取 GitHub 真实代码脉搏数据 (带优雅兜底)
+ */
+export function getGithubPulse() {
+  if (fs.existsSync(GITHUB_PULSE_FILE)) {
+    try {
+      return JSON.parse(fs.readFileSync(GITHUB_PULSE_FILE, "utf-8"));
+    } catch {}
+  }
+  return {
+    username: "weavingtan",
+    repo: "obw",
+    message: "feat(engine): 优化全 section 渲染管线与微信后台免疫力",
+    relativeTime: "刚刚",
+    sparkline: [4, 6, 8, 3, 7, 5, 9],
+    statusText: "正在打磨 obw · 活跃维护中",
+    updatedAt: getTodayFormattedDate().replace(/\./g, "-")
+  };
+}
+
+/**
+ * 读取历史上的今天 (带优雅兜底)
+ */
+export function getOnThisDay() {
+  if (fs.existsSync(ON_THIS_DAY_FILE)) {
+    try {
+      return JSON.parse(fs.readFileSync(ON_THIS_DAY_FILE, "utf-8"));
+    } catch {}
+  }
+  return {
+    year: 1889,
+    text: "任天堂在京都创立，最初生产花札纸牌，后演进为全球先锋。",
+    category: "历史上的今天",
+    display: "1889 年的今天：任天堂在京都创立，最初生产花札纸牌，后演进为全球先锋。",
+    updatedAt: getTodayFormattedDate().replace(/\./g, "-")
+  };
+}
+
+/**
+ * 读取听觉心境黑胶唱片配置 (带优雅兜底)
+ */
+export function getVinylData() {
+  if (fs.existsSync(VINYL_FILE)) {
+    try {
+      return JSON.parse(fs.readFileSync(VINYL_FILE, "utf-8"));
+    } catch {}
+  }
+  return {
+    title: "Opus",
+    artist: "坂本龙一 (Ryuichi Sakamoto)",
+    releaseYear: "2023",
+    label: "Milan Records",
+    vibe: "静谧钢琴 · 晨曦沉思",
+    currentTrack: "Aqua",
+    jacket: "images/hero-architecture.jpg",
+    updatedAt: getTodayFormattedDate().replace(/\./g, "-")
   };
 }
 
@@ -904,13 +990,15 @@ export function renderMarkdownForWeb(markdown, isSubdir = false) {
 // 各页面壳会在 SITE_STYLES 之前注入 :root 主题变量覆盖，而 CSS 规范规定
 // @import 前面一旦出现任何规则即被整条忽略 —— 曾导致全站自定义字体静默回退。
 export const FONT_STYLESHEET_URL =
-  'https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,600&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap';
+  'https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400;1,6..72,600&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap';
 
 export const SITE_STYLES = `
 :root {
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  --font-calligraphy: 'Ma Shan Zheng', "Kaiti SC", "STKaiti", "KaiTi", "楷体", serif;
-  --font-cursive: 'Newsreader', Georgia, "Times New Roman", serif;
+  --font-serif-cn: 'Noto Serif SC', "Source Han Serif SC", "Songti SC", "STSong", serif;
+  --font-serif-en: 'Newsreader', 'Instrument Serif', Georgia, "Times New Roman", serif;
+  --font-calligraphy: var(--font-serif-cn);
+  --font-cursive: var(--font-serif-en);
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* 通用页面与卡片基准 (Light) */
@@ -1820,19 +1908,31 @@ button {
    Editorial Magazine Layout Styles (5 Chapters)
    ======================================================== */
 
-/* Chapter 1: 3-column Editorial Hero */
+/* Chapter 1: 3-column Editorial Hero (100vw 全宽电影感沉浸巨幕) */
 .editorial-hero {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  box-sizing: border-box;
+  min-height: clamp(460px, 54vh, 600px);
+  background-color: #0b132b;
+  background-image: linear-gradient(rgba(11, 19, 43, 0.72), rgba(11, 19, 43, 0.88)), var(--bg-hero-daily);
+  background-size: cover;
+  background-position: center;
   display: flex;
   align-items: stretch;
   justify-content: space-between;
   gap: 36px;
-  padding: 48px 0 64px 0;
-  border-bottom: 1px solid var(--border-color);
+  padding: clamp(52px, 6vw, 76px) max(24px, calc((100vw - 1280px) / 2));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   margin-bottom: 56px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  color: #f8fafc;
 }
 
 .editorial-hero-col-left {
-  flex: 0 0 32%;
+  flex: 0 0 35%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1843,27 +1943,28 @@ button {
   font-family: var(--font-mono, monospace);
   font-size: 0.88rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--primary-light, #34d399);
   letter-spacing: 0.08em;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
 .editorial-headline {
-  font-size: clamp(1.85rem, 3.2vw, 2.6rem);
-  font-weight: 850;
-  line-height: 1.28;
-  color: var(--text-main);
-  letter-spacing: -0.03em;
+  font-family: var(--font-serif-cn);
+  font-size: clamp(2rem, 3.4vw, 2.85rem);
+  font-weight: 750;
+  line-height: 1.25;
+  color: #ffffff;
+  letter-spacing: -0.025em;
   margin: 0 0 18px 0;
 }
 
 .editorial-subheadline {
-  font-size: 1rem;
-  line-height: 1.65;
-  color: var(--text-muted);
+  font-size: 1.05rem;
+  line-height: 1.68;
+  color: rgba(248, 250, 252, 0.85);
   margin: 0 0 32px 0;
   font-style: italic;
-  opacity: 0.88;
+  opacity: 0.95;
 }
 
 .editorial-more-link {
@@ -1873,7 +1974,7 @@ button {
   font-family: var(--font-mono, monospace);
   font-size: 0.88rem;
   font-weight: 700;
-  color: var(--primary);
+  color: var(--primary-light, #34d399);
   text-decoration: none;
   letter-spacing: 0.05em;
   transition: transform 0.2s ease, color 0.2s ease;
@@ -1882,7 +1983,7 @@ button {
 
 .editorial-more-link:hover {
   transform: translateX(4px);
-  color: var(--primary-hover, var(--primary));
+  color: #ffffff;
 }
 
 .editorial-hero-col-center {
@@ -1890,9 +1991,11 @@ button {
   min-width: 0;
   overflow: hidden;
   border-radius: 12px;
-  background: var(--bg-subtle);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   position: relative;
   min-height: 380px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
 }
 
 .editorial-hero-img {
@@ -1908,23 +2011,23 @@ button {
 }
 
 .editorial-hero-col-right {
-  flex: 0 0 18%;
+  flex: 0 0 20%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   min-width: 0;
-  padding-left: 20px;
-  border-left: 1px solid var(--border-subtle, var(--border-color));
+  padding-left: 24px;
+  border-left: 1px dashed rgba(255, 255, 255, 0.22);
 }
 
 .editorial-nav-label {
   font-family: var(--font-mono, monospace);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: var(--text-light);
+  color: var(--primary-light, #34d399);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 24px;
+  letter-spacing: 0.12em;
+  margin-bottom: 20px;
 }
 
 .editorial-nav-list {
@@ -1940,7 +2043,7 @@ button {
   font-family: var(--font-mono, monospace);
   font-size: 0.92rem;
   font-weight: 650;
-  color: var(--text-main);
+  color: rgba(248, 250, 252, 0.8);
   text-decoration: none;
   padding: 8px 0;
   border-bottom: 1px solid transparent;
@@ -1948,8 +2051,8 @@ button {
 }
 
 .editorial-nav-item:hover {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
+  color: #ffffff;
+  border-bottom-color: var(--primary-light, #34d399);
   padding-left: 4px;
 }
 
@@ -3121,19 +3224,31 @@ button {
    Editorial Magazine Archive Timeline (1:1 Reference Image 2)
    ======================================================== */
 
-/* Chapter 1: Archive Hero (3 Columns) */
+/* Chapter 1: Archive Hero (100vw 全宽电影感沉浸巨幕) */
 .archive-hero {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  box-sizing: border-box;
+  min-height: clamp(380px, 46vh, 500px);
+  background-color: #0b132b;
+  background-image: linear-gradient(rgba(11, 19, 43, 0.76), rgba(11, 19, 43, 0.90)), var(--bg-archive-daily);
+  background-size: cover;
+  background-position: center;
   display: flex;
   align-items: stretch;
   justify-content: space-between;
   gap: 36px;
-  padding: 48px 0 64px 0;
-  border-bottom: 1px solid var(--border-color);
+  padding: clamp(52px, 6vw, 76px) max(24px, calc((100vw - 1280px) / 2));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   margin-bottom: 56px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  color: #f8fafc;
 }
 
 .archive-hero-col-left {
-  flex: 0 0 32%;
+  flex: 0 0 35%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -3141,18 +3256,19 @@ button {
 }
 
 .archive-hero-title {
-  font-size: clamp(1.85rem, 3.2vw, 2.6rem);
-  font-weight: 850;
-  line-height: 1.28;
+  font-family: var(--font-serif-cn);
+  font-size: clamp(2rem, 3.4vw, 2.85rem);
+  font-weight: 750;
+  line-height: 1.25;
   letter-spacing: -0.02em;
-  color: var(--text-main);
-  margin: 16px 0 16px 0;
+  color: #ffffff;
+  margin: 16px 0;
 }
 
 .archive-hero-desc {
-  font-size: 0.96rem;
+  font-size: 0.98rem;
   line-height: 1.68;
-  color: var(--text-muted);
+  color: rgba(248, 250, 252, 0.85);
   margin: 0;
 }
 
@@ -3161,9 +3277,11 @@ button {
   min-width: 0;
   overflow: hidden;
   border-radius: 12px;
-  background: var(--bg-subtle);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   position: relative;
   min-height: 320px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
 }
 
 .archive-hero-img {
@@ -3179,23 +3297,23 @@ button {
 }
 
 .archive-hero-col-right {
-  flex: 0 0 18%;
+  flex: 0 0 20%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   min-width: 0;
-  padding-left: 20px;
-  border-left: 1px solid var(--border-subtle, var(--border-color));
+  padding-left: 24px;
+  border-left: 1px dashed rgba(255, 255, 255, 0.22);
 }
 
 .archive-filter-label {
   font-family: var(--font-mono, monospace);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: var(--text-light);
+  color: var(--primary-light, #34d399);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 24px;
+  letter-spacing: 0.12em;
+  margin-bottom: 20px;
 }
 
 .archive-filter-list {
@@ -3209,9 +3327,9 @@ button {
   align-items: center;
   justify-content: space-between;
   font-family: var(--font-mono, monospace);
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   font-weight: 650;
-  color: var(--text-muted);
+  color: rgba(248, 250, 252, 0.8);
   text-decoration: none;
   padding: 6px 0;
   border-bottom: 1px solid transparent;
@@ -3220,8 +3338,8 @@ button {
 
 .archive-filter-link:hover,
 .archive-filter-link.active {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
+  color: #ffffff;
+  border-bottom-color: var(--primary-light, #34d399);
   transform: translateX(3px);
 }
 
@@ -3475,20 +3593,32 @@ button {
 
 
 /* ========================================================
-   分类与标签双列杂志流 (Reference Image 4)
+   分类与标签双列杂志流 (100vw 全宽电影感沉浸巨幕)
    ======================================================== */
 .tag-hero {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  box-sizing: border-box;
+  min-height: clamp(360px, 44vh, 480px);
+  background-color: #0b132b;
+  background-image: linear-gradient(rgba(11, 19, 43, 0.76), rgba(11, 19, 43, 0.90)), var(--bg-banner-daily);
+  background-size: cover;
+  background-position: center;
   display: flex;
   align-items: stretch;
   justify-content: space-between;
   gap: 36px;
-  padding: 48px 0 60px 0;
-  border-bottom: 1px solid var(--border-color);
+  padding: clamp(52px, 6vw, 76px) max(24px, calc((100vw - 1280px) / 2));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   margin-bottom: 48px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  color: #f8fafc;
 }
 
 .tag-hero-left {
-  flex: 0 0 32%;
+  flex: 0 0 35%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -3497,9 +3627,9 @@ button {
 
 .tag-hero-label {
   font-family: var(--font-mono, monospace);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 750;
-  color: var(--primary);
+  color: var(--primary-light, #34d399);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   margin-bottom: 12px;
@@ -3507,18 +3637,19 @@ button {
 }
 
 .tag-hero-title {
-  font-size: clamp(1.85rem, 3.2vw, 2.6rem);
-  font-weight: 850;
+  font-family: var(--font-serif-cn);
+  font-size: clamp(2rem, 3.4vw, 2.85rem);
+  font-weight: 750;
   line-height: 1.25;
   letter-spacing: -0.02em;
-  color: var(--text-main);
+  color: #ffffff;
   margin: 0 0 16px 0;
 }
 
 .tag-hero-desc {
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   line-height: 1.7;
-  color: var(--text-muted);
+  color: rgba(248, 250, 252, 0.85);
   margin: 0 0 24px 0;
 }
 
@@ -3529,7 +3660,7 @@ button {
   font-family: var(--font-mono, monospace);
   font-size: 0.84rem;
   font-weight: 700;
-  color: var(--primary);
+  color: var(--primary-light, #34d399);
   text-decoration: none;
   letter-spacing: 0.06em;
   transition: all 0.2s ease;
@@ -3537,7 +3668,7 @@ button {
 }
 
 .tag-hero-view-all:hover {
-  color: var(--primary-hover);
+  color: #ffffff;
   transform: translateX(4px);
 }
 
@@ -3546,9 +3677,11 @@ button {
   min-width: 0;
   overflow: hidden;
   border-radius: 12px;
-  background: var(--bg-subtle);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   position: relative;
   min-height: 280px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
 }
 
 .tag-hero-img {
@@ -3564,22 +3697,52 @@ button {
 }
 
 .tag-hero-right {
-  flex: 0 0 22%;
+  flex: 0 0 26%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding-left: 24px;
-  border-left: 1px solid var(--border-subtle, var(--border-color));
+  justify-content: space-between;
+  padding-left: 28px;
+  border-left: 1px dashed rgba(255, 255, 255, 0.22);
   min-width: 0;
+}
+
+/* 消除分类页顶部死白：微型策展印记系统 */
+.curation-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  font-family: var(--font-mono);
+  color: var(--primary-light, #34d399);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.curation-quote-body {
+  margin: 16px 0;
 }
 
 .tag-hero-quote {
   font-family: var(--font-cursive);
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-style: italic;
-  line-height: 1.65;
-  color: var(--text-muted);
+  line-height: 1.45;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+}
+
+.curation-quote-cn {
+  font-family: var(--font-serif-cn);
+  font-size: 0.88rem;
+  color: rgba(248, 250, 252, 0.82);
   margin: 0;
+  line-height: 1.6;
+}
+
+.curation-stamp {
+  font-size: 11px;
+  color: rgba(248, 250, 252, 0.6);
+  font-family: var(--font-mono);
 }
 
 /* Dual-Column Stream Layout */
@@ -3878,19 +4041,31 @@ button {
   margin-bottom: 0;
 }
 
-/* 1. 3-Column Hero Trio */
+/* 1. 3-Column Hero Trio (100vw 全宽电影感沉浸巨幕) */
 .about-hero-trio {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  box-sizing: border-box;
+  min-height: clamp(380px, 48vh, 520px);
+  background-color: #0b132b;
+  background-image: linear-gradient(rgba(11, 19, 43, 0.74), rgba(11, 19, 43, 0.90)), var(--bg-about-daily);
+  background-size: cover;
+  background-position: center;
   display: flex;
   align-items: stretch;
   justify-content: space-between;
   gap: 36px;
-  padding: 48px 0 60px 0;
-  border-bottom: 1px solid var(--border-color);
+  padding: clamp(52px, 6vw, 76px) max(24px, calc((100vw - 1280px) / 2));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   margin-bottom: 56px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  color: #f8fafc;
 }
 
 .about-hero-statement {
-  flex: 0 0 34%;
+  flex: 0 0 35%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -3899,9 +4074,9 @@ button {
 
 .about-hero-label {
   font-family: var(--font-mono, monospace);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 750;
-  color: var(--primary);
+  color: var(--primary-light, #34d399);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   margin-bottom: 14px;
@@ -3909,18 +4084,19 @@ button {
 }
 
 .about-hero-title {
-  font-size: clamp(1.85rem, 3.2vw, 2.6rem);
-  font-weight: 850;
-  line-height: 1.28;
+  font-family: var(--font-serif-cn);
+  font-size: clamp(2rem, 3.4vw, 2.85rem);
+  font-weight: 750;
+  line-height: 1.25;
   letter-spacing: -0.025em;
-  color: var(--text-main);
+  color: #ffffff;
   margin: 0 0 18px 0;
 }
 
 .about-hero-intro {
-  font-size: 0.96rem;
+  font-size: 0.98rem;
   line-height: 1.8;
-  color: var(--text-muted);
+  color: rgba(248, 250, 252, 0.85);
   margin: 0 0 28px 0;
 }
 
@@ -3931,7 +4107,7 @@ button {
   font-family: var(--font-mono, monospace);
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--primary);
+  color: var(--primary-light, #34d399);
   text-decoration: none;
   letter-spacing: 0.08em;
   transition: all 0.2s ease;
@@ -3940,7 +4116,7 @@ button {
 }
 
 .about-hero-read-more:hover {
-  color: var(--primary-hover);
+  color: #ffffff;
   transform: translateX(4px);
 }
 
@@ -3949,10 +4125,11 @@ button {
   min-width: 0;
   border-radius: 14px;
   overflow: hidden;
-  background: var(--bg-subtle);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   position: relative;
   min-height: 320px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
 }
 
 .about-hero-img {
@@ -3973,17 +4150,18 @@ button {
   flex-direction: column;
   justify-content: space-between;
   padding-left: 28px;
-  border-left: 1px solid var(--border-subtle, var(--border-color));
+  border-left: 1px dashed rgba(255, 255, 255, 0.22);
   min-width: 0;
 }
 
-/* 中文引语：同 .sidebar-quote-text，不用 italic、改用书法字 */
+/* 中文格言：出版级思源宋体 */
 .about-hero-quote {
-  font-family: var(--font-calligraphy);
-  font-size: 1.4rem;
+  font-family: var(--font-serif-cn);
+  font-size: 1.35rem;
+  font-weight: 500;
   font-style: normal;
   line-height: 1.7;
-  color: var(--text-main);
+  color: #ffffff;
   margin: 0;
 }
 
@@ -5449,7 +5627,267 @@ body.focus-reading-mode .focus-mode-exit-btn {
   .nav-menu-item {
     font-size: 0.82rem;
     padding: 6px 2px;
-  }
+/* ========================================================
+   精细出版级格言与引用增强
+   ======================================================== */
+.motto-refined {
+  font-family: var(--font-serif-cn);
+  font-weight: 500;
+  font-size: 1.15rem;
+  letter-spacing: 0.05em;
+  line-height: 1.8;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ========================================================
+   3D 拟物黑胶唱片卡片 (Vinyl Card)
+   ======================================================== */
+.vinyl-capsule {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  overflow: hidden;
+  margin-top: 18px;
+}
+.vinyl-capsule:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
+}
+.vinyl-wrapper {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+}
+.vinyl-jacket {
+  position: relative;
+  z-index: 2;
+  width: 54px;
+  height: 54px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  background: #1e293b;
+}
+.vinyl-jacket img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.vinyl-disc {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  z-index: 1;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #0f172a 32%, #1e293b 33%, #0f172a 58%, #1e293b 60%, #000 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.vinyl-capsule:hover .vinyl-disc {
+  transform: translateX(24px) rotate(180deg);
+}
+.vinyl-disc-center {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 3px solid #0f172a;
+}
+.vinyl-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.vinyl-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.vinyl-title {
+  font-family: var(--font-serif-cn);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.vinyl-artist {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ========================================================
+   Raycast 级 Command Palette (Cmd+K) 视觉体系
+   ======================================================== */
+.nav-cmd-k-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.nav-cmd-k-btn:hover {
+  background: var(--bg-card);
+  border-color: var(--primary);
+  color: var(--text-main);
+  box-shadow: 0 2px 8px var(--primary-glow);
+}
+.cmd-k-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+}
+@media (max-width: 768px) {
+  .cmd-k-text, .cmd-k-badge { display: none; }
+  .nav-cmd-k-btn { padding: 0 10px; }
+}
+
+.cmd-palette-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 99999;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 14vh;
+}
+.cmd-palette-backdrop.open {
+  display: flex;
+}
+.cmd-palette-modal {
+  width: min(90vw, 640px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.24);
+  overflow: hidden;
+  animation: cmdPaletteFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes cmdPaletteFadeIn {
+  from { opacity: 0; transform: scale(0.96) translateY(-8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.cmd-palette-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+.cmd-palette-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: var(--text-main);
+  outline: none;
+  font-family: inherit;
+}
+.cmd-palette-esc {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+}
+.cmd-palette-results {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 8px;
+}
+.cmd-action-section-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-light);
+  letter-spacing: 0.08em;
+  padding: 8px 12px 4px;
+}
+.cmd-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: var(--text-main);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 14px;
+}
+.cmd-item:hover,
+.cmd-item.selected {
+  background: var(--primary-faint, rgba(16, 185, 129, 0.08));
+  color: var(--primary);
+}
+.cmd-item-icon {
+  font-size: 16px;
+  width: 22px;
+  text-align: center;
+}
+.cmd-palette-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 10px 20px;
+  border-top: 1px solid var(--border-subtle, var(--border-color));
+  background: var(--bg-subtle);
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+.cmd-palette-footer kbd {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
 }
 `;
 
@@ -5594,15 +6032,64 @@ window.addEventListener("resize", () => {
   if (window.innerWidth > 768) toggleNavMenu(false);
 });
 
-// 搜索模态框开闭与实时检索
+// Command Palette 全能指令中心与快速动作
 let searchSelectedIndex = -1;
 let searchReturnFocusEl = null;
+
+const QUICK_ACTIONS = [
+  { icon: "🌓", title: "切换日夜模式", desc: "Dark / Light Mode 切换", cmd: "toggleTheme()" },
+  { icon: "🌿", title: "切换主题: 薄荷翡翠", desc: "Mint Emerald 默认首选", cmd: "selectSiteTheme('mint-emerald')" },
+  { icon: "🌊", title: "切换主题: 科技深蓝", desc: "Tech Blue 现代极客", cmd: "selectSiteTheme('tech-blue')" },
+  { icon: "🔮", title: "切换主题: 极光鸢尾", desc: "Aurora Violet 先锋灵动", cmd: "selectSiteTheme('aurora-violet')" },
+  { icon: "☀️", title: "切换主题: 暖阳琥珀", desc: "Warm Amber 日光书房", cmd: "selectSiteTheme('warm-amber')" },
+  { icon: "🖋️", title: "切换主题: 极简水墨", desc: "Minimalist Ink 东方留白", cmd: "selectSiteTheme('minimalist-ink')" },
+  { icon: "🔗", title: "复制当前页面链接", desc: "复制网页永久 URL 到剪贴板", cmd: "copyCurrentUrl()" },
+  { icon: "📡", title: "复制 RSS 订阅源", desc: "复制 feed.xml 订阅源到剪贴板", cmd: "copyRssFeed()" }
+];
+
+function copyCurrentUrl() {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(window.location.href);
+    showToast("页面链接已复制到剪贴板！");
+    toggleSearchModal(false);
+  }
+}
+function copyRssFeed() {
+  const dirPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf("/") + 1);
+  const rssUrl = new URL("feed.xml", window.location.origin + dirPath).href;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(rssUrl);
+    showToast("RSS 订阅源已复制到剪贴板！");
+    toggleSearchModal(false);
+  }
+}
+window.copyCurrentUrl = copyCurrentUrl;
+window.copyRssFeed = copyRssFeed;
+window.toggleCmdPalette = toggleSearchModal;
+
+function renderQuickActions(filterText = "") {
+  const q = (filterText || "").trim().toLowerCase();
+  const matched = QUICK_ACTIONS.filter(a => !q || a.title.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q));
+  if (matched.length === 0) return "";
+  let html = '<section class="cmd-action-section-title" style="box-sizing: border-box;">快捷指令中心</section>';
+  matched.forEach((a, i) => {
+    html += '<section class="cmd-item search-result-item" data-index="' + i + '" onclick="' + a.cmd + '" style="box-sizing: border-box;">' +
+      '<span class="cmd-item-icon">' + a.icon + '</span>' +
+      '<section style="flex:1;box-sizing: border-box;">' +
+        '<section style="font-weight:600;font-size:13.5px;color:var(--text-main);box-sizing: border-box;">' + a.title + '</section>' +
+        '<section style="font-size:11.5px;color:var(--text-muted);box-sizing: border-box;">' + a.desc + '</section>' +
+      '</section>' +
+      '<kbd style="font-size:11px;font-family:var(--font-mono);background:var(--bg-subtle);border:1px solid var(--border-color);padding:2px 6px;border-radius:4px;color:var(--text-muted);">↵ 执行</kbd>' +
+    '</section>';
+  });
+  return html;
+}
 
 function resetSearchModal() {
   searchSelectedIndex = -1;
   const resultsBox = document.getElementById("search-results-box");
   if (resultsBox) {
-    resultsBox.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-light);font-size:0.9rem;">输入关键词搜索全部文章 (支持标题、描述、分类与标签)...</div>';
+    resultsBox.innerHTML = renderQuickActions();
   }
 }
 
@@ -5658,24 +6145,32 @@ function onSearchModalInput(e) {
     }
   }
 
-  if (matches.length === 0) {
-    resultsBox.innerHTML = '<div style="padding:28px;text-align:center;color:var(--text-light);font-size:0.9rem;">未找到相关文章</div>';
-  } else {
-    resultsBox.innerHTML = matches.map((m, idx) => {
-      const escaped = q.split('').map(function(c){ return '.*+?^$()|{}[]\\\\'.indexOf(c) !== -1 ? '\\\\' + c : c; }).join('');
-      const reg = new RegExp('(' + escaped + ')', 'gi');
-      const esc = function(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); };
-      const highTitle = esc(m.title).replace(reg, '<mark class="search-highlight">$1</mark>');
-      const highDesc = m.desc ? esc(m.desc).replace(reg, '<mark class="search-highlight">$1</mark>') : '';
-      const catBadge = (m.categories && m.categories[0]) ? '<span class="search-tag">' + esc(m.categories[0]) + '</span>' : '';
-      const dateText = m.date ? '<span>' + esc(m.date) + '</span>' : '';
+  const actionsHtml = renderQuickActions(q);
+  let articlesHtml = "";
 
-      return '<a href="' + esc(m.url) + '" class="search-result-item" data-index="' + idx + '">' +
-        '<div class="search-result-title">' + highTitle + '</div>' +
-        (highDesc ? '<div class="search-result-snippet">' + highDesc + '</div>' : '') +
-        '<div class="search-result-meta">' + catBadge + dateText + '</div>' +
-        '</a>';
-    }).join("");
+  if (matches.length > 0) {
+    articlesHtml = '<section class="cmd-action-section-title" style="box-sizing: border-box; margin-top: 10px;">检索文章 (' + matches.length + ' 篇)</section>' +
+      matches.map((m, idx) => {
+        const escaped = q.split('').map(function(c){ return '.*+?^$()|{}[]\\\\'.indexOf(c) !== -1 ? '\\\\' + c : c; }).join('');
+        const reg = new RegExp('(' + escaped + ')', 'gi');
+        const esc = function(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); };
+        const highTitle = esc(m.title).replace(reg, '<mark class="search-highlight">$1</mark>');
+        const highDesc = m.desc ? esc(m.desc).replace(reg, '<mark class="search-highlight">$1</mark>') : '';
+        const catBadge = (m.categories && m.categories[0]) ? '<span class="search-tag">' + esc(m.categories[0]) + '</span>' : '';
+        const dateText = m.date ? '<span>' + esc(m.date) + '</span>' : '';
+
+        return '<a href="' + esc(m.url) + '" class="search-result-item" data-index="' + (QUICK_ACTIONS.length + idx) + '">' +
+          '<div class="search-result-title">' + highTitle + '</div>' +
+          (highDesc ? '<div class="search-result-snippet">' + highDesc + '</div>' : '') +
+          '<div class="search-result-meta">' + catBadge + dateText + '</div>' +
+          '</a>';
+      }).join("");
+  }
+
+  if (!actionsHtml && !articlesHtml) {
+    resultsBox.innerHTML = '<section style="box-sizing: border-box; padding:28px;text-align:center;color:var(--text-light);font-size:0.9rem;">未找到相关指令或文章</section>';
+  } else {
+    resultsBox.innerHTML = actionsHtml + articlesHtml;
   }
 }
 
@@ -6076,19 +6571,24 @@ export function buildCommonWidgetsHtml(searchIndex = []) {
     <!-- 全局文章搜索数据索引 -->
     <script>window.__NOTES_INDEX__ = ${indexJson};</script>
 
-    <!-- 搜索模态框 -->
-    <div id="search-modal" class="search-modal-backdrop" onclick="toggleSearchModal(false)">
-      <div class="search-modal-box" onclick="event.stopPropagation()">
-        <div class="search-modal-input-row">
+    <!-- Raycast 级 Command Palette 指令中心与搜索模态框 (纯 section 架构) -->
+    <section id="search-modal" class="search-modal-backdrop cmd-palette-backdrop" onclick="toggleSearchModal(false)" style="box-sizing: border-box;">
+      <section class="search-modal-box cmd-palette-modal" onclick="event.stopPropagation()" style="box-sizing: border-box;">
+        <section class="search-modal-input-row cmd-palette-input-wrap" style="box-sizing: border-box;">
           ${ICONS.search}
-          <input type="text" id="search-input" class="search-modal-input" placeholder="输入关键词快速搜索全部文章 (按 Esc 退出)..." oninput="onSearchModalInput(event)">
-          <button onclick="toggleSearchModal(false)">${ICONS.cross}</button>
-        </div>
-        <div id="search-results-box" class="search-results-box">
-          <div style="padding:24px;text-align:center;color:var(--text-light);font-size:0.9rem;">输入关键词搜索全部文章 (支持标题、描述、分类与标签)...</div>
-        </div>
-      </div>
-    </div>
+          <input type="text" id="search-input" class="search-modal-input cmd-palette-input" placeholder="输入搜索文章、快捷指令或主题... (按 Esc 退出)" oninput="onSearchModalInput(event)" autocomplete="off">
+          <kbd class="cmd-palette-esc" onclick="toggleSearchModal(false)" style="cursor: pointer;">ESC</kbd>
+        </section>
+        <section id="search-results-box" class="search-results-box cmd-palette-results" style="box-sizing: border-box;">
+          <section class="cmd-palette-empty" style="box-sizing: border-box; padding:24px;text-align:center;color:var(--text-light);font-size:0.9rem;">输入关键词搜索全部文章，或输入「主题」、「日夜」、「复制」触发快捷指令...</section>
+        </section>
+        <section class="cmd-palette-footer" style="box-sizing: border-box;">
+          <span><kbd>↑</kbd> <kbd>↓</kbd> 选择</span>
+          <span><kbd>↵</kbd> 执行</span>
+          <span><kbd>ESC</kbd> 退出</span>
+        </section>
+      </section>
+    </section>
   `;
 }
 
@@ -6176,8 +6676,10 @@ export function buildPageHeaderHtml({ activeKey = "", isSubdir = false, extraAct
       ${buildBrandHtml(isSubdir)}
       ${buildNavHtml(activeKey, isSubdir)}
       <div class="nav-right-actions">
-        <button class="nav-action-btn" onclick="toggleSearchModal(true)" title="搜索文章 (Cmd+K)">
-          ${ICONS.search}
+        <button class="nav-cmd-k-btn" onclick="toggleSearchModal(true)" title="指令中心 (Cmd+K)">
+          <span class="cmd-k-icon">${ICONS.search}</span>
+          <span class="cmd-k-text">搜索与指令</span>
+          <kbd class="cmd-k-badge">⌘K</kbd>
         </button>
         ${buildThemePickerHtml()}
 ${extraActions}        <button class="nav-action-btn" onclick="toggleTheme()" title="切换日夜模式">
@@ -6546,6 +7048,8 @@ export function buildBottomBannerHtml(isSubdir = false) {
 export function buildIndexPageHtml(posts, featuredPost, latestPosts, allCategories, searchIndex = []) {
   const dailyQuote = getDailyQuote();
   const dailyWallpaper = getDailyWallpaper();
+  const weather = getDailyWeather();
+  const githubPulse = getGithubPulse();
 
   // Hero 右侧分类导航：用真实分类动态生成。
   // 原先写死 DESIGN / TECHNOLOGY / LIFE / NOTES —— 既不是本仓的真实分类
@@ -6628,10 +7132,15 @@ ${buildPageHeaderHtml({ activeKey: "home" })}
 
   <!-- 页面主体内容 (纯 Section 架构，微信后台 0 塌陷保证) -->
   <main class="main-content-wrapper main-container">
-    <!-- Chapter 1: 3-column Editorial Hero -->
+    <!-- Chapter 1: 3-column Editorial Hero (100vw 全宽沉浸巨幕) -->
     <section class="editorial-hero" style="box-sizing: border-box;">
       <section class="editorial-hero-col-left" style="box-sizing: border-box;">
-        <span class="editorial-date" data-date="${getTodayFormattedDate()}">${getTodayFormattedDate().replace(/\./g, " / ")}</span>
+        <section class="editorial-status-capsule github-pulse-badge" style="box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 12px; font-family: var(--font-mono); color: var(--primary-light, #34d399); letter-spacing: 0.06em;">
+          <span class="live-dot pulse-dot" style="width: 7px; height: 7px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 8px var(--primary); display: inline-block;"></span>
+          <span class="editorial-date" data-date="${getTodayFormattedDate()}">${getTodayFormattedDate().replace(/\./g, " / ")} · ${weather.solarTerm}</span>
+          <span style="opacity: 0.4;">|</span>
+          <span class="editorial-github-pulse" title="${githubPulse.message}">● ${githubPulse.statusText}</span>
+        </section>
         <h1 class="editorial-headline">${(SITE_CONFIG.pages && SITE_CONFIG.pages.home && SITE_CONFIG.pages.home.hero_headline) || "记录设计、技术，以及那些值得思考的事。"}</h1>
         <p class="editorial-subheadline">${(SITE_CONFIG.pages && SITE_CONFIG.pages.home && SITE_CONFIG.pages.home.hero_subheadline) || "I write about design, technology and everything in between."}</p>
         <a href="#featured" class="editorial-more-link">${(SITE_CONFIG.pages && SITE_CONFIG.pages.home && SITE_CONFIG.pages.home.hero_cta) || "READ MORE →"}</a>
@@ -6642,6 +7151,12 @@ ${buildPageHeaderHtml({ activeKey: "home" })}
       </section>
 
       <section class="editorial-hero-col-right" style="box-sizing: border-box;">
+        <section class="editorial-weather-capsule weather-capsule" style="box-sizing: border-box; margin-bottom: 18px; font-size: 12px; color: rgba(248, 250, 252, 0.85); font-family: var(--font-mono);">
+          <span style="color: var(--primary-light); font-weight: 700;">${weather.city}</span>
+          <span>${weather.condition} ${weather.temp}°C</span>
+          <span style="opacity: 0.4;">/</span>
+          <span>${weather.chineseHour}</span>
+        </section>
         <span class="editorial-nav-label">CATEGORIES</span>
         <nav class="editorial-nav-list">
 ${heroCategoryNavHtml}
@@ -6740,6 +7255,8 @@ ${buildPageTailHtml({ activeKey: "home", searchIndex, showBottomBanner: true })}
  * 1:1 复刻编辑部杂志时间线 (Reference Image 2)
  */
 export function buildArchivesHtml(posts, searchIndex = []) {
+  const onThisDay = getOnThisDay();
+
   // 右侧分类导航：同样用真实分类生成。
   // 原先写死的 DESIGN / TECHNOLOGY / LIFE / NOTES 四项全部指向 categories.html。
   const archivesCategoryNavHtml = [...new Set(posts.flatMap((p) => p.meta.categories || []))]
@@ -6866,6 +7383,10 @@ ${buildPageHeaderHtml({ activeKey: "archives" })}
         <span class="chapter-label">ARCHIVE ——</span>
         <h1 class="archive-hero-title">${(SITE_CONFIG.pages && SITE_CONFIG.pages.archives && SITE_CONFIG.pages.archives.title) || "归档 · 时间里的思考"}</h1>
         <p class="archive-hero-desc">${(SITE_CONFIG.pages && SITE_CONFIG.pages.archives && SITE_CONFIG.pages.archives.subtitle) || "时间会筛选出真正重要的东西。在这里，按时间脉络归档记录所有关于架构思考、工程设计与生活哲学的文字足迹。"}</p>
+        <section class="archive-on-this-day on-this-day-banner" style="box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 6px 14px; border-radius: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); font-size: 12.5px; color: rgba(248,250,252,0.9);">
+          <span style="color: var(--primary-light, #34d399); font-weight: 600;">📜 历史上的今天</span>
+          <span>${onThisDay.display}</span>
+        </section>
       </section>
 
       <section class="archive-hero-col-center" style="box-sizing: border-box;">
@@ -6899,6 +7420,9 @@ ${buildPageTailHtml({ activeKey: "archives", searchIndex })}`;
  * 组装分类探索页面 HTML (/categories.html) - 1:1 复刻 Reference Image 4
  */
 export function buildCategoriesHtml(posts, categoriesMap, searchIndex = []) {
+  const weather = getDailyWeather();
+  const vinyl = getVinylData();
+
   if (!categoriesMap) {
     categoriesMap = {};
     for (const post of posts) {
@@ -6989,8 +7513,22 @@ ${buildPageHeaderHtml({ activeKey: "categories" })}
         <img src="images/hero-architecture.jpg" alt="Category Hero Atmosphere" class="tag-hero-img" onerror="this.src='images/hero-daily.jpg'">
       </section>
 
-      <section class="tag-hero-right" style="box-sizing: border-box;">
-        <p class="tag-hero-quote"><em>"Good design makes life better."</em></p>
+      <section class="tag-hero-right curated-footnote" style="box-sizing: border-box;">
+        <section class="curation-meta" style="box-sizing: border-box;">
+          <span class="live-dot" style="width: 7px; height: 7px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 8px var(--primary); display: inline-block;"></span>
+          <span>${weather.cityCn} · ${weather.condition} ${weather.temp}°C</span>
+          <span style="opacity: 0.4;">/</span>
+          <span>${weather.solarTerm} · ${weather.chineseHour}</span>
+        </section>
+
+        <section class="curation-quote-body" style="box-sizing: border-box;">
+          <p class="tag-hero-quote"><em>"Good design makes life better."</em></p>
+          <p class="curation-quote-cn">好的设计让生活更美好，而克制是优雅的开始。</p>
+        </section>
+
+        <section class="curation-stamp" style="box-sizing: border-box;">
+          ${weather.coordinates} · 思考与记录 —— Tan
+        </section>
       </section>
     </section>
 
@@ -7011,6 +7549,23 @@ ${buildPageHeaderHtml({ activeKey: "categories" })}
             "写作，是我与世界对话的方式。"
           </blockquote>
           <span class="sidebar-quote-signature">—— Tan</span>
+        </section>
+
+        <!-- 3D 拟物黑胶唱片组件 -->
+        <section class="vinyl-capsule" style="box-sizing: border-box;">
+          <section class="vinyl-wrapper" style="box-sizing: border-box;">
+            <section class="vinyl-jacket" style="box-sizing: border-box;">
+              <img src="${vinyl.jacket}" alt="${vinyl.title}" onerror="this.src='images/hero-architecture.jpg'">
+            </section>
+            <section class="vinyl-disc" style="box-sizing: border-box;">
+              <span class="vinyl-disc-center"></span>
+            </section>
+          </section>
+          <section class="vinyl-meta" style="box-sizing: border-box;">
+            <span class="vinyl-label">NOW PLAYING</span>
+            <span class="vinyl-title">${vinyl.title} · ${vinyl.currentTrack}</span>
+            <span class="vinyl-artist">${vinyl.artist}</span>
+          </section>
         </section>
       </section>
 
@@ -7051,6 +7606,9 @@ ${buildPageTailHtml({
  * 组装文章总览页面 HTML (/articles.html) - 1:1 复刻 Reference Image 4
  */
 export function buildArticlesHtml(posts, categoriesMap, searchIndex = []) {
+  const weather = getDailyWeather();
+  const vinyl = getVinylData();
+
   if (!categoriesMap) {
     categoriesMap = {};
     for (const post of posts) {
@@ -7140,8 +7698,22 @@ ${buildPageHeaderHtml({ activeKey: "articles" })}
         <img src="images/daily/banner.webp" alt="Articles Hero Atmosphere" class="tag-hero-img" onerror="this.src='images/hero-architecture.jpg'">
       </section>
 
-      <section class="tag-hero-right" style="box-sizing: border-box;">
-        <p class="tag-hero-quote"><em>"Good design makes life better."</em></p>
+      <section class="tag-hero-right curated-footnote" style="box-sizing: border-box;">
+        <section class="curation-meta" style="box-sizing: border-box;">
+          <span class="live-dot" style="width: 7px; height: 7px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 8px var(--primary); display: inline-block;"></span>
+          <span>${weather.cityCn} · ${weather.condition} ${weather.temp}°C</span>
+          <span style="opacity: 0.4;">/</span>
+          <span>${weather.solarTerm} · ${weather.chineseHour}</span>
+        </section>
+
+        <section class="curation-quote-body" style="box-sizing: border-box;">
+          <p class="tag-hero-quote"><em>"Good design makes life better."</em></p>
+          <p class="curation-quote-cn">好的设计让生活更美好，而克制是优雅的开始。</p>
+        </section>
+
+        <section class="curation-stamp" style="box-sizing: border-box;">
+          ${weather.coordinates} · 思考与记录 —— Tan
+        </section>
       </section>
     </section>
 
@@ -7162,6 +7734,23 @@ ${buildPageHeaderHtml({ activeKey: "articles" })}
             "${(SITE_CONFIG.pages && SITE_CONFIG.pages.articles && SITE_CONFIG.pages.articles.sidebar_quote) || "写作，是我与世界对话的方式。"}"
           </blockquote>
           <span class="sidebar-quote-signature">—— ${(SITE_CONFIG.pages && SITE_CONFIG.pages.articles && SITE_CONFIG.pages.articles.sidebar_signature) || SITE_CONFIG.author || "Tan"}</span>
+        </section>
+
+        <!-- 3D 拟物黑胶唱片组件 -->
+        <section class="vinyl-capsule" style="box-sizing: border-box;">
+          <section class="vinyl-wrapper" style="box-sizing: border-box;">
+            <section class="vinyl-jacket" style="box-sizing: border-box;">
+              <img src="${vinyl.jacket}" alt="${vinyl.title}" onerror="this.src='images/hero-architecture.jpg'">
+            </section>
+            <section class="vinyl-disc" style="box-sizing: border-box;">
+              <span class="vinyl-disc-center"></span>
+            </section>
+          </section>
+          <section class="vinyl-meta" style="box-sizing: border-box;">
+            <span class="vinyl-label">NOW PLAYING</span>
+            <span class="vinyl-title">${vinyl.title} · ${vinyl.currentTrack}</span>
+            <span class="vinyl-artist">${vinyl.artist}</span>
+          </section>
         </section>
       </section>
 
@@ -7239,6 +7828,8 @@ export function buildAboutHtml(aboutPost, bodyHtml = "", searchIndex = []) {
   }).join("\n");
 
   const aboutPages = (SITE_CONFIG.pages && SITE_CONFIG.pages.about) || {};
+  const weather = getDailyWeather();
+  const vinyl = getVinylData();
 
   return `${buildPageHeadHtml({
     title: `${pageTitle} - ${SITE_CONFIG.title}`,
@@ -7266,11 +7857,11 @@ ${buildPageHeaderHtml({ activeKey: "about" })}
 
       <section class="about-hero-quote-col" style="box-sizing: border-box;">
         <blockquote class="about-hero-quote">
-          “保持好奇，保持温柔。”
+          <span class="motto-refined">「保持好奇，保持温柔。」</span>
         </blockquote>
         <section class="about-hero-signature-block" style="box-sizing: border-box;">
           <span class="about-hero-signature">${SITE_CONFIG.author || "Tan"}</span>
-          <span class="about-hero-location">BEIJING · 2026</span>
+          <span class="about-hero-location">${weather.cityCn ? weather.cityCn.toUpperCase() : "BEIJING"} · 2026</span>
         </section>
       </section>
     </section>
@@ -7293,6 +7884,23 @@ ${buildPageHeaderHtml({ activeKey: "about" })}
           <section class="personal-footer-block" style="box-sizing: border-box;">
             <span class="personal-signature">${SITE_CONFIG.author || "Tan"}</span>
             <span class="personal-motto">Good things take time.</span>
+          </section>
+        </section>
+
+        <!-- 3D 拟物黑胶唱片组件 -->
+        <section class="vinyl-capsule" style="box-sizing: border-box;">
+          <section class="vinyl-wrapper" style="box-sizing: border-box;">
+            <section class="vinyl-jacket" style="box-sizing: border-box;">
+              <img src="${vinyl.jacket}" alt="${vinyl.title}" onerror="this.src='images/hero-architecture.jpg'">
+            </section>
+            <section class="vinyl-disc" style="box-sizing: border-box;">
+              <span class="vinyl-disc-center"></span>
+            </section>
+          </section>
+          <section class="vinyl-meta" style="box-sizing: border-box;">
+            <span class="vinyl-label">NOW PLAYING</span>
+            <span class="vinyl-title">${vinyl.title}</span>
+            <span class="vinyl-artist">${vinyl.artist} · ${vinyl.mood || vinyl.vibe}</span>
           </section>
         </section>
       </section>
