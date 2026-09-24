@@ -48,28 +48,93 @@ weavingtan/notes/
 
 ---
 
-## ✍️ Obsidian 写作与同步规范
+## ✍️ Obsidian 写作属性与同步全景规范
 
-详细指南见：[`docs/OBSIDIAN_SYNC_GUIDE.md`](docs/OBSIDIAN_SYNC_GUIDE.md)。
+详细实战指南见：[`docs/OBSIDIAN_SYNC_GUIDE.md`](docs/OBSIDIAN_SYNC_GUIDE.md)。
 
-每篇文章开头使用标准 YAML Frontmatter：
+系统（**Obsidian 插件 `obw`** + **静态站构建引擎 `notes`**）能够智能识别以下 **4 大类** 笔记属性与正文语法：
+
+### 1. 核心文章元数据（微信草稿 + 个人网站 双端通用）
+
+无论在发布到微信公众号草稿箱，还是发布到个人网站时，以下属性均被原生识别并消费：
+
+| 属性名 (Key) | 别名 / 容错 | 类型 | 作用与呈现效果 |
+| :--- | :--- | :--- | :--- |
+| **`title`** | 首个 `# 一级标题` / 笔记文件名 | 字符串 | **文章标题**。同步至微信草稿箱标题；个人网站文章 H1、页面 `<title>`、SEO Meta 标签。 |
+| **`date`** | 文件创建时间 | 日期 (`YYYY-MM-DD`) | **发布日期**。决定全站时间线排序、归档页年份归类与时间轴月份气泡展示。 |
+| **`author`** | 插件默认作者 / 站点配置作者 | 字符串 | **文章作者**。同步至微信公众号作者署名；网站详情页徽章 `作者: Tan`。 |
+| **`description`** | `digest`, `summary` | 字符串 | **文章摘要/引言**。同步至微信草稿摘要栏；网站详情页引言卡片、列表页预览、全局搜索索引。 |
+| **`cover`** | `banner`, 正文首图 | 相对路径 / URL | **封面大图**。微信草稿封面素材；网站文章详情页宽幅头图、首页与归档页画报缩略图。 |
+| **`categories`** | `category` | 列表 `[A, B]` 或 单值 | **分类归类**。在网站「分类」与「文章」页流式归档；若未填写，自动回退到首个 tag 或「未分类」。 |
+| **`tags`** | `tag`, Obsidian `#标签` | 列表 `[A, B]` 或 单值 | **文章标签**。个人网站标签过滤器、详情页底部标签胶囊、全局搜索关键词。 |
+
+### 2. 个人网站专属控制属性（站点展示与排序）
+
+| 属性名 (Key) | 可选值 | 说明 |
+| :--- | :--- | :--- |
+| **`featured`** | `true` / `false` | **首页置顶推荐**。设为 `true` 的文章会自动作为首页第二章的 `FEATURED ——` 巨幕精选画报展示。 |
+| **`draft`** | `true` / `false` | **草稿免发布过滤**。设为 `true` 时，网站构建引擎会**自动跳过该文件**，不编译生成公开网页。 |
+| **`order`** | 整数 (如 `1`, `2`) | **置顶权重排序**。数字越小越靠前，排序优先级高于常规按发布日期倒序。 |
+
+### 3. 全站动态化灵魂配置（在 `posts/about.md` 或 `posts/site.md` 中专属识别）
+
+- **`nav`**：全局顶栏与底栏动态导航菜单（`label`, `href`, `key`）
+- **`personal_info`**：关于页档案卡片开放键值对（支持自由追加任意字段，如 `坐标`, `职业`, `状态`, `邮箱`, `GitHub`, `微信`, `喜欢` 等）
+- **`social_links`**：全站底栏社交图标矩阵（`platform`, `title`, `href`）
+- **`pages`**：各大页面文案与标语定制（`pages.home`, `pages.articles`, `pages.archives`, `pages.about`, `pages.comm_banner`）
+
+### 4. 正文特定 Obsidian 语法支持
+
+- **Obsidian 双链配图**：`![[image.png]]` 或 `![[photo.jpg|400]]`，发布至个人网站时自动提取二进制图片并转换为相对路径，发布至微信时自动转存至微信 CDN；
+- **标准 Markdown 图片**：`![alt](images/pic.png)` 或 在线图片；
+- **Callout 标注框**：`> [!NOTE]`, `> [!TIP]`, `> [!WARNING]` 等；
+- **31 个微信出版级排版模块**：如 `:::cards[...]`, `:::hero[...]`, `:::quote[...]`, `:::specs[...]` 等。
+
+---
+
+## ⚡ 如何在 Obsidian 中一秒快速插入此模板？
+
+已在您的 Obsidian 库中配置了专属模板文件：`Templates/文章发布属性模板.md`。
+
+您可以通过以下几种极速方式任意一种进行插入：
+
+### 方式一：Obsidian 原生模板功能（最简单，无需额外插件）
+1. 在新创建的空白笔记中，按下快捷键 **`⌘P`**（Windows 为 `Ctrl+P`）呼出命令面板；
+2. 输入 **`插入模板`**（或 `Insert template`）并回车；
+3. 选择 **`文章发布属性模板`** 即可瞬间插入！
+> 💡 *小技巧*：您也可以在 Obsidian 设置 → 快捷键 中，将「模板：插入模板」绑定为快捷键（如 `⌘T` 或 `⌥T`），实现单键秒插。
+
+### 方式二：Templater 插件（支持日期与标题自动替换）
+1. 在笔记编辑区按下快捷键 **`⌥E`**（Windows 为 `Alt+E`）；
+2. 选择 **`文章发布属性模板`**；
+3. 模板中的 `{{title}}` 会自动替换为当前笔记文件名，`{{date}}` 会自动替换为当天日期（如 `2026-09-24`）。
+
+### 方式三：Obsidian 官方属性面板 (Properties)
+在笔记最开头直接输入三个横杠：
+```text
+---
+```
+然后按下回车，Obsidian 就会自动转换为图形化的「属性」面板，您可直接像填写表格一样点击「添加属性」，输入 `title`、`cover`、`categories` 等属性。
+
+---
+
+### 📋 标准文章 Frontmatter 模板参考
 
 ```yaml
 ---
-title: 2026 现代前端工程架构：从出版级排版到全栈沉浸式体验
-date: 2026-09-22
+title: "{{title}}"
+date: "{{date}}"
+author: "Tan / Weaving"
+description: "用简短的一两句话概括文章核心思想，这会出现在微信摘要和网站引言卡片中。"
+cover: "images/featured-fuji.jpg"
 categories:
-  - 技术
-  - 前端工程
+  - 随笔
 tags:
-  - 架构设计
-  - 性能优化
-author: Weaving
-description: 探讨现代前端工程实践与高定排版系统...
-featured: true          # 设为 true 时作为首页精选大卡片
-cover: images/fuji.jpg  # 封面配图相对路径
-order: 1                # 可选手动排序权重 (越小越靠前)
-draft: false            # 设为 true 时本地草稿，构建自动跳过
+  - 思考
+  - 创作
+featured: false # 是否在首页置顶推荐 (true / false)
+draft: false    # 是否为草稿 (true 则个人网站构建时跳过发布)
+order: 1        # 手动排序权重 (越小越靠前，可选)
 ---
 ```
 
