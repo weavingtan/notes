@@ -978,6 +978,14 @@ export function preprocessMarkdown(markdown, isSubdir = false) {
     return `[${slug.trim()}](${prefix}${slug.trim()}.html)`;
   });
 
+  if (isSubdir) {
+    // 文章详情页 (dist/posts/*.html)：将 Markdown 图片相对路径 images/... 或 ./images/... 自愈为 ../images/...
+    processed = processed.replace(/!\[([^\]]*)\]\((?:\.\/)?images\/([^)]+)\)/g, "![$1](../images/$2)");
+  } else {
+    // 根目录页面 (dist/about.html 等)：若存在冗余的 ../images/... 归一化为 images/...
+    processed = processed.replace(/!\[([^\]]*)\]\(\.\.\/images\/([^)]+)\)/g, "![$1](images/$2)");
+  }
+
   return processed;
 }
 
@@ -986,8 +994,9 @@ export function preprocessMarkdown(markdown, isSubdir = false) {
  * 解决问题：
  * 1. 微信排版引擎 inlined 的硬编码深色文字 (#2b2b2b, #1f2937) 在深色模式下导致看不清
  * 2. 保证全站主题无论在日间还是深色模式下，正文字体对比度均达到 WCAG 2.1 AA (>= 4.5:1)
+ * 3. 相对资源路径 (images/) 在多级目录 (dist/posts/*.html 与 dist/about.html) 下的智能自愈与防死链
  */
-export function adaptObwHtmlForWeb(html) {
+export function adaptObwHtmlForWeb(html, isSubdir = false) {
   if (!html) return "";
 
   let processed = html;
@@ -1006,6 +1015,23 @@ export function adaptObwHtmlForWeb(html) {
 
   // 5. 将硬编码浅色边框替换为 var(--border-color)
   processed = processed.replace(/border:\s*1px\s+solid\s+(?:#(?:e2e8f0|cbd5e1|e5e7eb|f1f5f9|e0e0e0));?/gi, "border: 1px solid var(--border-color);");
+
+  // 6. 图片与媒体资源相对路径自愈 (Zero 404 dead link guarantee)
+  if (isSubdir) {
+    // 子目录页面（如 dist/posts/*.html）：资源路径必须使用 ../images/
+    processed = processed.replace(/(<img\b[^>]*\bsrc=["'])(?:\.\/)?images\//gi, '$1../images/');
+    processed = processed.replace(/(<source\b[^>]*\bsrcset=["'])(?:\.\/)?images\//gi, '$1../images/');
+    processed = processed.replace(/(<a\b[^>]*\bhref=["'])(?:\.\/)?images\//gi, '$1../images/');
+    processed = processed.replace(/url\(\s*(['"]?)(?:\.\/)?images\//gi, 'url($1../images/');
+    processed = processed.replace(/(onerror=["'][^"']*?src=['"])(?:\.\/)?images\//gi, '$1../images/');
+  } else {
+    // 根目录页面（如 dist/about.html, dist/index.html）：若混入 ../images/ 则规范化回退为 images/
+    processed = processed.replace(/(<img\b[^>]*\bsrc=["'])\.\.\/images\//gi, '$1images/');
+    processed = processed.replace(/(<source\b[^>]*\bsrcset=["'])\.\.\/images\//gi, '$1images/');
+    processed = processed.replace(/(<a\b[^>]*\bhref=["'])\.\.\/images\//gi, '$1images/');
+    processed = processed.replace(/url\(\s*(['"]?)\.\.\/images\//gi, 'url($1images/');
+    processed = processed.replace(/(onerror=["'][^"']*?src=[''])\.\.\/images\//gi, '$1images/');
+  }
 
   return processed;
 }
@@ -1078,7 +1104,7 @@ export function extractToc(html) {
 export function renderMarkdownForWeb(markdown, isSubdir = false) {
   const preprocessed = preprocessMarkdown(markdown, isSubdir);
   const rawRendered = renderWithObw(preprocessed, SITE_CONFIG.theme);
-  const adapted = adaptObwHtmlForWeb(rawRendered);
+  const adapted = adaptObwHtmlForWeb(rawRendered, isSubdir);
   return extractToc(adapted);
 }
 

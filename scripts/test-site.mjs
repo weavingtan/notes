@@ -15,7 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
-import { parseFrontmatter, adaptObwHtmlForWeb, SITE_THEMES, parseYamlFallback, parseYamlValue, sanitizeNavItems } from "./build.mjs";
+import { parseFrontmatter, adaptObwHtmlForWeb, preprocessMarkdown, SITE_THEMES, parseYamlFallback, parseYamlValue, sanitizeNavItems } from "./build.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -90,7 +90,23 @@ assert.equal(adapted.includes("#ffffff"), false, "Web Content Adaptor 未能清�
 assert.equal(adapted.includes("var(--bg-card)"), true, "Web Content Adaptor 未替换纯白背景为 var(--bg-card)");
 assert.equal(adapted.includes("var(--text-main)"), true, "Web Content Adaptor 未替换为 var(--text-main)");
 assert.equal(adapted.includes("var(--text-muted)"), true, "Web Content Adaptor 未替换为 var(--text-muted)");
-console.log("  ✓ Web Content Adaptor 样式清洗与白板防塌陷自愈通过");
+
+// 测试多层目录图片路径智能自愈 (Dead link prevention)
+const sampleSubdirImg = `<figure><img src="images/demo.png" alt="测试"><img src="./images/test.jpg"></figure>`;
+const adaptedSubdir = adaptObwHtmlForWeb(sampleSubdirImg, true);
+assert.equal(adaptedSubdir.includes('src="../images/demo.png"'), true, "子目录页面未正确将 images/ 转换为 ../images/");
+assert.equal(adaptedSubdir.includes('src="../images/test.jpg"'), true, "子目录页面未正确将 ./images/ 转换为 ../images/");
+
+const sampleRootImg = `<figure><img src="../images/demo.png" alt="测试"></figure>`;
+const adaptedRoot = adaptObwHtmlForWeb(sampleRootImg, false);
+assert.equal(adaptedRoot.includes('src="images/demo.png"'), true, "根目录页面未正确将 ../images/ 归一化为 images/");
+
+// 测试 Markdown 图片预处理
+const mdSample = `![演示](images/demo.png) 与 ![测试](./images/test.jpg)`;
+const mdPreprocessed = preprocessMarkdown(mdSample, true);
+assert.equal(mdPreprocessed.includes("![演示](../images/demo.png)"), true, "Markdown 预处理未将 images/ 转换为 ../images/");
+assert.equal(mdPreprocessed.includes("![测试](../images/test.jpg)"), true, "Markdown 预处理未将 ./images/ 转换为 ../images/");
+console.log("  ✓ Web Content Adaptor 样式清洗、白板防塌陷与多级目录图片自愈通过");
 
 // 1.5 测试零依赖 YAML 解析器 (parseYamlFallback / parseYamlValue) 与导航清洗契约
 const sampleFlowYaml = `
