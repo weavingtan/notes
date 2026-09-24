@@ -1,17 +1,17 @@
 {
   "username": "weavingtan",
-  "repo": "obw",
-  "message": "feat(engine): 优化全 section 渲染管线与微信后台免疫力",
-  "relativeTime": "刚刚",
+  "repo": "notes",
+  "message": "更新个人知识库与设计工程",
+  "relativeTime": "1 小时前",
   "sparkline": [
-    4,
-    6,
-    8,
     3,
-    7,
     5,
+    7,
+    4,
+    8,
+    6,
     9
   ],
-  "statusText": "正在打磨 obw · 活跃维护中",
+  "statusText": "正在打磨 notes · 1 小时前 push",
   "updatedAt": "2026-09-24"
 }
