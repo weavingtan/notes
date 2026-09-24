@@ -15,7 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
-import { parseFrontmatter, adaptObwHtmlForWeb, SITE_THEMES } from "./build.mjs";
+import { parseFrontmatter, adaptObwHtmlForWeb, SITE_THEMES, parseYamlFallback, parseYamlValue, sanitizeNavItems } from "./build.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -91,6 +91,33 @@ assert.equal(adapted.includes("var(--bg-card)"), true, "Web Content Adaptor 未�
 assert.equal(adapted.includes("var(--text-main)"), true, "Web Content Adaptor 未替换为 var(--text-main)");
 assert.equal(adapted.includes("var(--text-muted)"), true, "Web Content Adaptor 未替换为 var(--text-muted)");
 console.log("  ✓ Web Content Adaptor 样式清洗与白板防塌陷自愈通过");
+
+// 1.5 测试零依赖 YAML 解析器 (parseYamlFallback / parseYamlValue) 与导航清洗契约
+const sampleFlowYaml = `
+nav:
+  - { label: "首页", href: "index.html", key: "home" }
+  - { label: "关于", href: "about.html", key: "about" }
+pages:
+  about:
+    hero_title: "你好，我是 Tan。"
+tags: [设计, 技术]
+`;
+const parsedFallback = parseYamlFallback(sampleFlowYaml);
+assert.equal(Array.isArray(parsedFallback.nav), true, "parseYamlFallback 未能将 nav 解析为数组");
+assert.equal(parsedFallback.nav.length, 2, "parseYamlFallback nav 项数量不正确");
+assert.equal(typeof parsedFallback.nav[0], "object", "parseYamlFallback 未能将行内映射解析为对象");
+assert.equal(parsedFallback.nav[0].href, "index.html", "parseYamlFallback href 提取错误");
+assert.equal(parsedFallback.pages.about.hero_title, "你好，我是 Tan。", "parseYamlFallback 嵌套对象解析错误");
+assert.deepEqual(parsedFallback.tags, ["设计", "技术"], "parseYamlFallback 行内序列解析错误");
+
+const sanitizedNav = sanitizeNavItems(parsedFallback.nav);
+assert.equal(sanitizedNav.length, 2, "sanitizeNavItems 数量不正确");
+assert.equal(sanitizedNav[0].path, "index.html", "sanitizeNavItems 路径不正确");
+// 模拟脏字符串降级防护
+const dirtyNav = sanitizeNavItems(['{ label: "测试", href: "test.html" }', null, { href: "undefined" }, { label: "无路径" }]);
+assert.equal(dirtyNav.length, 1, "sanitizeNavItems 未过滤非法或未定义路径");
+assert.equal(dirtyNav[0].path, "test.html", "sanitizeNavItems 未成功自愈脏字符串项");
+console.log("  ✓ 零依赖 YAML 解析器流式映射与导航清洗零死链契约通过");
 
 // ========================================================
 // 2. 全站 404 死链深度扫描 (Zero 404s)

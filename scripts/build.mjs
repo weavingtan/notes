@@ -30,59 +30,98 @@ try {
 }
 
 /**
- * 零依赖轻量级 YAML 解析器 (环境缺失 yaml 时的纯净自愈降级)
+ * 解析轻量级 YAML 标量、行内流式序列 ([...]) 与流式映射 ({...})
  */
-function parseYamlFallback(str) {
+export function parseYamlValue(str) {
+  const trimmed = str.trim();
+  if (trimmed === "true") return true;
+  if (trimmed === "false") return false;
+  if (trimmed === "null" || trimmed === "~") return null;
+  if (!isNaN(trimmed) && trimmed !== "" && !trimmed.includes(".")) {
+    const num = Number(trimmed);
+    if (String(num) === trimmed) return num;
+  }
+  // 行内流式序列: [a, b, c]
+  if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+    const inner = trimmed.slice(1, -1).trim();
+    if (!inner) return [];
+    return inner.split(",").map((s) => parseYamlValue(s.trim()));
+  }
+  // 行内流式映射: { label: "首页", href: "index.html", key: "home" }
+  if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+    const inner = trimmed.slice(1, -1).trim();
+    const obj = {};
+    const regex = /([\w-]+)\s*:\s*(?:"([^"]*)"|'([^']*)'|([^,{}]+))/g;
+    let match;
+    while ((match = regex.exec(inner)) !== null) {
+      const k = match[1].trim();
+      const v = (match[2] !== undefined ? match[2] : match[3] !== undefined ? match[3] : match[4]).trim();
+      obj[k] = parseYamlValue(v);
+    }
+    return obj;
+  }
+  return trimmed.replace(/^['"]|['"]$/g, "");
+}
+
+/**
+ * 零依赖轻量级 YAML 解析器 (环境缺失 yaml 时的纯净自愈降级，支持缩进栈与多层嵌套)
+ */
+export function parseYamlFallback(str) {
   const result = {};
   const lines = str.split(/\r?\n/);
-  let currentKey = null;
-  let currentSubKey = null;
-  let activeSection = null;
+  const stack = [{ indent: -1, container: result }];
 
-  for (let rawLine of lines) {
+  for (let idx = 0; idx < lines.length; idx++) {
+    const rawLine = lines[idx];
     const trimmed = rawLine.trim();
     if (!trimmed || trimmed.startsWith("#")) continue;
 
     const indent = rawLine.search(/\S/);
 
-    if (indent === 0) {
-      const colonIdx = rawLine.indexOf(":");
-      if (colonIdx !== -1) {
-        currentKey = rawLine.slice(0, colonIdx).trim();
-        const val = rawLine.slice(colonIdx + 1).trim();
-        if (val) {
-          result[currentKey] = val.replace(/^['"]|['"]$/g, "");
-          activeSection = null;
-        } else {
-          result[currentKey] = {};
-          activeSection = result[currentKey];
-          currentSubKey = null;
+    while (stack.length > 1 && stack[stack.length - 1].indent >= indent) {
+      stack.pop();
+    }
+
+    const currentParent = stack[stack.length - 1].container;
+
+    if (trimmed.startsWith("- ")) {
+      const itemRaw = trimmed.slice(2).trim();
+      const val = parseYamlValue(itemRaw);
+      if (Array.isArray(currentParent)) {
+        currentParent.push(val);
+      } else {
+        const lastEntry = stack[stack.length - 1];
+        if (lastEntry.lastKey && Array.isArray(currentParent[lastEntry.lastKey])) {
+          currentParent[lastEntry.lastKey].push(val);
         }
       }
-    } else if (indent > 0 && activeSection) {
-      if (trimmed.startsWith("- ")) {
-        const itemVal = trimmed.slice(2).trim().replace(/^['"]|['"]$/g, "");
-        if (currentSubKey) {
-          if (!Array.isArray(activeSection[currentSubKey])) activeSection[currentSubKey] = [];
-          activeSection[currentSubKey].push(itemVal);
-        } else {
-          if (!Array.isArray(result[currentKey])) result[currentKey] = [];
-          result[currentKey].push(itemVal);
-        }
+      continue;
+    }
+
+    const colonIdx = trimmed.indexOf(":");
+    if (colonIdx !== -1) {
+      const key = trimmed.slice(0, colonIdx).trim().replace(/^['"]|['"]$/g, "");
+      const valStr = trimmed.slice(colonIdx + 1).trim();
+
+      if (valStr) {
+        currentParent[key] = parseYamlValue(valStr);
+        stack[stack.length - 1].lastKey = key;
       } else {
-        const colonIdx = trimmed.indexOf(":");
-        if (colonIdx !== -1) {
-          currentSubKey = trimmed.slice(0, colonIdx).trim();
-          const val = trimmed.slice(colonIdx + 1).trim();
-          if (val) {
-            activeSection[currentSubKey] = val.replace(/^['"]|['"]$/g, "");
-          } else {
-            activeSection[currentSubKey] = [];
-          }
+        let isArray = false;
+        for (let j = idx + 1; j < lines.length; j++) {
+          const nt = lines[j].trim();
+          if (!nt || nt.startsWith("#")) continue;
+          if (nt.startsWith("- ")) isArray = true;
+          break;
         }
+        const newContainer = isArray ? [] : {};
+        currentParent[key] = newContainer;
+        stack[stack.length - 1].lastKey = key;
+        stack.push({ indent, container: newContainer });
       }
     }
   }
+
   return result;
 }
 
@@ -524,8 +563,8 @@ export const ICONS = {
 // 探测可用的 obw CLI 路径
 export function findObwCli() {
   const candidates = [
-    path.resolve(ROOT_DIR, "../obw/bin/obw.js"),
     path.resolve(ROOT_DIR, "bin/obw.cjs"),
+    path.resolve(ROOT_DIR, "../obw/bin/obw.js"),
     path.resolve(ROOT_DIR, "bin/obw.js"),
     path.resolve(ROOT_DIR, "../../bin/obw.js"),
     path.resolve(ROOT_DIR, "node_modules/obsidian-wechat-publisher/bin/obw.js"),
@@ -7211,13 +7250,40 @@ export const NAV_ITEMS = [
 ];
 
 /**
+ * 稳健清洗并规范化导航配置项，彻底杜绝 undefined 链接产生
+ */
+export function sanitizeNavItems(rawList) {
+  if (!rawList || !Array.isArray(rawList) || rawList.length === 0) {
+    return NAV_ITEMS;
+  }
+  const items = rawList
+    .map((n) => {
+      if (!n) return null;
+      let itemObj = n;
+      if (typeof itemObj === "string") {
+        if (itemObj.trim().startsWith("{")) {
+          itemObj = parseYamlValue(itemObj);
+        } else {
+          return null;
+        }
+      }
+      if (!itemObj || typeof itemObj !== "object") return null;
+      const path = itemObj.href || itemObj.path || "";
+      if (!path || path === "undefined") return null;
+      const label = itemObj.label || itemObj.title || path;
+      const key = itemObj.key || path.replace(/\.html$/, "");
+      return { key, label, path };
+    })
+    .filter(Boolean);
+  return items.length > 0 ? items : NAV_ITEMS;
+}
+
+/**
  * 统一导航栏组件生成器
  */
 export function buildNavHtml(activeKey, isSubdir = false) {
   const prefix = isSubdir ? "../" : "";
-  const navList = (SITE_CONFIG.nav && Array.isArray(SITE_CONFIG.nav) && SITE_CONFIG.nav.length > 0)
-    ? SITE_CONFIG.nav.map(n => ({ key: n.key || (n.href || "").replace(/\.html$/, ""), label: n.label, path: n.href || n.path }))
-    : NAV_ITEMS;
+  const navList = sanitizeNavItems(SITE_CONFIG.nav);
 
   return `
     <button class="nav-toggle-btn" type="button" aria-label="展开导航菜单" aria-expanded="false" aria-controls="site-nav-menu" onclick="toggleNavMenu()">
@@ -7239,9 +7305,7 @@ export function buildNavHtml(activeKey, isSubdir = false) {
  */
 export function buildFooterNavHtml(activeKey, isSubdir = false) {
   const prefix = isSubdir ? "../" : "";
-  const navList = (SITE_CONFIG.nav && Array.isArray(SITE_CONFIG.nav) && SITE_CONFIG.nav.length > 0)
-    ? SITE_CONFIG.nav.map(n => ({ key: n.key || (n.href || "").replace(/\.html$/, ""), label: n.label, path: n.href || n.path }))
-    : NAV_ITEMS;
+  const navList = sanitizeNavItems(SITE_CONFIG.nav);
 
   return `
     <div class="footer-nav-links">
@@ -7703,12 +7767,24 @@ export function buildBottomBannerHtml(isSubdir = false) {
   const dailyQuote = getDailyQuote();
   const footerWallpaper = getDailyWallpaper("footer") || getDailyWallpaper("hero") || {};
 
-  const socialLinks = SITE_CONFIG.social_links || [
+  const rawSocialLinks = SITE_CONFIG.social_links || [
     { platform: "mail", title: "发送邮件", href: `mailto:${SITE_CONFIG.email}` },
     { platform: "rss", title: "RSS 订阅", href: `${prefix}feed.xml` },
     { platform: "github", title: "GitHub 个人主页", href: SITE_CONFIG.githubUrl },
     { platform: "about", title: "关于我", href: `${prefix}about.html` },
   ];
+
+  const socialLinks = (Array.isArray(rawSocialLinks) ? rawSocialLinks : [])
+    .map((s) => {
+      if (!s) return null;
+      let item = s;
+      if (typeof item === "string") {
+        if (item.trim().startsWith("{")) item = parseYamlValue(item);
+        else return null;
+      }
+      return item;
+    })
+    .filter(Boolean);
 
   const socialIconsHtml = socialLinks.map(s => {
     let icon = ICONS[s.platform] || ICONS.user;
@@ -7719,10 +7795,11 @@ export function buildBottomBannerHtml(isSubdir = false) {
     else if (s.platform === "wechat") icon = ICONS.chat;
 
     let href = s.href || "#";
+    if (!href || href === "undefined") href = "#";
     if (href.startsWith("about.html") && isSubdir) href = `../${href}`;
     if (href.startsWith("feed.xml") && isSubdir) href = `../${href}`;
     const target = href.startsWith("http") ? ' target="_blank" rel="noopener"' : '';
-    return `<a href="${href}"${target} class="social-circle-btn" title="${s.title}">${icon}</a>`;
+    return `<a href="${href}"${target} class="social-circle-btn" title="${s.title || ''}">${icon}</a>`;
   }).join("\n        ");
 
   const quoteText = (dailyQuote.text || dailyQuote.hitokoto || "保持好奇，保持温柔。").replace(/^“|”$/g, "");
@@ -8647,6 +8724,7 @@ export function buildAboutHtml(aboutPost, bodyHtml = "", searchIndex = []) {
   };
 
   const personalDetailsHtml = Object.entries(personalInfoData).map(([key, val]) => {
+    if (!val || val === "undefined") return "";
     let valHtml = val;
     if (String(val).includes("@") && !String(val).startsWith("http")) {
       valHtml = `<a href="mailto:${val}" class="detail-email-link">${val}</a>`;
@@ -8658,7 +8736,7 @@ export function buildAboutHtml(aboutPost, bodyHtml = "", searchIndex = []) {
               <span class="detail-label">${key}</span>
               <span class="detail-value">${valHtml}</span>
             </section>`;
-  }).join("\n");
+  }).filter(Boolean).join("\n");
 
   const aboutPages = (SITE_CONFIG.pages && SITE_CONFIG.pages.about) || {};
   const weather = getDailyWeather();
