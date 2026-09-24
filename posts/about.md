@@ -3,67 +3,76 @@ title: 关于我 (About Me)
 date: 2026-09-22
 author: Tan / Weaving
 description: 全栈开发者与独立创造者。记录技术、产品、生活与成长，打造出版级数字阅读体验。
-tags: [关于我, 独立开发, 个人思考]
-categories: [关于]
-
-# ========================================================
-# 🌟 全站 Markdown 动态化配置（可在 Obsidian 中直接修改与扩展）
-# ========================================================
-
-# === 1. 顶部全局导航（可自由增减、改名或调整顺序） ===
+tags:
+  - 关于我
+  - 独立开发
+  - 个人思考
+  - 阅读
+categories:
+  - 关于
 nav:
-  - { label: "首页", href: "index.html", key: "home" }
-  - { label: "文章", href: "articles.html", key: "articles" }
-  - { label: "归档", href: "archives.html", key: "archives" }
-  - { label: "关于", href: "about.html", key: "about" }
-
-# === 2. 个人档案开放键值对（支持自由追加任意字段，自动对齐排版） ===
+  - label: 首页
+    href: index.html
+    key: home
+  - label: 文章
+    href: articles.html
+    key: articles
+  - label: 归档
+    href: archives.html
+    key: archives
+  - label: 关于
+    href: about.html
+    key: about
 personal_info:
-  坐标: "北京 · 朝阳"
-  职业: "全栈架构师 / 产品设计师"
-  状态: "🌱 正在深度打磨数字花园与出版排版"
-  邮箱: "tan@example.com"
-  GitHub: "https://github.com/weavingtan"
-  微信: "weaving_tan"
-  喜欢: "架构演进、开源、阅读、摄影、咖啡"
-
-# === 3. 社交矩阵开放列表（支持自定义图标平台、标题与外链） ===
+  坐标: 北京 · 朝阳
+  职业: 全栈架构师 / 产品设计师
+  状态: 🌱 正在深度打磨数字花园与出版排版
+  邮箱: tan@example.com
+  GitHub: https://github.com/weavingtan
+  微信: weaving_tan
+  喜欢: 架构演进、开源、阅读、摄影、咖啡
 social_links:
-  - { platform: "mail", title: "发送邮件", href: "mailto:tan@example.com" }
-  - { platform: "rss", title: "RSS 订阅", href: "feed.xml" }
-  - { platform: "github", title: "GitHub 主页", href: "https://github.com/weavingtan" }
-  - { platform: "about", title: "关于我", href: "about.html" }
-
-# === 4. 各大页面灵魂文案与标语（支持自由编辑） ===
+  - platform: mail
+    title: 发送邮件
+    href: mailto:tan@example.com
+  - platform: rss
+    title: RSS 订阅
+    href: feed.xml
+  - platform: github
+    title: GitHub 主页
+    href: https://github.com/weavingtan
+  - platform: about
+    title: 关于我
+    href: about.html
 pages:
   home:
-    hero_headline: "记录设计、技术，以及那些值得思考的事。"
-    hero_subheadline: "I write about design, technology and everything in between."
-    hero_cta: "READ MORE →"
-    archive_quote: "时间会筛选出真正重要的东西。"
+    hero_headline: 记录设计、技术，以及那些值得思考的事。
+    hero_subheadline: I write about design, technology and everything in between.
+    hero_cta: READ MORE →
+    archive_quote: 时间会筛选出真正重要的东西。
   articles:
-    title: "文章专题"
-    subtitle: "探索体系化思考与技术实现的交汇点。按主题聚类的长文脉络，记录架构设计、工程实践与生活感悟。"
-    sidebar_quote: "写作，是我与世界对话的方式。"
-    sidebar_signature: "Tan"
+    title: 文章专题
+    subtitle: 探索体系化思考与技术实现的交汇点。按主题聚类的长文脉络，记录架构设计、工程实践与生活感悟。
+    sidebar_quote: 写作，是我与世界对话的方式。
+    sidebar_signature: Tan
   archives:
-    title: "归档 · 时间里的思考"
-    subtitle: "时间会筛选出真正重要的东西。在这里，按时间脉络归档记录所有关于架构思考、工程设计与生活哲学的文字足迹。"
+    title: 归档 · 时间里的思考
+    subtitle: 时间会筛选出真正重要的东西。在这里，按时间脉络归档记录所有关于架构思考、工程设计与生活哲学的文字足迹。
     reflections:
-      "2026": "这一年，我更关注生活的质感与思考的深度。重构感知，在代码与文字间探寻数字世界的温度与秩序。"
-      "2025": "在代码与现实的交织中寻找秩序，沉淀关于架构、设计与自我成长的答案。"
-      "2024": "探索未知与可能，跨越不同技术栈的边界，以文字作为思考的锚点与心智的索引。"
+      "2024": 探索未知与可能，跨越不同技术栈的边界，以文字作为思考的锚点与心智的索引。
+      "2025": 在代码与现实的交织中寻找秩序，沉淀关于架构、设计与自我成长的答案。
+      "2026": 这一年，我更关注生活的质感与思考的深度。重构感知，在代码与文字间探寻数字世界的温度与秩序。
   about:
-    hero_title: "你好，我是 Tan。<br>一个喜欢思考、记录和<br>创造的人。"
-    hero_subtitle: "在这里，我分享一些关于设计、技术、生活的所见所想。"
-    hero_quote: "保持好奇，保持温柔。"
-    hero_date: "BEIJING · 2026"
-    banner_title: "在生活的缝隙里，寻找热爱的方向。"
-    banner_subtitle: "写下思考 · 记录成长 · 分享生活"
-    banner_cursive: "Better Things Ahead"
+    hero_title: 你好，我是 Tan。<br>一个喜欢思考、记录和<br>创造的人。
+    hero_subtitle: 在这里，我分享一些关于设计、技术、生活的所见所想。
+    hero_quote: 保持好奇，保持温柔。
+    hero_date: BEIJING · 2026
+    banner_title: 在生活的缝隙里，寻找热爱的方向。
+    banner_subtitle: 写下思考 · 记录成长 · 分享生活
+    banner_cursive: Better Things Ahead
   comm_banner:
-    title: "与我交流"
-    desc: "如果你对文章有任何想法，或者有技术、产品、生活方面的问题，欢迎在评论区留言，或通过其他方式联系我。"
+    title: 与我交流
+    desc: 如果你对文章有任何想法，或者有技术、产品、生活方面的问题，欢迎在评论区留言，或通过其他方式联系我。
 ---
 
 ## 👨‍💻 我是谁？
