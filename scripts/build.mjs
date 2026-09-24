@@ -2811,12 +2811,40 @@ button {
   border-color: rgba(255, 255, 255, 0.28);
 }
 
+.photocard-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
 .photocard-badge {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--primary);
   text-transform: uppercase;
+}
+
+.photocard-refresh-quote-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 11px;
+  font-family: inherit;
+  padding: 2px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+}
+
+.photocard-refresh-quote-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.38);
+  transform: scale(1.05);
 }
 
 .photocard-text {
@@ -5706,7 +5734,7 @@ body.focus-reading-mode .focus-mode-exit-btn {
   .about-hero-trio {
     flex-wrap: wrap;
     gap: 32px;
-    padding: 36px 0 48px;
+    padding: 36px clamp(24px, 4vw, 36px) 48px;
     margin-bottom: 48px;
   }
   .about-hero-statement {
@@ -5907,7 +5935,7 @@ body.focus-reading-mode .focus-mode-exit-btn {
   .editorial-hero {
     flex-direction: column;
     gap: 28px;
-    padding: 24px 0 36px 0;
+    padding: 32px clamp(20px, 5.5vw, 28px) 36px;
   }
   .editorial-hero-col-left,
   .editorial-hero-col-right {
@@ -5962,7 +5990,7 @@ body.focus-reading-mode .focus-mode-exit-btn {
   .archive-hero {
     flex-direction: column;
     gap: 28px;
-    padding: 24px 0 36px 0;
+    padding: 32px clamp(20px, 5.5vw, 28px) 36px;
   }
   .archive-hero-col-left,
   .archive-hero-col-right {
@@ -6034,7 +6062,7 @@ body.focus-reading-mode .focus-mode-exit-btn {
   .tag-hero {
     flex-direction: column;
     gap: 24px;
-    padding: 24px 0 36px 0;
+    padding: 32px clamp(20px, 5.5vw, 28px) 36px;
   }
   .tag-hero-left,
   .tag-hero-center,
@@ -6096,7 +6124,7 @@ body.focus-reading-mode .focus-mode-exit-btn {
   .about-hero-trio {
     flex-direction: column;
     gap: 24px;
-    padding: 24px 0 36px;
+    padding: 32px clamp(20px, 5.5vw, 28px) 36px;
     margin-bottom: 36px;
   }
   .about-hero-statement,
@@ -6133,6 +6161,23 @@ body.focus-reading-mode .focus-mode-exit-btn {
   }
   .interest-hairline-col:last-child {
     border-bottom: none;
+  }
+  /* 移动端卡片模块防挤压：将 space-between 水平排版转为垂直流式，徽章与标题自然展开 */
+  .wechat-module-cards [style*="justify-content:space-between"],
+  .wechat-module-cards [style*="justify-content: space-between"] {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+  }
+  .wechat-module-cards [style*="justify-content:space-between"] > span,
+  .wechat-module-cards [style*="justify-content: space-between"] > span {
+    display: inline-block !important;
+    text-align: left !important;
+    line-height: 1.5 !important;
+    max-width: 100% !important;
   }
   .panoramic-about-banner {
     min-height: auto;
@@ -6656,20 +6701,9 @@ window.addEventListener("resize", () => {
   if (window.innerWidth > 768) toggleNavMenu(false);
 });
 
-// Command Palette 全能指令中心与快速动作
+// 全站文章纯净搜索中心 (移除冗余指令，专注纯文章检索)
 let searchSelectedIndex = -1;
 let searchReturnFocusEl = null;
-
-const QUICK_ACTIONS = [
-  { icon: "🌓", title: "切换日夜模式", desc: "Dark / Light Mode 切换", cmd: "toggleTheme()" },
-  { icon: "🌿", title: "切换主题: 薄荷翡翠", desc: "Mint Emerald 默认首选", cmd: "selectSiteTheme('mint-emerald')" },
-  { icon: "🌊", title: "切换主题: 科技深蓝", desc: "Tech Blue 现代极客", cmd: "selectSiteTheme('tech-blue')" },
-  { icon: "🔮", title: "切换主题: 极光鸢尾", desc: "Aurora Violet 先锋灵动", cmd: "selectSiteTheme('aurora-violet')" },
-  { icon: "☀️", title: "切换主题: 暖阳琥珀", desc: "Warm Amber 日光书房", cmd: "selectSiteTheme('warm-amber')" },
-  { icon: "🖋️", title: "切换主题: 极简水墨", desc: "Minimalist Ink 东方留白", cmd: "selectSiteTheme('minimalist-ink')" },
-  { icon: "🔗", title: "复制当前页面链接", desc: "复制网页永久 URL 到剪贴板", cmd: "copyCurrentUrl()" },
-  { icon: "📡", title: "复制 RSS 订阅源", desc: "复制 feed.xml 订阅源到剪贴板", cmd: "copyRssFeed()" }
-];
 
 function copyCurrentUrl() {
   if (navigator.clipboard) {
@@ -6691,29 +6725,52 @@ window.copyCurrentUrl = copyCurrentUrl;
 window.copyRssFeed = copyRssFeed;
 window.toggleCmdPalette = toggleSearchModal;
 
-function renderQuickActions(filterText = "") {
-  const q = (filterText || "").trim().toLowerCase();
-  const matched = QUICK_ACTIONS.filter(a => !q || a.title.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q));
-  if (matched.length === 0) return "";
-  let html = '<section class="cmd-action-section-title" style="box-sizing: border-box;">快捷指令中心</section>';
-  matched.forEach((a, i) => {
-    html += '<section class="cmd-item search-result-item" data-index="' + i + '" onclick="' + a.cmd + '" style="box-sizing: border-box;">' +
-      '<span class="cmd-item-icon">' + a.icon + '</span>' +
-      '<section style="flex:1;box-sizing: border-box;">' +
-        '<section style="font-weight:600;font-size:13.5px;color:var(--text-main);box-sizing: border-box;">' + a.title + '</section>' +
-        '<section style="font-size:11.5px;color:var(--text-muted);box-sizing: border-box;">' + a.desc + '</section>' +
-      '</section>' +
-      '<kbd style="font-size:11px;font-family:var(--font-mono);background:var(--bg-subtle);border:1px solid var(--border-color);padding:2px 6px;border-radius:4px;color:var(--text-muted);">↵ 执行</kbd>' +
-    '</section>';
-  });
-  return html;
+// 客户端日期自动校准与今日金句实时刷新
+function syncClientDynamicDates() {
+  try {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const formatted = year + "." + month + "." + day;
+    document.querySelectorAll(".dynamic-today-date").forEach(el => {
+      el.textContent = formatted;
+    });
+  } catch (e) {}
 }
+
+async function refreshClientQuote() {
+  const quoteEl = document.getElementById("daily-quote-text");
+  const authorEl = document.getElementById("daily-quote-author");
+  if (!quoteEl) return;
+  const originalText = quoteEl.textContent;
+  quoteEl.style.opacity = "0.5";
+  try {
+    const res = await fetch("https://v1.hitokoto.cn/?c=d&c=i&c=k&c=j");
+    if (!res.ok) throw new Error("Fetch failed");
+    const data = await res.json();
+    if (data && data.hitokoto) {
+      quoteEl.textContent = "“" + data.hitokoto + "”";
+      if (authorEl) {
+        authorEl.textContent = data.from_who ? "—— " + data.from_who + " 《" + data.from + "》" : "—— 《" + data.from + "》";
+      }
+      showToast("已刷新今日金句");
+    }
+  } catch (err) {
+    quoteEl.textContent = originalText;
+    showToast("金句刷新失败，请稍后重试");
+  } finally {
+    quoteEl.style.opacity = "1";
+  }
+}
+window.syncClientDynamicDates = syncClientDynamicDates;
+window.refreshClientQuote = refreshClientQuote;
 
 function resetSearchModal() {
   searchSelectedIndex = -1;
   const resultsBox = document.getElementById("search-results-box");
   if (resultsBox) {
-    resultsBox.innerHTML = renderQuickActions();
+    resultsBox.innerHTML = '<section class="cmd-palette-empty" style="box-sizing: border-box; padding:28px 20px;text-align:center;color:var(--text-light);font-size:0.92rem;line-height:1.6;">🔍 输入关键词，搜索全站文章标题、标签或内容...</section>';
   }
 }
 
@@ -6769,33 +6826,31 @@ function onSearchModalInput(e) {
     }
   }
 
-  const actionsHtml = renderQuickActions(q);
-  let articlesHtml = "";
+  const esc = function(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); };
 
-  if (matches.length > 0) {
-    articlesHtml = '<section class="cmd-action-section-title" style="box-sizing: border-box; margin-top: 10px;">检索文章 (' + matches.length + ' 篇)</section>' +
-      matches.map((m, idx) => {
-        const escaped = q.split('').map(function(c){ return '.*+?^$()|{}[]\\\\'.indexOf(c) !== -1 ? '\\\\' + c : c; }).join('');
-        const reg = new RegExp('(' + escaped + ')', 'gi');
-        const esc = function(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); };
-        const highTitle = esc(m.title).replace(reg, '<mark class="search-highlight">$1</mark>');
-        const highDesc = m.desc ? esc(m.desc).replace(reg, '<mark class="search-highlight">$1</mark>') : '';
-        const catBadge = (m.categories && m.categories[0]) ? '<span class="search-tag">' + esc(m.categories[0]) + '</span>' : '';
-        const dateText = m.date ? '<span>' + esc(m.date) + '</span>' : '';
-
-        return '<a href="' + esc(m.url) + '" class="search-result-item" data-index="' + (QUICK_ACTIONS.length + idx) + '">' +
-          '<div class="search-result-title">' + highTitle + '</div>' +
-          (highDesc ? '<div class="search-result-snippet">' + highDesc + '</div>' : '') +
-          '<div class="search-result-meta">' + catBadge + dateText + '</div>' +
-          '</a>';
-      }).join("");
+  if (matches.length === 0) {
+    resultsBox.innerHTML = '<section style="box-sizing: border-box; padding:32px 20px;text-align:center;color:var(--text-light);font-size:0.92rem;">未找到与「' + esc(q) + '」相关的文章</section>';
+    return;
   }
 
-  if (!actionsHtml && !articlesHtml) {
-    resultsBox.innerHTML = '<section style="box-sizing: border-box; padding:28px;text-align:center;color:var(--text-light);font-size:0.9rem;">未找到相关指令或文章</section>';
-  } else {
-    resultsBox.innerHTML = actionsHtml + articlesHtml;
-  }
+  const escaped = q.split('').map(function(c){ return '.*+?^$()|{}[]\\\\'.indexOf(c) !== -1 ? '\\\\' + c : c; }).join('');
+  const reg = new RegExp('(' + escaped + ')', 'gi');
+
+  const articlesHtml = '<section class="cmd-action-section-title" style="box-sizing: border-box; margin-bottom: 8px;">匹配文章 (' + matches.length + ' 篇)</section>' +
+    matches.map((m, idx) => {
+      const highTitle = esc(m.title).replace(reg, '<mark class="search-highlight">$1</mark>');
+      const highDesc = m.desc ? esc(m.desc).replace(reg, '<mark class="search-highlight">$1</mark>') : '';
+      const catBadge = (m.categories && m.categories[0]) ? '<span class="search-tag">' + esc(m.categories[0]) + '</span>' : '';
+      const dateText = m.date ? '<span>' + esc(m.date) + '</span>' : '';
+
+      return '<a href="' + esc(m.url) + '" class="search-result-item" data-index="' + idx + '">' +
+        '<section class="search-result-title" style="box-sizing: border-box;">' + highTitle + '</section>' +
+        (highDesc ? '<section class="search-result-snippet" style="box-sizing: border-box;">' + highDesc + '</section>' : '') +
+        '<section class="search-result-meta" style="box-sizing: border-box;">' + catBadge + dateText + '</section>' +
+        '</a>';
+    }).join("");
+
+  resultsBox.innerHTML = articlesHtml;
 }
 
 function updateSelectedSearchItem(items) {
@@ -7137,6 +7192,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initSiteTheme();
   initCodeCopy();
   initZenReadingMode();
+  syncClientDynamicDates();
 });
 window.toggleVinylPlay = toggleVinylPlay;
 window.onVinylAudioPlay = onVinylAudioPlay;
@@ -7240,20 +7296,20 @@ export function buildCommonWidgetsHtml(searchIndex = []) {
     <!-- 全局文章搜索数据索引 -->
     <script>window.__NOTES_INDEX__ = ${indexJson};</script>
 
-    <!-- Raycast 级 Command Palette 指令中心与搜索模态框 (纯 section 架构) -->
+    <!-- 全站文章搜索模态框 (纯 section 架构，专注于纯文章检索) -->
     <section id="search-modal" class="search-modal-backdrop cmd-palette-backdrop" onclick="toggleSearchModal(false)" style="box-sizing: border-box;">
       <section class="search-modal-box cmd-palette-modal" onclick="event.stopPropagation()" style="box-sizing: border-box;">
         <section class="search-modal-input-row cmd-palette-input-wrap" style="box-sizing: border-box;">
           ${ICONS.search}
-          <input type="text" id="search-input" class="search-modal-input cmd-palette-input" placeholder="输入搜索文章、快捷指令或主题... (按 Esc 退出)" oninput="onSearchModalInput(event)" autocomplete="off">
+          <input type="text" id="search-input" class="search-modal-input cmd-palette-input" placeholder="搜索全站文章标题、标签或内容... (按 Esc 退出)" oninput="onSearchModalInput(event)" autocomplete="off">
           <kbd class="cmd-palette-esc" onclick="toggleSearchModal(false)" style="cursor: pointer;">ESC</kbd>
         </section>
         <section id="search-results-box" class="search-results-box cmd-palette-results" style="box-sizing: border-box;">
-          <section class="cmd-palette-empty" style="box-sizing: border-box; padding:24px;text-align:center;color:var(--text-light);font-size:0.9rem;">输入关键词搜索全部文章，或输入「主题」、「日夜」、「复制」触发快捷指令...</section>
+          <section class="cmd-palette-empty" style="box-sizing: border-box; padding:28px 20px;text-align:center;color:var(--text-light);font-size:0.92rem;line-height:1.6;">🔍 输入关键词，搜索全站文章标题、标签或内容...</section>
         </section>
         <section class="cmd-palette-footer" style="box-sizing: border-box;">
           <span><kbd>↑</kbd> <kbd>↓</kbd> 选择</span>
-          <span><kbd>↵</kbd> 执行</span>
+          <span><kbd>↵</kbd> 打开</span>
           <span><kbd>ESC</kbd> 退出</span>
         </section>
       </section>
@@ -7345,9 +7401,9 @@ export function buildPageHeaderHtml({ activeKey = "", isSubdir = false, extraAct
       ${buildBrandHtml(isSubdir)}
       ${buildNavHtml(activeKey, isSubdir)}
       <div class="nav-right-actions">
-        <button class="nav-cmd-k-btn" onclick="toggleSearchModal(true)" title="指令中心 (Cmd+K)">
+        <button class="nav-cmd-k-btn" onclick="toggleSearchModal(true)" title="搜索文章 (⌘K)">
           <span class="cmd-k-icon">${ICONS.search}</span>
-          <span class="cmd-k-text">搜索与指令</span>
+          <span class="cmd-k-text">搜索</span>
           <kbd class="cmd-k-badge">⌘K</kbd>
         </button>
         ${buildThemePickerHtml()}
@@ -7690,23 +7746,26 @@ export function buildBottomBannerHtml(isSubdir = false) {
         ${socialIconsHtml}
       </section>
       <section class="banner-meta-footnote" style="box-sizing: border-box; margin-top: 18px; font-size: 0.78rem; opacity: 0.65;">
-        <span>${getTodayFormattedDate()}</span> · <span>📷 今日壁纸：${wallpaperTitle}</span>
+        <span class="dynamic-today-date">${getTodayFormattedDate()}</span> · <span>📷 今日壁纸：${wallpaperTitle}</span>
       </section>
     </section>
 
     <section class="banner-photocard-wrap" style="box-sizing: border-box;">
       <section class="photocard-card" style="box-sizing: border-box;" onclick="this.classList.toggle('flipped')" title="点击翻转查看今日壁纸故事">
         <section class="photocard-face photocard-front" style="box-sizing: border-box;">
-          <span class="photocard-badge">DAILY QUOTE · 今日金句</span>
-          <p class="photocard-text">“${quoteText}”</p>
-          <span class="photocard-author">${quoteFrom}</span>
+          <section class="photocard-badge-row" style="box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <span class="photocard-badge">DAILY QUOTE · 今日金句</span>
+            <button type="button" class="photocard-refresh-quote-btn" onclick="event.stopPropagation(); refreshClientQuote();" title="换一句话">↺ 换一句</button>
+          </section>
+          <p class="photocard-text" id="daily-quote-text">“${quoteText}”</p>
+          <span class="photocard-author" id="daily-quote-author">${quoteFrom}</span>
           <span class="photocard-flip-hint">点击翻转查看壁纸故事 ↺</span>
         </section>
         <section class="photocard-face photocard-back" style="box-sizing: border-box;">
           <span class="photocard-badge">BING WALLPAPER · 今日壁纸</span>
           <h4 class="photocard-scene-title">${wallpaperTitle}</h4>
           <p class="photocard-scene-desc">${wallpaperStory}</p>
-          <span class="photocard-date">${getTodayFormattedDate()}</span>
+          <span class="photocard-date dynamic-today-date">${getTodayFormattedDate()}</span>
         </section>
       </section>
     </section>

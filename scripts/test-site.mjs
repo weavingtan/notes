@@ -907,18 +907,22 @@ console.log("\n▶ [Test 18/18] 电影感沉浸巨幕、人文排版、开放 AP
   assert.ok(!aboutHtml.includes(".interests-hairline-grid {\n  display: flex;\n  align-items: stretch;\n  border: 1px solid var(--border-color);\n  border-radius: 16px;\n  background: var(--bg-card);\n  overflow: hidden;\n  flex: 1;\n}"), "关于页发丝线网格严禁使用 flex: 1 刚性撑爆留白");
   assert.ok(categoriesHtml.includes("min-height: 580px;"), "分类与文章列表流必须声明 min-height 保证短分类下不与底栏发生拥挤碰撞");
 
-  // 18.5 Raycast 级 Command Palette (Cmd+K) 原生指令中心断言
-  assert.ok(indexHtml.includes("nav-cmd-k-btn"), "顶部导航栏必须包含 ⌘K 搜索与指令中心入口");
-  assert.ok(indexHtml.includes("search-modal"), "页面必须挂载 Command Palette 模态 DOM 结构");
-  assert.ok(indexHtml.includes("QUICK_ACTIONS"), "客户端交互脚本必须包含快捷指令中心定义 QUICK_ACTIONS");
-  assert.ok(indexHtml.includes("toggleTheme()"), "快捷指令必须支持一键切换日夜模式");
-  assert.ok(indexHtml.includes("selectSiteTheme"), "快捷指令必须支持 5 套核心主题实时切换");
-  assert.ok(indexHtml.includes("copyCurrentUrl"), "快捷指令必须支持复制当前页面永久链接");
-  assert.ok(indexHtml.includes("copyRssFeed"), "快捷指令必须支持一键复制 RSS 订阅源");
+  // 18.5 纯净全站文章搜索中心 (Cmd+K) 与无指令纯文章检索断言
+  assert.ok(indexHtml.includes("nav-cmd-k-btn"), "顶部导航栏必须包含 ⌘K 搜索入口");
+  assert.ok(indexHtml.includes("search-modal"), "页面必须挂载搜索模态 DOM 结构");
+  assert.ok(!indexHtml.includes("QUICK_ACTIONS"), "搜索中心必须彻底移除指令中心 QUICK_ACTIONS，纯粹专注于文章检索");
+  assert.ok(indexHtml.includes("onSearchModalInput"), "客户端必须具备文章即时检索与高亮脚本");
   assert.ok(
     indexHtml.includes('e.key === "k"'),
-    "客户端键盘监听必须支持 Cmd+K / Ctrl+K 快捷呼出 Command Palette"
+    "客户端键盘监听必须支持 Cmd+K / Ctrl+K 快捷呼出搜索模态框"
   );
+  assert.ok(indexHtml.includes("dynamic-today-date"), "页面必须包含动态日期校准类名 dynamic-today-date");
+  assert.ok(indexHtml.includes("photocard-refresh-quote-btn"), "拍立得卡片必须包含实时金句刷新按钮");
+  assert.ok(indexHtml.includes("refreshClientQuote"), "客户端必须具备实时金句刷新函数 refreshClientQuote()");
+  assert.ok(/editorial-hero\s*\{[^}]*padding:\s*32px\s+clamp\(20px/s.test(indexHtml), "首页巨幕必须在移动端声明 clamp(20px, 5.5vw, 28px) 舒适防贴边留白");
+  assert.ok(/about-hero-trio\s*\{[^}]*padding:\s*32px\s+clamp\(20px/s.test(aboutHtml), "关于页巨幕必须在移动端声明 clamp(20px, 5.5vw, 28px) 舒适防贴边留白");
+  assert.ok(aboutHtml.includes(".wechat-module-cards [style*=\"justify-content:space-between\"]"), "关于页必须包含移动端卡片防挤压排版规则");
+  assert.ok(/wechat-module-cards\s*\[style\*="justify-content:space-between"\][\s\S]*?\{[^}]*flex-direction:\s*column\s*!important/s.test(aboutHtml), "移动端卡片模块必须将两端对齐转为垂直列流式布局，消除徽章与标题挤压");
 
   // 18.6 AGENTS.md 微信生态零 <div> 硬约束全覆盖复核
   const allHtmlPages = [

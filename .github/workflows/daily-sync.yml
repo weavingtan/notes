@@ -35,6 +35,18 @@ jobs:
       - name: Fetch Daily Quote and Wallpapers
         run: node scripts/fetch-daily-assets.mjs
 
+      - name: Commit and Push Updated Daily Assets
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/ images/daily/
+          if git diff --staged --quiet; then
+            echo "No daily assets changed."
+          else
+            git commit -m "chore(daily): sync Bing wallpapers and daily quote [skip ci]"
+            git push
+          fi
+
       - name: Test and Build
         run: npm test
 
