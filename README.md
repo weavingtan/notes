@@ -94,36 +94,36 @@ weavingtan/notes/
 
 ## ⚡ 如何在 Obsidian 中一秒快速插入此模板？
 
-已在您的 Obsidian 库中配置了专属模板文件：`Templates/文章发布属性模板.md`。
+已在您的 Obsidian 库中配置了专属模板文件：
+- **Templater 专属（推荐）**：`Templates/文章发布属性模板.md`（支持 `⌥E` 秒插并动态计算标题与日期）
+- **Obsidian 原生模板**：`Templates/文章发布属性模板(原生Templates).md`
 
-您可以通过以下几种极速方式任意一种进行插入：
-
-### 方式一：Obsidian 原生模板功能（最简单，无需额外插件）
-1. 在新创建的空白笔记中，按下快捷键 **`⌘P`**（Windows 为 `Ctrl+P`）呼出命令面板；
-2. 输入 **`插入模板`**（或 `Insert template`）并回车；
-3. 选择 **`文章发布属性模板`** 即可瞬间插入！
-> 💡 *小技巧*：您也可以在 Obsidian 设置 → 快捷键 中，将「模板：插入模板」绑定为快捷键（如 `⌘T` 或 `⌥T`），实现单键秒插。
-
-### 方式二：Templater 插件（支持日期与标题自动替换）
-1. 在笔记编辑区按下快捷键 **`⌥E`**（Windows 为 `Alt+E`）；
+### 方式一：Templater 插件（快捷键 `⌥E`，最快最智能）
+1. 在笔记编辑区按下快捷键 **`⌥E`**（Mac Option + E）；
 2. 选择 **`文章发布属性模板`**；
-3. 模板中的 `{{title}}` 会自动替换为当前笔记文件名，`{{date}}` 会自动替换为当天日期（如 `2026-09-24`）。
+3. 模板中的 `<% tp.file.title %>` 会**自动替换为当前笔记文件名**，`<% tp.date.now('YYYY-MM-DD') %>` 会**自动替换为当天日期**（如 `2026-09-24`）！
+
+> ⚠️ **避坑提示**：如果您习惯使用 `⌥E` (Templater)，必须使用 `<% tp... %>` 语法。如果写成 `{{title}}`，Templater 不会解析，会直接作为字面量插入。
+
+### 方式二：Obsidian 原生模板（`⌘P` → 插入模板）
+1. 在空白笔记中按下 **`⌘P`**（Windows 为 `Ctrl+P`）呼出命令面板；
+2. 输入 **`插入模板`**（或 `Insert template`）并回车；
+3. 选择 **`文章发布属性模板(原生Templates)`**；
+4. 其中的 `{{title}}` 和 `{{date}}` 将由 Obsidian 原生模板引擎替换。
 
 ### 方式三：Obsidian 官方属性面板 (Properties)
-在笔记最开头直接输入三个横杠：
-```text
----
-```
-然后按下回车，Obsidian 就会自动转换为图形化的「属性」面板，您可直接像填写表格一样点击「添加属性」，输入 `title`、`cover`、`categories` 等属性。
+在笔记最开头直接输入三个横杠 `---` 并回车，Obsidian 会自动呈现可视化的属性卡片。
+
+> ⚠️ **布尔值防坑**：在 YAML Frontmatter 中，`featured: false` 和 `draft: false` 行末**严禁直接加行末注释 `#...`**（如 `featured: false # 注释`），否则 Obsidian 的属性图形面板会误将整串字符识别为非空字符串，导致复选框自动被勾选为 `true`！
 
 ---
 
-### 📋 标准文章 Frontmatter 模板参考
+### 📋 Templater 推荐模板源码 (`Templates/文章发布属性模板.md`)
 
 ```yaml
 ---
-title: "{{title}}"
-date: "{{date}}"
+title: "<% tp.file.title %>"
+date: "<% tp.date.now('YYYY-MM-DD') %>"
 author: "Tan / Weaving"
 description: "用简短的一两句话概括文章核心思想，这会出现在微信摘要和网站引言卡片中。"
 cover: "images/featured-fuji.jpg"
@@ -132,9 +132,9 @@ categories:
 tags:
   - 思考
   - 创作
-featured: false # 是否在首页置顶推荐 (true / false)
-draft: false    # 是否为草稿 (true 则个人网站构建时跳过发布)
-order: 1        # 手动排序权重 (越小越靠前，可选)
+featured: false
+draft: false
+order: 1
 ---
 ```
 
