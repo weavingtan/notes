@@ -2372,12 +2372,12 @@ button {
 
 .featured-showcase-grid {
   display: flex;
-  align-items: stretch;
-  gap: 36px;
+  align-items: center;
+  gap: clamp(28px, 4vw, 48px);
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 16px;
-  padding: 36px 40px;
+  padding: clamp(24px, 3.5vw, 36px) clamp(24px, 4vw, 44px);
   box-shadow: var(--card-shadow);
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
@@ -2388,19 +2388,44 @@ button {
 }
 
 .featured-showcase-text {
-  flex: 0 0 38%;
+  flex: 1 1 48%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   min-width: 0;
 }
 
+.featured-eyebrow-pill {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: var(--primary-faint, rgba(16, 185, 129, 0.08));
+  padding: 4px 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  margin-bottom: 14px;
+}
+
+.featured-eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: inline-block;
+}
+
 .featured-showcase-title {
-  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  font-size: clamp(1.35rem, 2.2vw, 1.8rem);
   font-weight: 800;
   line-height: 1.35;
   color: var(--text-main);
-  margin: 0 0 16px 0;
+  margin: 0 0 14px 0;
   letter-spacing: -0.02em;
   transition: color 0.2s ease;
 }
@@ -2411,44 +2436,95 @@ button {
 
 .featured-showcase-desc {
   font-size: 0.95rem;
-  line-height: 1.7;
+  line-height: 1.72;
   color: var(--text-muted);
-  margin: 0 0 24px 0;
+  margin: 0 0 20px 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.featured-showcase-meta {
+.featured-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.featured-meta-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--font-mono, monospace);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-light);
+  letter-spacing: 0.04em;
+}
+
+.featured-read-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.82rem;
+  font-weight: 750;
+  color: var(--primary);
+  text-decoration: none;
   letter-spacing: 0.05em;
-  text-transform: uppercase;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.featured-read-link:hover {
+  transform: translateX(4px);
+  color: var(--primary-hover, var(--primary));
 }
 
 .featured-showcase-image-box {
-  flex: 1 1 auto;
+  flex: 1 1 52%;
   min-width: 0;
-  border-radius: 10px;
+  max-height: 320px;
+  aspect-ratio: 16 / 10;
+  border-radius: 14px;
   overflow: hidden;
   position: relative;
-  min-height: 280px;
   background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 .featured-showcase-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .featured-showcase-grid:hover .featured-showcase-img {
-  transform: scale(1.03);
+  transform: scale(1.035);
+}
+
+.featured-img-counter {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 3px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.06em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
 }
 
 /* Chapter 3: SELECTED WRITINGS */
@@ -6023,6 +6099,11 @@ body.focus-reading-mode .focus-mode-exit-btn {
     padding: 24px 18px;
     gap: 20px;
   }
+  .featured-showcase-image-box {
+    width: 100%;
+    max-height: 240px;
+    aspect-ratio: 16 / 9;
+  }
   .selected-writings-stream {
     flex-direction: column;
   }
@@ -8031,17 +8112,34 @@ ${heroCategoryNavHtml}
 
       <section class="featured-showcase-grid" style="box-sizing: border-box;">
         <section class="featured-showcase-text" style="box-sizing: border-box;">
-          <a href="posts/${feat.slug}.html" style="text-decoration: none;">
+          <section class="featured-badge-row" style="box-sizing: border-box;">
+            <span class="featured-eyebrow-pill">
+              <span class="featured-eyebrow-dot"></span>
+              精选推荐 · ${featTag}
+            </span>
+          </section>
+          <a href="posts/${feat.slug}.html" style="text-decoration: none; display: block;">
             <h2 class="featured-showcase-title">${feat.meta.title}</h2>
           </a>
           <p class="featured-showcase-desc">${feat.meta.description || feat.rawExcerpt || "点击探索深度阅读全文..."}</p>
-          <span class="featured-showcase-meta">${featTag.toUpperCase()} / ${featReadingMin} MIN READ</span>
+          <section class="featured-action-row" style="box-sizing: border-box;">
+            <section class="featured-meta-info" style="box-sizing: border-box;">
+              <span>${feat.meta.date || "2026-09-24"}</span>
+              <span>·</span>
+              <span>约 ${featReadingMin} 分钟阅读</span>
+            </section>
+            <a href="posts/${feat.slug}.html" class="featured-read-link" aria-label="阅读《${feat.meta.title}》全文">
+              <span>阅读全文</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+            </a>
+          </section>
         </section>
 
         <section class="featured-showcase-image-box" style="box-sizing: border-box;">
-          <a href="posts/${feat.slug}.html" style="display: block; width: 100%; height: 100%;">
+          <a href="posts/${feat.slug}.html" style="display: block; width: 100%; height: 100%;" aria-label="${feat.meta.title}">
             <img src="${featCover}" alt="${feat.meta.title}" class="featured-showcase-img" onerror="this.src='images/featured-fuji.jpg'">
           </a>
+          <span class="featured-img-counter">01 / ${String(posts.length).padStart(2, "0")}</span>
         </section>
       </section>
     </section>
@@ -9020,7 +9118,19 @@ export async function main() {
     const readingStats = calculateReadingStats(body);
 
     const rawTitle = meta.title || slug;
-    const rawDescription = meta.description || "";
+    const cleanBodyText = body
+      .replace(/:::[a-z_-]+[\s\S]*?:::/gi, "")
+      .replace(/```[\s\S]*?```/g, "")
+      .replace(/<[^>]+>/g, "")
+      .replace(/!\[.*?\]\(.*?\)/g, "")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .trim();
+    const rawExcerpt = cleanBodyText.slice(0, 140).replace(/[\r\n]+/g, " ");
+
+    let rawDescription = meta.description ? String(meta.description).trim() : "";
+    if (!rawDescription || rawDescription.includes("用简短的一两句话概括文章核心思想")) {
+      rawDescription = rawExcerpt || rawTitle;
+    }
     const rawAuthor = meta.author || SITE_CONFIG.author;
     const rawCategories = Array.isArray(meta.categories) ? meta.categories : [];
     const rawTags = Array.isArray(meta.tags) ? meta.tags : [];
@@ -9035,6 +9145,8 @@ export async function main() {
 
     const postItem = {
       slug,
+      rawExcerpt,
+      readingStats,
       meta: {
         ...meta,
         cover: effectiveCover,
