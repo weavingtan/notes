@@ -9025,10 +9025,19 @@ export async function main() {
     const rawCategories = Array.isArray(meta.categories) ? meta.categories : [];
     const rawTags = Array.isArray(meta.tags) ? meta.tags : [];
 
+    let effectiveCover = meta.cover ? String(meta.cover).trim() : "";
+    if (!effectiveCover) {
+      const firstImgMatch = body.match(/!\[.*?\]\((.*?)\)/);
+      if (firstImgMatch && firstImgMatch[1]) {
+        effectiveCover = firstImgMatch[1].trim().replace(/^\.\.\//, "");
+      }
+    }
+
     const postItem = {
       slug,
       meta: {
         ...meta,
+        cover: effectiveCover,
         // HTML 注入防护：展示字段统一转义；原始值另存 metaRaw 供 JSON / URL 消费方使用。
         title: escapeHtml(rawTitle),
         description: escapeHtml(rawDescription),
