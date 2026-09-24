@@ -103,4 +103,4 @@ pages:
 
 - **Email**: [weavingtan@gmail.com](mailto:weavingtan@gmail.com)
 - **GitHub**: [github.com/weavingtan](https://github.com/weavingtan)
-- **微信公众号**: **Weaving Notes**（扫码或搜索关注，第一时间获取深度图文推送）
+- **微信公众号**: **正常点**（扫码或搜索关注，第一时间获取深度图文推送）
