@@ -2,26 +2,17 @@
   "source": "网易云音乐",
   "playlistId": 3778678,
   "playlistName": "热歌榜",
-  "title": "海屿你",
-  "artist": "马也_Crabbit",
-  "album": "海屿你",
-  "currentTrack": "海屿你",
-  "jacket": "https://p2.music.126.net/Enhy6dPn4gpyqrKhVEQvgA==/109951170483249998.jpg",
-  "audioUrl": "https://music.163.com/song/media/outer/url?id=1973665667.mp3",
-  "songId": 1973665667,
-  "link": "https://music.163.com/#/song?id=1973665667",
+  "title": "明知故犯",
+  "artist": "Max李玄",
+  "album": "失温",
+  "currentTrack": "明知故犯",
+  "jacket": "https://p2.music.126.net/H2DFRdwP2y5SuCAn-Tuikw==/109951172568091306.jpg",
+  "audioUrl": "https://music.163.com/song/media/outer/url?id=3342319503.mp3",
+  "songId": 3342319503,
+  "link": "https://music.163.com/#/song?id=3342319503",
   "vibe": "网易云音乐 · 每日精选",
-  "updatedAt": "2026-09-24",
+  "updatedAt": "2026-09-25",
   "tracks": [
-    {
-      "id": 1973665667,
-      "title": "海屿你",
-      "artist": "马也_Crabbit",
-      "album": "海屿你",
-      "jacket": "https://p2.music.126.net/Enhy6dPn4gpyqrKhVEQvgA==/109951170483249998.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1973665667.mp3",
-      "link": "https://music.163.com/#/song?id=1973665667"
-    },
     {
       "id": 3342319503,
       "title": "明知故犯",
@@ -32,13 +23,22 @@
       "link": "https://music.163.com/#/song?id=3342319503"
     },
     {
-      "id": 1456890009,
-      "title": "罗生门（Follow）",
-      "artist": "梨冻紧 / Wiz_H张子豪",
-      "album": "罗生门（Follow）",
-      "jacket": "https://p2.music.126.net/yN1ke1xYMJ718FiHaDWtYQ==/109951165076380471.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1456890009.mp3",
-      "link": "https://music.163.com/#/song?id=1456890009"
+      "id": 1973665667,
+      "title": "海屿你",
+      "artist": "马也_Crabbit",
+      "album": "海屿你",
+      "jacket": "https://p2.music.126.net/Enhy6dPn4gpyqrKhVEQvgA==/109951170483249998.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=1973665667.mp3",
+      "link": "https://music.163.com/#/song?id=1973665667"
+    },
+    {
+      "id": 1842728629,
+      "title": "如果呢",
+      "artist": "郑润泽",
+      "album": "如果呢",
+      "jacket": "https://p2.music.126.net/-xMsNLpquZTmMZlIztTgHg==/109951165953469081.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=1842728629.mp3",
+      "link": "https://music.163.com/#/song?id=1842728629"
     },
     {
       "id": 3399839173,
@@ -59,13 +59,13 @@
       "link": "https://music.163.com/#/song?id=287398"
     },
     {
-      "id": 479979029,
-      "title": "Lost ",
-      "artist": "满舒克 / Jony J",
-      "album": "Almost Perfect",
-      "jacket": "https://p2.music.126.net/5qz5CVIGDWLx7OXyp3rlwg==/109951173203263481.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=479979029.mp3",
-      "link": "https://music.163.com/#/song?id=479979029"
+      "id": 1851652156,
+      "title": "忘不掉的你",
+      "artist": "h3R3",
+      "album": "忘不掉的你",
+      "jacket": "https://p2.music.126.net/4BCskpY6Rmm-QReHnY8W6Q==/109951166071009318.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=1851652156.mp3",
+      "link": "https://music.163.com/#/song?id=1851652156"
     },
     {
       "id": 316157,
@@ -95,13 +95,13 @@
       "link": "https://music.163.com/#/song?id=2600493765"
     },
     {
-      "id": 3414509887,
-      "title": "冷冰冰",
-      "artist": "Double SR / 一觉Ysleep",
-      "album": "冷冰冰",
-      "jacket": "https://p2.music.126.net/-rECp2a16QrA4BhvV7L0Tg==/109951173671890294.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=3414509887.mp3",
-      "link": "https://music.163.com/#/song?id=3414509887"
+      "id": 3382908505,
+      "title": "玻璃",
+      "artist": "Gareth.T",
+      "album": "玻璃",
+      "jacket": "https://p2.music.126.net/MSKoQP60up7v3y1P1d3JIQ==/109951173234747322.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=3382908505.mp3",
+      "link": "https://music.163.com/#/song?id=3382908505"
     }
   ]
 }
