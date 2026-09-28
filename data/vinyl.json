@@ -2,26 +2,17 @@
   "source": "网易云音乐",
   "playlistId": 3778678,
   "playlistName": "热歌榜",
-  "title": "明知故犯",
-  "artist": "Max李玄",
-  "album": "失温",
-  "currentTrack": "明知故犯",
-  "jacket": "https://p2.music.126.net/H2DFRdwP2y5SuCAn-Tuikw==/109951172568091306.jpg",
-  "audioUrl": "https://music.163.com/song/media/outer/url?id=3342319503.mp3",
-  "songId": 3342319503,
-  "link": "https://music.163.com/#/song?id=3342319503",
+  "title": "海屿你",
+  "artist": "马也_Crabbit",
+  "album": "海屿你",
+  "currentTrack": "海屿你",
+  "jacket": "https://p2.music.126.net/Enhy6dPn4gpyqrKhVEQvgA==/109951170483249998.jpg",
+  "audioUrl": "https://music.163.com/song/media/outer/url?id=1973665667.mp3",
+  "songId": 1973665667,
+  "link": "https://music.163.com/#/song?id=1973665667",
   "vibe": "网易云音乐 · 每日精选",
-  "updatedAt": "2026-09-27",
+  "updatedAt": "2026-09-28",
   "tracks": [
-    {
-      "id": 3342319503,
-      "title": "明知故犯",
-      "artist": "Max李玄",
-      "album": "失温",
-      "jacket": "https://p2.music.126.net/H2DFRdwP2y5SuCAn-Tuikw==/109951172568091306.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=3342319503.mp3",
-      "link": "https://music.163.com/#/song?id=3342319503"
-    },
     {
       "id": 1973665667,
       "title": "海屿你",
@@ -32,13 +23,22 @@
       "link": "https://music.163.com/#/song?id=1973665667"
     },
     {
-      "id": 1303464858,
-      "title": "于是",
+      "id": 3342319503,
+      "title": "明知故犯",
+      "artist": "Max李玄",
+      "album": "失温",
+      "jacket": "https://p2.music.126.net/H2DFRdwP2y5SuCAn-Tuikw==/109951172568091306.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=3342319503.mp3",
+      "link": "https://music.163.com/#/song?id=3342319503"
+    },
+    {
+      "id": 2018733994,
+      "title": "遐想",
       "artist": "郑润泽",
-      "album": "于是",
-      "jacket": "https://p2.music.126.net/PEGvmO3OqgGOkx4m9qxAJA==/109951163478499713.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1303464858.mp3",
-      "link": "https://music.163.com/#/song?id=1303464858"
+      "album": "梦游",
+      "jacket": "https://p2.music.126.net/Ws93IUrJGR_lK-QEsdKTWw==/109951168408373477.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=2018733994.mp3",
+      "link": "https://music.163.com/#/song?id=2018733994"
     },
     {
       "id": 3399839173,
@@ -59,13 +59,13 @@
       "link": "https://music.163.com/#/song?id=287398"
     },
     {
-      "id": 1827600686,
-      "title": "还是会想你",
-      "artist": "林达浪 / h3R3",
-      "album": "还是会想你",
-      "jacket": "https://p2.music.126.net/9FhSEQtMhP-JP3_U84YfWQ==/109951165798773745.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1827600686.mp3",
-      "link": "https://music.163.com/#/song?id=1827600686"
+      "id": 2163210456,
+      "title": "两 难",
+      "artist": "加木",
+      "album": "两 难",
+      "jacket": "https://p2.music.126.net/Qvenb5t_hL37b7hRfscjaw==/109951169686160429.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=2163210456.mp3",
+      "link": "https://music.163.com/#/song?id=2163210456"
     },
     {
       "id": 316157,
@@ -95,13 +95,13 @@
       "link": "https://music.163.com/#/song?id=2097443876"
     },
     {
-      "id": 1842728629,
-      "title": "如果呢",
-      "artist": "郑润泽",
-      "album": "如果呢",
-      "jacket": "https://p2.music.126.net/-xMsNLpquZTmMZlIztTgHg==/109951165953469081.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1842728629.mp3",
-      "link": "https://music.163.com/#/song?id=1842728629"
+      "id": 3382908505,
+      "title": "玻璃",
+      "artist": "Gareth.T",
+      "album": "玻璃",
+      "jacket": "https://p2.music.126.net/MSKoQP60up7v3y1P1d3JIQ==/109951173234747322.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=3382908505.mp3",
+      "link": "https://music.163.com/#/song?id=3382908505"
     }
   ]
 }
