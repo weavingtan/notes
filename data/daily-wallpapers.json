@@ -1,40 +1,40 @@
 {
-  "updatedAt": "2026-10-02",
+  "updatedAt": "2026-10-03",
   "scenes": {
     "hero": {
-      "title": "一条值得保护的河流",
-      "copyright": "查图加河，阿巴拉契亚山脉，北卡罗来纳州，美国 (© mtilghma/Getty Images)",
+      "title": "捕捉、进食、重复",
+      "copyright": "美国阿拉斯加州克拉克湖国家公园和自然保护区银鲑溪中的棕熊 (© Danny Green/Nature Picture Library)",
       "file": "images/daily/hero.webp",
-      "url": "https://cn.bing.com/th?id=OHR.ChattoogaRiver_ZH-CN9453791496_UHD.jpg",
-      "updatedAt": "2026-10-02"
+      "url": "https://cn.bing.com/th?id=OHR.GrizzlySwim_ZH-CN1005455737_UHD.jpg",
+      "updatedAt": "2026-10-03"
     },
     "archive": {
-      "title": "在花岗岩中读懂时间",
-      "copyright": "奥姆斯特德观景点的日落，优胜美地国家公园，加利福尼亚州，美国 (© Robb Hirsch/Tandem Stills + Motion)",
+      "title": "一条值得保护的河流",
+      "copyright": "查图加河，阿巴拉契亚山脉，北卡罗来纳州，美国 (© mtilghma/Getty Images)",
       "file": "images/daily/archive.webp",
-      "url": "https://cn.bing.com/th?id=OHR.OlmstedPoint_ZH-CN4182671075_UHD.jpg",
-      "updatedAt": "2026-10-02"
+      "url": "https://cn.bing.com/th?id=OHR.ChattoogaRiver_ZH-CN9453791496_UHD.jpg",
+      "updatedAt": "2026-10-03"
     },
     "footer": {
-      "title": "冰川孕育之河",
-      "copyright": "卡西洛夫河冰川融水滋养的湛蓝河水，阿拉斯加州，美国 (© jared lloyd/Getty Images)",
+      "title": "一张令人过目难忘的脸",
+      "copyright": "雄性文须雀，诺福克郡，英格兰 (© Andrew Sproule/Shutterstock)",
       "file": "images/daily/footer.webp",
-      "url": "https://cn.bing.com/th?id=OHR.KasilofRiver_ZH-CN2394091052_UHD.jpg",
-      "updatedAt": "2026-10-02"
+      "url": "https://cn.bing.com/th?id=OHR.BeardReedling_ZH-CN2750632320_UHD.jpg",
+      "updatedAt": "2026-10-03"
     },
     "about": {
-      "title": "深海夜花园",
-      "copyright": "海笔上的装饰蟹，科莫多国家公园，印度尼西亚 (© Alex Mustard/Nature Picture Library)",
+      "title": "可览美景的历史胜地",
+      "copyright": "斋浦尔附近琥珀堡内的 Sattais Katcheri 大厅，拉贾斯坦邦，印度 (© R.M. Nunes/Getty Images)",
       "file": "images/daily/about.webp",
-      "url": "https://cn.bing.com/th?id=OHR.DecoCrab_ZH-CN0973306994_UHD.jpg",
-      "updatedAt": "2026-10-02"
+      "url": "https://cn.bing.com/th?id=OHR.AmberHall_ZH-CN1223127100_UHD.jpg",
+      "updatedAt": "2026-10-03"
     },
     "banner": {
-      "title": "写在大地上的故事",
-      "copyright": "熊耳国家纪念区附近的雪松台地和骡子角，犹他州，美国 (© Jeff Clay/Tandem Stills + Motion)",
+      "title": "深海夜花园",
+      "copyright": "海笔上的装饰蟹，科莫多国家公园，印度尼西亚 (© Alex Mustard/Nature Picture Library)",
       "file": "images/daily/banner.webp",
-      "url": "https://cn.bing.com/th?id=OHR.BearsEars_ZH-CN0496897450_UHD.jpg",
-      "updatedAt": "2026-10-02"
+      "url": "https://cn.bing.com/th?id=OHR.DecoCrab_ZH-CN0973306994_UHD.jpg",
+      "updatedAt": "2026-10-03"
     }
   }
 }
