@@ -11,7 +11,7 @@
   "songId": 1973665667,
   "link": "https://music.163.com/#/song?id=1973665667",
   "vibe": "网易云音乐 · 每日精选",
-  "updatedAt": "2026-10-03",
+  "updatedAt": "2026-10-04",
   "tracks": [
     {
       "id": 1973665667,
@@ -32,13 +32,13 @@
       "link": "https://music.163.com/#/song?id=3342319503"
     },
     {
-      "id": 1842728629,
-      "title": "如果呢",
+      "id": 1303464858,
+      "title": "于是",
       "artist": "郑润泽",
-      "album": "如果呢",
-      "jacket": "https://p2.music.126.net/-xMsNLpquZTmMZlIztTgHg==/109951165953469081.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1842728629.mp3",
-      "link": "https://music.163.com/#/song?id=1842728629"
+      "album": "于是",
+      "jacket": "https://p2.music.126.net/PEGvmO3OqgGOkx4m9qxAJA==/109951163478499713.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=1303464858.mp3",
+      "link": "https://music.163.com/#/song?id=1303464858"
     },
     {
       "id": 3399839173,
@@ -59,13 +59,13 @@
       "link": "https://music.163.com/#/song?id=287398"
     },
     {
-      "id": 1851652156,
-      "title": "忘不掉的你",
-      "artist": "h3R3",
-      "album": "忘不掉的你",
-      "jacket": "https://p2.music.126.net/4BCskpY6Rmm-QReHnY8W6Q==/109951166071009318.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1851652156.mp3",
-      "link": "https://music.163.com/#/song?id=1851652156"
+      "id": 1827600686,
+      "title": "还是会想你",
+      "artist": "林达浪 / h3R3",
+      "album": "还是会想你",
+      "jacket": "https://p2.music.126.net/9FhSEQtMhP-JP3_U84YfWQ==/109951165798773745.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=1827600686.mp3",
+      "link": "https://music.163.com/#/song?id=1827600686"
     },
     {
       "id": 316157,
@@ -95,13 +95,13 @@
       "link": "https://music.163.com/#/song?id=2097443876"
     },
     {
-      "id": 1456890009,
-      "title": "罗生门（Follow）",
-      "artist": "梨冻紧 / Wiz_H张子豪",
-      "album": "罗生门（Follow）",
-      "jacket": "https://p2.music.126.net/yN1ke1xYMJ718FiHaDWtYQ==/109951165076380471.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1456890009.mp3",
-      "link": "https://music.163.com/#/song?id=1456890009"
+      "id": 1842728629,
+      "title": "如果呢",
+      "artist": "郑润泽",
+      "album": "如果呢",
+      "jacket": "https://p2.music.126.net/-xMsNLpquZTmMZlIztTgHg==/109951165953469081.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=1842728629.mp3",
+      "link": "https://music.163.com/#/song?id=1842728629"
     }
   ]
 }
