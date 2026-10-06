@@ -11,7 +11,7 @@
   "songId": 1973665667,
   "link": "https://music.163.com/#/song?id=1973665667",
   "vibe": "网易云音乐 · 每日精选",
-  "updatedAt": "2026-10-05",
+  "updatedAt": "2026-10-06",
   "tracks": [
     {
       "id": 1973665667,
@@ -23,13 +23,13 @@
       "link": "https://music.163.com/#/song?id=1973665667"
     },
     {
-      "id": 3399839173,
-      "title": "甲乙丙丁 (你我怎么两清)",
-      "artist": "李佳薇",
-      "album": "甲乙丙丁",
-      "jacket": "https://p1.music.126.net/H9iDvukTit_jx-fmhhvXUQ==/109951173482378749.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=3399839173.mp3",
-      "link": "https://music.163.com/#/song?id=3399839173"
+      "id": 287398,
+      "title": "我不难过",
+      "artist": "孙燕姿",
+      "album": "未完成",
+      "jacket": "https://p1.music.126.net/Pzxy6py26NgNmhJjYMf2RQ==/109951169724216323.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=287398.mp3",
+      "link": "https://music.163.com/#/song?id=287398"
     },
     {
       "id": 3342319503,
@@ -41,31 +41,13 @@
       "link": "https://music.163.com/#/song?id=3342319503"
     },
     {
-      "id": 287398,
-      "title": "我不难过",
-      "artist": "孙燕姿",
-      "album": "未完成",
-      "jacket": "https://p1.music.126.net/Pzxy6py26NgNmhJjYMf2RQ==/109951169724216323.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=287398.mp3",
-      "link": "https://music.163.com/#/song?id=287398"
-    },
-    {
-      "id": 316157,
-      "title": "茶汤",
-      "artist": "郁可唯",
-      "album": "微加幸福",
-      "jacket": "https://p1.music.126.net/ugJH-gpHKX6y6p-6MkIIsQ==/109951163187409545.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=316157.mp3",
-      "link": "https://music.163.com/#/song?id=316157"
-    },
-    {
-      "id": 1303464858,
-      "title": "于是",
-      "artist": "郑润泽",
-      "album": "于是",
-      "jacket": "https://p1.music.126.net/PEGvmO3OqgGOkx4m9qxAJA==/109951163478499713.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1303464858.mp3",
-      "link": "https://music.163.com/#/song?id=1303464858"
+      "id": 3399839173,
+      "title": "甲乙丙丁 (你我怎么两清)",
+      "artist": "李佳薇",
+      "album": "甲乙丙丁",
+      "jacket": "https://p1.music.126.net/H9iDvukTit_jx-fmhhvXUQ==/109951173482378749.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=3399839173.mp3",
+      "link": "https://music.163.com/#/song?id=3399839173"
     },
     {
       "id": 2600493765,
@@ -77,6 +59,24 @@
       "link": "https://music.163.com/#/song?id=2600493765"
     },
     {
+      "id": 2018733994,
+      "title": "遐想",
+      "artist": "郑润泽",
+      "album": "梦游",
+      "jacket": "https://p1.music.126.net/Ws93IUrJGR_lK-QEsdKTWw==/109951168408373477.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=2018733994.mp3",
+      "link": "https://music.163.com/#/song?id=2018733994"
+    },
+    {
+      "id": 316157,
+      "title": "茶汤",
+      "artist": "郁可唯",
+      "album": "微加幸福",
+      "jacket": "https://p1.music.126.net/ugJH-gpHKX6y6p-6MkIIsQ==/109951163187409545.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=316157.mp3",
+      "link": "https://music.163.com/#/song?id=316157"
+    },
+    {
       "id": 2097443876,
       "title": "碎碎念",
       "artist": "队长",
@@ -86,15 +86,6 @@
       "link": "https://music.163.com/#/song?id=2097443876"
     },
     {
-      "id": 1842728629,
-      "title": "如果呢",
-      "artist": "郑润泽",
-      "album": "如果呢",
-      "jacket": "https://p1.music.126.net/-xMsNLpquZTmMZlIztTgHg==/109951165953469081.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1842728629.mp3",
-      "link": "https://music.163.com/#/song?id=1842728629"
-    },
-    {
       "id": 1456890009,
       "title": "罗生门（Follow）",
       "artist": "梨冻紧 / Wiz_H张子豪",
@@ -102,6 +93,15 @@
       "jacket": "https://p1.music.126.net/yN1ke1xYMJ718FiHaDWtYQ==/109951165076380471.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=1456890009.mp3",
       "link": "https://music.163.com/#/song?id=1456890009"
+    },
+    {
+      "id": 3382908505,
+      "title": "玻璃",
+      "artist": "Gareth.T",
+      "album": "玻璃",
+      "jacket": "https://p1.music.126.net/MSKoQP60up7v3y1P1d3JIQ==/109951173234747322.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=3382908505.mp3",
+      "link": "https://music.163.com/#/song?id=3382908505"
     }
   ]
 }
