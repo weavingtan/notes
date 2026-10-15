@@ -1,40 +1,40 @@
 {
-  "updatedAt": "2026-10-14",
+  "updatedAt": "2026-10-15",
   "scenes": {
     "hero": {
-      "title": "穿越时间的螺旋",
-      "copyright": "侏罗纪时期的菊石化石 (© J Nemchinova/Getty Images)",
+      "title": "桥梁、屋顶与暮色",
+      "copyright": "弗罗茨瓦夫集市广场景观，摄自女巫桥，弗罗茨瓦夫，波兰 (© Piotr Mitelski/Shutterstock)",
       "file": "images/daily/hero.webp",
-      "url": "https://cn.bing.com/th?id=OHR.AmmoniteFossils_ZH-CN5825251327_UHD.jpg",
-      "updatedAt": "2026-10-14"
+      "url": "https://cn.bing.com/th?id=OHR.WroclawPoland_ZH-CN6042428292_UHD.jpg",
+      "updatedAt": "2026-10-15"
     },
     "archive": {
-      "title": "蓝与绿的交响曲",
-      "copyright": "普利特维采湖群国家公园，克罗地亚 (© Jan Wlodarczyk/Alamy)",
+      "title": "穿越时间的螺旋",
+      "copyright": "侏罗纪时期的菊石化石 (© J Nemchinova/Getty Images)",
       "file": "images/daily/archive.webp",
-      "url": "https://cn.bing.com/th?id=OHR.PlitviceAutumn_ZH-CN5646237897_UHD.jpg",
-      "updatedAt": "2026-10-14"
+      "url": "https://cn.bing.com/th?id=OHR.AmmoniteFossils_ZH-CN5825251327_UHD.jpg",
+      "updatedAt": "2026-10-15"
     },
     "footer": {
-      "title": "秋色中转动的水轮",
-      "copyright": "格莱德溪磨坊，巴布科克州立公园，西弗吉尼亚州，美国 (© dszc/Getty Images)",
+      "title": "从铁轨到潮汐",
+      "copyright": "曼布尔斯码头，斯旺西，威尔士 (© Helen Hotson/Shutterstock)",
       "file": "images/daily/footer.webp",
-      "url": "https://cn.bing.com/th?id=OHR.BabcockSP_ZH-CN5266848536_UHD.jpg",
-      "updatedAt": "2026-10-14"
+      "url": "https://cn.bing.com/th?id=OHR.MumblesSwansea2026_ZH-CN5419531039_UHD.jpg",
+      "updatedAt": "2026-10-15"
     },
     "about": {
-      "title": "科西嘉岛的岩石前哨",
-      "copyright": "桑吉奈尔群岛景观，摄自科西嘉岛，法国 (© Francesco Riccardo Iacomino/Getty Images)",
+      "title": "迁飞路线上的生命",
+      "copyright": "蒙特雷湾上空的双冠鸬鹚，加利福尼亚州，美国 (© Hiroya Minakuchi/Minden Pictures)",
       "file": "images/daily/about.webp",
-      "url": "https://cn.bing.com/th?id=OHR.IlesSanguinaires_ZH-CN3149346035_UHD.jpg",
-      "updatedAt": "2026-10-14"
+      "url": "https://cn.bing.com/th?id=OHR.CormorantsFlight_ZH-CN0770863330_UHD.jpg",
+      "updatedAt": "2026-10-15"
     },
     "banner": {
-      "title": "现在你“海”能看见我……",
-      "copyright": "印度洋马约特岛，一只呈防御姿态的章鱼 (© Gabriel Barathieu/Minden Pictures)",
+      "title": "科西嘉岛的岩石前哨",
+      "copyright": "桑吉奈尔群岛景观，摄自科西嘉岛，法国 (© Francesco Riccardo Iacomino/Getty Images)",
       "file": "images/daily/banner.webp",
-      "url": "https://cn.bing.com/th?id=OHR.MayotteOctopus_ZH-CN2837659998_UHD.jpg",
-      "updatedAt": "2026-10-14"
+      "url": "https://cn.bing.com/th?id=OHR.IlesSanguinaires_ZH-CN3149346035_UHD.jpg",
+      "updatedAt": "2026-10-15"
     }
   }
 }
