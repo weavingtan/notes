@@ -1,40 +1,40 @@
 {
-  "updatedAt": "2026-10-16",
+  "updatedAt": "2026-10-17",
   "scenes": {
     "hero": {
-      "title": "一窥科罗拉多群峰",
-      "copyright": "斯奈费尔斯山，里奇韦附近的圣胡安山脉，科罗拉多州，美国 (© lightphoto/Getty Images)",
+      "title": "发掘尘封的过去",
+      "copyright": "肖维岩洞艺术作品等比例复制品，瓦隆蓬达尔克，法国 (© Audrey Poree/Alamy)",
       "file": "images/daily/hero.webp",
-      "url": "https://cn.bing.com/th?id=OHR.SneffelsAutumn_ZH-CN3002661429_UHD.jpg",
-      "updatedAt": "2026-10-16"
+      "url": "https://cn.bing.com/th?id=OHR.ChauvetPaintingsFrance_ZH-CN3150703955_UHD.jpg",
+      "updatedAt": "2026-10-17"
     },
     "archive": {
-      "title": "桥梁、屋顶与暮色",
-      "copyright": "弗罗茨瓦夫集市广场景观，摄自女巫桥，弗罗茨瓦夫，波兰 (© Piotr Mitelski/Shutterstock)",
+      "title": "一窥科罗拉多群峰",
+      "copyright": "斯奈费尔斯山，里奇韦附近的圣胡安山脉，科罗拉多州，美国 (© lightphoto/Getty Images)",
       "file": "images/daily/archive.webp",
-      "url": "https://cn.bing.com/th?id=OHR.WroclawPoland_ZH-CN6042428292_UHD.jpg",
-      "updatedAt": "2026-10-16"
+      "url": "https://cn.bing.com/th?id=OHR.SneffelsAutumn_ZH-CN3002661429_UHD.jpg",
+      "updatedAt": "2026-10-17"
     },
     "footer": {
-      "title": "蓝与绿的交响曲",
-      "copyright": "普利特维采湖群国家公园，克罗地亚 (© Jan Wlodarczyk/Alamy)",
+      "title": "穿越时间的螺旋",
+      "copyright": "侏罗纪时期的菊石化石 (© J Nemchinova/Getty Images)",
       "file": "images/daily/footer.webp",
-      "url": "https://cn.bing.com/th?id=OHR.PlitviceAutumn_ZH-CN5646237897_UHD.jpg",
-      "updatedAt": "2026-10-16"
+      "url": "https://cn.bing.com/th?id=OHR.AmmoniteFossils_ZH-CN5825251327_UHD.jpg",
+      "updatedAt": "2026-10-17"
     },
     "about": {
-      "title": "秋色中转动的水轮",
-      "copyright": "格莱德溪磨坊，巴布科克州立公园，西弗吉尼亚州，美国 (© dszc/Getty Images)",
+      "title": "从铁轨到潮汐",
+      "copyright": "曼布尔斯码头，斯旺西，威尔士 (© Helen Hotson/Shutterstock)",
       "file": "images/daily/about.webp",
-      "url": "https://cn.bing.com/th?id=OHR.BabcockSP_ZH-CN5266848536_UHD.jpg",
-      "updatedAt": "2026-10-16"
+      "url": "https://cn.bing.com/th?id=OHR.MumblesSwansea2026_ZH-CN5419531039_UHD.jpg",
+      "updatedAt": "2026-10-17"
     },
     "banner": {
-      "title": "迁飞路线上的生命",
-      "copyright": "蒙特雷湾上空的双冠鸬鹚，加利福尼亚州，美国 (© Hiroya Minakuchi/Minden Pictures)",
+      "title": "秋色中转动的水轮",
+      "copyright": "格莱德溪磨坊，巴布科克州立公园，西弗吉尼亚州，美国 (© dszc/Getty Images)",
       "file": "images/daily/banner.webp",
-      "url": "https://cn.bing.com/th?id=OHR.CormorantsFlight_ZH-CN0770863330_UHD.jpg",
-      "updatedAt": "2026-10-16"
+      "url": "https://cn.bing.com/th?id=OHR.BabcockSP_ZH-CN5266848536_UHD.jpg",
+      "updatedAt": "2026-10-17"
     }
   }
 }
