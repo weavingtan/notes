@@ -3,10 +3,10 @@
   "cityCn": "北京",
   "coordinates": "39°54'N, 116°23'E",
   "temp": 10,
-  "condition": "多云",
-  "icon": "⛅",
+  "condition": "晴朗",
+  "icon": "☀️",
   "solarTerm": "寒露",
   "chineseHour": "丑时",
-  "summary": "北京 · 多云 10°C / 寒露 · 丑时",
-  "updatedAt": "2026-10-20"
+  "summary": "北京 · 晴朗 10°C / 寒露 · 丑时",
+  "updatedAt": "2026-10-21"
 }
