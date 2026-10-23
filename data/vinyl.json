@@ -11,7 +11,7 @@
   "songId": 287398,
   "link": "https://music.163.com/#/song?id=287398",
   "vibe": "网易云音乐 · 每日精选",
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "tracks": [
     {
       "id": 287398,
@@ -32,58 +32,22 @@
       "link": "https://music.163.com/#/song?id=1973665667"
     },
     {
-      "id": 3342319503,
-      "title": "明知故犯",
-      "artist": "Max李玄",
-      "album": "失温",
-      "jacket": "https://p1.music.126.net/H2DFRdwP2y5SuCAn-Tuikw==/109951172568091306.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=3342319503.mp3",
-      "link": "https://music.163.com/#/song?id=3342319503"
+      "id": 1842728629,
+      "title": "如果呢",
+      "artist": "郑润泽",
+      "album": "如果呢",
+      "jacket": "https://p2.music.126.net/-xMsNLpquZTmMZlIztTgHg==/109951165953469081.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=1842728629.mp3",
+      "link": "https://music.163.com/#/song?id=1842728629"
     },
     {
       "id": 167691,
       "title": "天龙八部之宿敌",
       "artist": "许嵩",
       "album": "天龙八部之宿敌",
-      "jacket": "https://p1.music.126.net/Ezo6K3rPFowvnkDtxf-w6Q==/109951172321459335.jpg",
+      "jacket": "https://p2.music.126.net/Ezo6K3rPFowvnkDtxf-w6Q==/109951172321459335.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=167691.mp3",
       "link": "https://music.163.com/#/song?id=167691"
-    },
-    {
-      "id": 3399839173,
-      "title": "甲乙丙丁 (你我怎么两清)",
-      "artist": "李佳薇",
-      "album": "甲乙丙丁",
-      "jacket": "https://p1.music.126.net/H9iDvukTit_jx-fmhhvXUQ==/109951173482378749.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=3399839173.mp3",
-      "link": "https://music.163.com/#/song?id=3399839173"
-    },
-    {
-      "id": 2163210456,
-      "title": "两 难",
-      "artist": "加木",
-      "album": "两 难",
-      "jacket": "https://p1.music.126.net/Qvenb5t_hL37b7hRfscjaw==/109951169686160429.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=2163210456.mp3",
-      "link": "https://music.163.com/#/song?id=2163210456"
-    },
-    {
-      "id": 3451003254,
-      "title": "宝船",
-      "artist": "DOUDOU / 燕云十六声",
-      "album": "宝船",
-      "jacket": "https://p1.music.126.net/pdpmj0csBR_nUM7c2xr6pA==/109951174135616642.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=3451003254.mp3",
-      "link": "https://music.163.com/#/song?id=3451003254"
-    },
-    {
-      "id": 2600493765,
-      "title": "恋人",
-      "artist": "李荣浩",
-      "album": "黑马",
-      "jacket": "https://p1.music.126.net/0bk3Iqe2OZGBH2Iuyx7RzA==/109951170045577565.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=2600493765.mp3",
-      "link": "https://music.163.com/#/song?id=2600493765"
     },
     {
       "id": 2741144144,
@@ -93,6 +57,42 @@
       "jacket": "https://p2.music.126.net/D-kiZM7mbHrqdB6X8Yoi8Q==/109951171947326885.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=2741144144.mp3",
       "link": "https://music.163.com/#/song?id=2741144144"
+    },
+    {
+      "id": 2154520553,
+      "title": "Marry",
+      "artist": "Top Barry / INDEcompany",
+      "album": "How I Shine",
+      "jacket": "https://p2.music.126.net/XQgLpatV-LFMdx55WuV8bA==/109951169706853419.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=2154520553.mp3",
+      "link": "https://music.163.com/#/song?id=2154520553"
+    },
+    {
+      "id": 3399839173,
+      "title": "甲乙丙丁 (你我怎么两清)",
+      "artist": "李佳薇",
+      "album": "甲乙丙丁",
+      "jacket": "https://p2.music.126.net/H9iDvukTit_jx-fmhhvXUQ==/109951173482378749.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=3399839173.mp3",
+      "link": "https://music.163.com/#/song?id=3399839173"
+    },
+    {
+      "id": 3342319503,
+      "title": "明知故犯",
+      "artist": "Max李玄",
+      "album": "失温",
+      "jacket": "https://p2.music.126.net/H2DFRdwP2y5SuCAn-Tuikw==/109951172568091306.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=3342319503.mp3",
+      "link": "https://music.163.com/#/song?id=3342319503"
+    },
+    {
+      "id": 2600493765,
+      "title": "恋人",
+      "artist": "李荣浩",
+      "album": "黑马",
+      "jacket": "https://p2.music.126.net/0bk3Iqe2OZGBH2Iuyx7RzA==/109951170045577565.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=2600493765.mp3",
+      "link": "https://music.163.com/#/song?id=2600493765"
     },
     {
       "id": 3382908505,
