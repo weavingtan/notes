@@ -1,40 +1,40 @@
 {
-  "updatedAt": "2026-10-25",
+  "updatedAt": "2026-10-26",
   "scenes": {
     "hero": {
-      "title": "群峰与宁静相遇之地",
-      "copyright": "玛琳湖，贾斯珀国家公园，艾伯塔省，加拿大 (© Andrey Popov/Getty Images)",
+      "title": "大自然的秋日乐章",
+      "copyright": "秋日瀑布，西托沃附近，普罗夫迪夫州，保加利亚 (© Nadya85/Getty Images)",
       "file": "images/daily/hero.webp",
-      "url": "https://cn.bing.com/th?id=OHR.MaligneFest_ZH-CN8343066766_UHD.jpg",
-      "updatedAt": "2026-10-25"
+      "url": "https://cn.bing.com/th?id=OHR.SitovoWaterfall_ZH-CN8495214046_UHD.jpg",
+      "updatedAt": "2026-10-26"
     },
     "archive": {
-      "title": "书香里的极致华美",
-      "copyright": "皇家葡萄牙语阅览室，里约热内卢，巴西 (© Antonio Salaverry/Shutterstock)",
+      "title": "群峰与宁静相遇之地",
+      "copyright": "玛琳湖，贾斯珀国家公园，艾伯塔省，加拿大 (© Andrey Popov/Getty Images)",
       "file": "images/daily/archive.webp",
-      "url": "https://cn.bing.com/th?id=OHR.PortugueseLibrary_ZH-CN7096893027_UHD.jpg",
-      "updatedAt": "2026-10-25"
+      "url": "https://cn.bing.com/th?id=OHR.MaligneFest_ZH-CN8343066766_UHD.jpg",
+      "updatedAt": "2026-10-26"
     },
     "footer": {
-      "title": "静水映斑斓",
-      "copyright": "内藏山国立公园的秋景，韩国 (© Twenty47studio/Getty Images)",
+      "title": "荒野伙伴",
+      "copyright": "两只灰狼，黄石国家公园，怀俄明州，美国 (© John Morrison/Getty Images)",
       "file": "images/daily/footer.webp",
-      "url": "https://cn.bing.com/th?id=OHR.NaejangsanNP_ZH-CN6538893004_UHD.jpg",
-      "updatedAt": "2026-10-25"
+      "url": "https://cn.bing.com/th?id=OHR.YellowstoneWolves_ZH-CN6767268961_UHD.jpg",
+      "updatedAt": "2026-10-26"
     },
     "about": {
-      "title": "慢节奏生活",
-      "copyright": "褐喉三趾树懒，塔拉曼卡旧港，哥斯达黎加 (© Suzi Eszterhas/Minden Pictures)",
+      "title": "飞掠河面",
+      "copyright": "香江上的阮潢桥，顺化，越南 (© VU PHAM VAN/Getty Images)",
       "file": "images/daily/about.webp",
-      "url": "https://cn.bing.com/th?id=OHR.BrownSloth_ZH-CN5776383136_UHD.jpg",
-      "updatedAt": "2026-10-25"
+      "url": "https://cn.bing.com/th?id=OHR.VietnamBridge_ZH-CN6134321119_UHD.jpg",
+      "updatedAt": "2026-10-26"
     },
     "banner": {
-      "title": "水上通衢",
-      "copyright": "大运河，威尼斯，意大利 (© Juan Romero/Cavan Images)",
+      "title": "慢节奏生活",
+      "copyright": "褐喉三趾树懒，塔拉曼卡旧港，哥斯达黎加 (© Suzi Eszterhas/Minden Pictures)",
       "file": "images/daily/banner.webp",
-      "url": "https://cn.bing.com/th?id=OHR.VeniceSunrise_ZH-CN5251815339_UHD.jpg",
-      "updatedAt": "2026-10-25"
+      "url": "https://cn.bing.com/th?id=OHR.BrownSloth_ZH-CN5776383136_UHD.jpg",
+      "updatedAt": "2026-10-26"
     }
   }
 }
