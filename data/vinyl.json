@@ -6,55 +6,55 @@
   "artist": "The Weeknd",
   "album": "Hong Kong (feat. 王菲季候风)",
   "currentTrack": "Hong Kong (feat. 王菲季候风)",
-  "jacket": "https://p2.music.126.net/12-Tl1d-BT-_AwXMl7-MzQ==/109951174206326909.jpg",
+  "jacket": "https://p1.music.126.net/12-Tl1d-BT-_AwXMl7-MzQ==/109951174206326909.jpg",
   "audioUrl": "https://music.163.com/song/media/outer/url?id=3456047164.mp3",
   "songId": 3456047164,
   "link": "https://music.163.com/#/song?id=3456047164",
   "vibe": "网易云音乐 · 每日精选",
-  "updatedAt": "2026-11-04",
+  "updatedAt": "2026-11-05",
   "tracks": [
     {
       "id": 3456047164,
       "title": "Hong Kong (feat. 王菲季候风)",
       "artist": "The Weeknd",
       "album": "Hong Kong (feat. 王菲季候风)",
-      "jacket": "https://p2.music.126.net/12-Tl1d-BT-_AwXMl7-MzQ==/109951174206326909.jpg",
+      "jacket": "https://p1.music.126.net/12-Tl1d-BT-_AwXMl7-MzQ==/109951174206326909.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=3456047164.mp3",
       "link": "https://music.163.com/#/song?id=3456047164"
-    },
-    {
-      "id": 287398,
-      "title": "我不难过",
-      "artist": "孙燕姿",
-      "album": "未完成",
-      "jacket": "https://p2.music.126.net/Pzxy6py26NgNmhJjYMf2RQ==/109951169724216323.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=287398.mp3",
-      "link": "https://music.163.com/#/song?id=287398"
-    },
-    {
-      "id": 3448738711,
-      "title": "无 意",
-      "artist": "加木 / Demxntia",
-      "album": "无 意",
-      "jacket": "https://p2.music.126.net/ucdEaYKU_dL0U2ae-wSRCQ==/109951174184824841.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=3448738711.mp3",
-      "link": "https://music.163.com/#/song?id=3448738711"
     },
     {
       "id": 1973665667,
       "title": "海屿你",
       "artist": "马也_Crabbit",
       "album": "海屿你",
-      "jacket": "https://p2.music.126.net/Enhy6dPn4gpyqrKhVEQvgA==/109951170483249998.jpg",
+      "jacket": "https://p1.music.126.net/Enhy6dPn4gpyqrKhVEQvgA==/109951170483249998.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=1973665667.mp3",
       "link": "https://music.163.com/#/song?id=1973665667"
+    },
+    {
+      "id": 1456890009,
+      "title": "罗生门（Follow）",
+      "artist": "梨冻紧 / Wiz_H张子豪",
+      "album": "罗生门（Follow）",
+      "jacket": "https://p1.music.126.net/yN1ke1xYMJ718FiHaDWtYQ==/109951165076380471.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=1456890009.mp3",
+      "link": "https://music.163.com/#/song?id=1456890009"
+    },
+    {
+      "id": 287398,
+      "title": "我不难过",
+      "artist": "孙燕姿",
+      "album": "未完成",
+      "jacket": "https://p1.music.126.net/Pzxy6py26NgNmhJjYMf2RQ==/109951169724216323.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=287398.mp3",
+      "link": "https://music.163.com/#/song?id=287398"
     },
     {
       "id": 167691,
       "title": "天龙八部之宿敌",
       "artist": "许嵩",
       "album": "天龙八部之宿敌",
-      "jacket": "https://p2.music.126.net/Ezo6K3rPFowvnkDtxf-w6Q==/109951172321459335.jpg",
+      "jacket": "https://p1.music.126.net/Ezo6K3rPFowvnkDtxf-w6Q==/109951172321459335.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=167691.mp3",
       "link": "https://music.163.com/#/song?id=167691"
     },
@@ -63,7 +63,7 @@
       "title": "时过境迁",
       "artist": "苏艺馨Chency",
       "album": "时过境迁",
-      "jacket": "https://p2.music.126.net/A5J9gFuJgfzqravyuj184g==/109951168881933739.jpg",
+      "jacket": "https://p1.music.126.net/A5J9gFuJgfzqravyuj184g==/109951168881933739.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=2078101758.mp3",
       "link": "https://music.163.com/#/song?id=2078101758"
     },
@@ -72,36 +72,36 @@
       "title": "甲乙丙丁 (你我怎么两清)",
       "artist": "李佳薇",
       "album": "甲乙丙丁",
-      "jacket": "https://p2.music.126.net/H9iDvukTit_jx-fmhhvXUQ==/109951173482378749.jpg",
+      "jacket": "https://p1.music.126.net/H9iDvukTit_jx-fmhhvXUQ==/109951173482378749.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=3399839173.mp3",
       "link": "https://music.163.com/#/song?id=3399839173"
-    },
-    {
-      "id": 2600493765,
-      "title": "恋人",
-      "artist": "李荣浩",
-      "album": "黑马",
-      "jacket": "https://p2.music.126.net/0bk3Iqe2OZGBH2Iuyx7RzA==/109951170045577565.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=2600493765.mp3",
-      "link": "https://music.163.com/#/song?id=2600493765"
     },
     {
       "id": 3425638996,
       "title": "互删 (我走以后)",
       "artist": "江辰",
       "album": "互删 (我走以后)",
-      "jacket": "https://p2.music.126.net/nfDVr6WopOJax11vq5brPQ==/109951173820334666.jpg",
+      "jacket": "https://p1.music.126.net/nfDVr6WopOJax11vq5brPQ==/109951173820334666.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=3425638996.mp3",
       "link": "https://music.163.com/#/song?id=3425638996"
     },
     {
-      "id": 3451531276,
-      "title": "一张相片",
-      "artist": "连麻Swimming",
-      "album": "斩鸭线",
-      "jacket": "https://p2.music.126.net/Eafh2qRUgw2IXXOVD4B9LQ==/109951174139932904.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=3451531276.mp3",
-      "link": "https://music.163.com/#/song?id=3451531276"
+      "id": 2600493765,
+      "title": "恋人",
+      "artist": "李荣浩",
+      "album": "黑马",
+      "jacket": "https://p1.music.126.net/0bk3Iqe2OZGBH2Iuyx7RzA==/109951170045577565.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=2600493765.mp3",
+      "link": "https://music.163.com/#/song?id=2600493765"
+    },
+    {
+      "id": 3448738711,
+      "title": "无 意",
+      "artist": "加木 / Demxntia",
+      "album": "无 意",
+      "jacket": "https://p1.music.126.net/ucdEaYKU_dL0U2ae-wSRCQ==/109951174184824841.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=3448738711.mp3",
+      "link": "https://music.163.com/#/song?id=3448738711"
     }
   ]
 }
