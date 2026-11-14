@@ -1,40 +1,40 @@
 {
-  "updatedAt": "2026-11-13",
+  "updatedAt": "2026-11-14",
   "scenes": {
     "hero": {
-      "title": "冰下秘境",
-      "copyright": "亚伯拉罕湖，艾伯塔省，加拿大 (© Guang Cao/Getty Images)",
+      "title": "唯有向上发展",
+      "copyright": "中国香港维多利亚港 (© Juan Romero/Cavan Images)",
       "file": "images/daily/hero.webp",
-      "url": "https://cn.bing.com/th?id=OHR.AbrahamCanada_ZH-CN0344365912_UHD.jpg",
-      "updatedAt": "2026-11-13"
+      "url": "https://cn.bing.com/th?id=OHR.BlueHK_ZH-CN1382345392_UHD.jpg",
+      "updatedAt": "2026-11-14"
     },
     "archive": {
-      "title": "没有建筑师的建筑杰作",
-      "copyright": "北窗，拱门国家公园，莫阿布，犹他州，美国 (© lightphoto/Getty Images)",
+      "title": "冰下秘境",
+      "copyright": "亚伯拉罕湖，艾伯塔省，加拿大 (© Guang Cao/Getty Images)",
       "file": "images/daily/archive.webp",
-      "url": "https://cn.bing.com/th?id=OHR.NorthWindow_ZH-CN6734579353_UHD.jpg",
-      "updatedAt": "2026-11-13"
+      "url": "https://cn.bing.com/th?id=OHR.AbrahamCanada_ZH-CN0344365912_UHD.jpg",
+      "updatedAt": "2026-11-14"
     },
     "footer": {
-      "title": "惬意放松，尽享海岛时光",
-      "copyright": "玫瑰岛航拍图，巴哈马 (© Abstract Aerial Art/Getty Images)",
+      "title": "奇妙纷呈的森林",
+      "copyright": "大西洋森林，巴西 (© FG Trade/Getty Images)",
       "file": "images/daily/footer.webp",
-      "url": "https://cn.bing.com/th?id=OHR.RoseIsland_ZH-CN6477140814_UHD.jpg",
-      "updatedAt": "2026-11-13"
+      "url": "https://cn.bing.com/th?id=OHR.Atlantica_ZH-CN6593995386_UHD.jpg",
+      "updatedAt": "2026-11-14"
     },
     "about": {
-      "title": "光芒四射的节日",
-      "copyright": "排灯节灯笼，孟买，马哈拉施特拉邦，印度 (© Dinodia Photo/Getty Images)",
+      "title": "艺术与韵律交汇之地",
+      "copyright": "特里亚纳历史街区，塞维利亚，西班牙 (© Andrzej Rostek/Getty Images)",
       "file": "images/daily/about.webp",
-      "url": "https://cn.bing.com/th?id=OHR.DiwaliLamps_ZH-CN2462894749_UHD.jpg",
-      "updatedAt": "2026-11-13"
+      "url": "https://cn.bing.com/th?id=OHR.TrianaSpain_ZH-CN6329291776_UHD.jpg",
+      "updatedAt": "2026-11-14"
     },
     "banner": {
-      "title": "归来的草原巨兽",
-      "copyright": "草原上的一头野牛，西奥多·罗斯福国家公园，北达科他州，美国 (© Tandem Stock/Adobe Stock)",
+      "title": "光芒四射的节日",
+      "copyright": "排灯节灯笼，孟买，马哈拉施特拉邦，印度 (© Dinodia Photo/Getty Images)",
       "file": "images/daily/banner.webp",
-      "url": "https://cn.bing.com/th?id=OHR.DakotaBison_ZH-CN2302503868_UHD.jpg",
-      "updatedAt": "2026-11-13"
+      "url": "https://cn.bing.com/th?id=OHR.DiwaliLamps_ZH-CN2462894749_UHD.jpg",
+      "updatedAt": "2026-11-14"
     }
   }
 }
