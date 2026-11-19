@@ -2,17 +2,26 @@
   "source": "网易云音乐",
   "playlistId": 3778678,
   "playlistName": "热歌榜",
-  "title": "海屿你",
-  "artist": "马也_Crabbit",
-  "album": "海屿你",
-  "currentTrack": "海屿你",
-  "jacket": "https://p2.music.126.net/Enhy6dPn4gpyqrKhVEQvgA==/109951170483249998.jpg",
-  "audioUrl": "https://music.163.com/song/media/outer/url?id=1973665667.mp3",
-  "songId": 1973665667,
-  "link": "https://music.163.com/#/song?id=1973665667",
+  "title": "冬天又来临",
+  "artist": "罗言",
+  "album": "冬天又来临",
+  "currentTrack": "冬天又来临",
+  "jacket": "https://p2.music.126.net/TnaPKtQVBg_kT3OOpxtH0Q==/109951174269909108.jpg",
+  "audioUrl": "https://music.163.com/song/media/outer/url?id=3460493895.mp3",
+  "songId": 3460493895,
+  "link": "https://music.163.com/#/song?id=3460493895",
   "vibe": "网易云音乐 · 每日精选",
-  "updatedAt": "2026-11-18",
+  "updatedAt": "2026-11-19",
   "tracks": [
+    {
+      "id": 3460493895,
+      "title": "冬天又来临",
+      "artist": "罗言",
+      "album": "冬天又来临",
+      "jacket": "https://p2.music.126.net/TnaPKtQVBg_kT3OOpxtH0Q==/109951174269909108.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=3460493895.mp3",
+      "link": "https://music.163.com/#/song?id=3460493895"
+    },
     {
       "id": 1973665667,
       "title": "海屿你",
@@ -21,6 +30,15 @@
       "jacket": "https://p2.music.126.net/Enhy6dPn4gpyqrKhVEQvgA==/109951170483249998.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=1973665667.mp3",
       "link": "https://music.163.com/#/song?id=1973665667"
+    },
+    {
+      "id": 1391891631,
+      "title": "嗜好",
+      "artist": "颜人中",
+      "album": "嗜好",
+      "jacket": "https://p2.music.126.net/J6HaJjtgv-yVVjyUm-h-AA==/109951164373633387.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=1391891631.mp3",
+      "link": "https://music.163.com/#/song?id=1391891631"
     },
     {
       "id": 287398,
@@ -32,13 +50,22 @@
       "link": "https://music.163.com/#/song?id=287398"
     },
     {
-      "id": 1456890009,
-      "title": "罗生门（Follow）",
-      "artist": "梨冻紧 / Wiz_H张子豪",
-      "album": "罗生门（Follow）",
-      "jacket": "https://p2.music.126.net/yN1ke1xYMJ718FiHaDWtYQ==/109951165076380471.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1456890009.mp3",
-      "link": "https://music.163.com/#/song?id=1456890009"
+      "id": 488249475,
+      "title": "哪里都是你",
+      "artist": "队长",
+      "album": "哪里都是你",
+      "jacket": "https://p2.music.126.net/lnOnBbP_H-052Hv5ls-QjA==/109951162964628408.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=488249475.mp3",
+      "link": "https://music.163.com/#/song?id=488249475"
+    },
+    {
+      "id": 1895330088,
+      "title": "予你",
+      "artist": "队长",
+      "album": "予你",
+      "jacket": "https://p2.music.126.net/yxVm_vRFOode6yP67NmMcA==/109951166625738075.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=1895330088.mp3",
+      "link": "https://music.163.com/#/song?id=1895330088"
     },
     {
       "id": 1379918404,
@@ -48,24 +75,6 @@
       "jacket": "https://p2.music.126.net/b15pmn1qj28nyam8DdcCHA==/109951167480966719.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=1379918404.mp3",
       "link": "https://music.163.com/#/song?id=1379918404"
-    },
-    {
-      "id": 3460493895,
-      "title": "冬天又来临",
-      "artist": "罗言",
-      "album": "冬天又来临",
-      "jacket": "https://p2.music.126.net/TnaPKtQVBg_kT3OOpxtH0Q==/109951174269909108.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=3460493895.mp3",
-      "link": "https://music.163.com/#/song?id=3460493895"
-    },
-    {
-      "id": 1827600686,
-      "title": "还是会想你",
-      "artist": "林达浪 / h3R3",
-      "album": "还是会想你",
-      "jacket": "https://p2.music.126.net/9FhSEQtMhP-JP3_U84YfWQ==/109951165798773745.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1827600686.mp3",
-      "link": "https://music.163.com/#/song?id=1827600686"
     },
     {
       "id": 2741144144,
@@ -84,15 +93,6 @@
       "jacket": "https://p2.music.126.net/Ezo6K3rPFowvnkDtxf-w6Q==/109951172321459335.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=167691.mp3",
       "link": "https://music.163.com/#/song?id=167691"
-    },
-    {
-      "id": 3456047164,
-      "title": "Hong Kong (feat. 王菲季候风)",
-      "artist": "The Weeknd",
-      "album": "Hong Kong (feat. 王菲季候风)",
-      "jacket": "https://p2.music.126.net/12-Tl1d-BT-_AwXMl7-MzQ==/109951174206326909.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=3456047164.mp3",
-      "link": "https://music.163.com/#/song?id=3456047164"
     },
     {
       "id": 3448039922,
