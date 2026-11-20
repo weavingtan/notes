@@ -11,7 +11,7 @@
   "songId": 3460493895,
   "link": "https://music.163.com/#/song?id=3460493895",
   "vibe": "网易云音乐 · 每日精选",
-  "updatedAt": "2026-11-19",
+  "updatedAt": "2026-11-20",
   "tracks": [
     {
       "id": 3460493895,
@@ -32,13 +32,13 @@
       "link": "https://music.163.com/#/song?id=1973665667"
     },
     {
-      "id": 1391891631,
-      "title": "嗜好",
-      "artist": "颜人中",
-      "album": "嗜好",
-      "jacket": "https://p2.music.126.net/J6HaJjtgv-yVVjyUm-h-AA==/109951164373633387.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1391891631.mp3",
-      "link": "https://music.163.com/#/song?id=1391891631"
+      "id": 1842728629,
+      "title": "如果呢",
+      "artist": "郑润泽",
+      "album": "如果呢",
+      "jacket": "https://p2.music.126.net/-xMsNLpquZTmMZlIztTgHg==/109951165953469081.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=1842728629.mp3",
+      "link": "https://music.163.com/#/song?id=1842728629"
     },
     {
       "id": 287398,
@@ -50,22 +50,22 @@
       "link": "https://music.163.com/#/song?id=287398"
     },
     {
-      "id": 488249475,
-      "title": "哪里都是你",
-      "artist": "队长",
-      "album": "哪里都是你",
-      "jacket": "https://p2.music.126.net/lnOnBbP_H-052Hv5ls-QjA==/109951162964628408.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=488249475.mp3",
-      "link": "https://music.163.com/#/song?id=488249475"
+      "id": 3448039922,
+      "title": "茉茉",
+      "artist": "Nzwin 黄跃成",
+      "album": "茉茉",
+      "jacket": "https://p2.music.126.net/x9H0NVxO5ha9wWCOvW1-eQ==/109951174106566868.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=3448039922.mp3",
+      "link": "https://music.163.com/#/song?id=3448039922"
     },
     {
-      "id": 1895330088,
-      "title": "予你",
-      "artist": "队长",
-      "album": "予你",
-      "jacket": "https://p2.music.126.net/yxVm_vRFOode6yP67NmMcA==/109951166625738075.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1895330088.mp3",
-      "link": "https://music.163.com/#/song?id=1895330088"
+      "id": 3448738711,
+      "title": "无 意",
+      "artist": "加木 / Demxntia",
+      "album": "无 意",
+      "jacket": "https://p2.music.126.net/ucdEaYKU_dL0U2ae-wSRCQ==/109951174184824841.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=3448738711.mp3",
+      "link": "https://music.163.com/#/song?id=3448738711"
     },
     {
       "id": 1379918404,
@@ -95,13 +95,13 @@
       "link": "https://music.163.com/#/song?id=167691"
     },
     {
-      "id": 3448039922,
-      "title": "茉茉",
-      "artist": "Nzwin 黄跃成",
-      "album": "茉茉",
-      "jacket": "https://p2.music.126.net/x9H0NVxO5ha9wWCOvW1-eQ==/109951174106566868.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=3448039922.mp3",
-      "link": "https://music.163.com/#/song?id=3448039922"
+      "id": 488249475,
+      "title": "哪里都是你",
+      "artist": "队长",
+      "album": "哪里都是你",
+      "jacket": "https://p2.music.126.net/lnOnBbP_H-052Hv5ls-QjA==/109951162964628408.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=488249475.mp3",
+      "link": "https://music.163.com/#/song?id=488249475"
     }
   ]
 }
