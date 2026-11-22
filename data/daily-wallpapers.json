@@ -1,40 +1,40 @@
 {
-  "updatedAt": "2026-11-21",
+  "updatedAt": "2026-11-22",
   "scenes": {
     "hero": {
-      "title": "陶瓦屋顶下的梦",
-      "copyright": "法国普罗旺斯-阿尔卑斯-蔚蓝海岸大区尼斯 (© Siripong Kaewla-iad/Getty Images)",
+      "title": "海浪间的庇护所",
+      "copyright": "西班牙坎塔布里亚自治区的圣胡斯塔隐修院与小教堂 (© Tramont_ana/Getty Images)",
       "file": "images/daily/hero.webp",
-      "url": "https://cn.bing.com/th?id=OHR.RedNice_ZH-CN3518429866_UHD.jpg",
-      "updatedAt": "2026-11-21"
+      "url": "https://cn.bing.com/th?id=OHR.JustaHermitage_ZH-CN3751022621_UHD.jpg",
+      "updatedAt": "2026-11-22"
     },
     "archive": {
-      "title": "在峡湾中大快朵颐",
-      "copyright": "正在潜水的座头鲸，挪威北部特罗姆斯的克瓦尔岛 (© Espen Bergersen/Minden Pictures)",
+      "title": "陶瓦屋顶下的梦",
+      "copyright": "法国普罗旺斯-阿尔卑斯-蔚蓝海岸大区尼斯 (© Siripong Kaewla-iad/Getty Images)",
       "file": "images/daily/archive.webp",
-      "url": "https://cn.bing.com/th?id=OHR.Megaptera_ZH-CN3361807823_UHD.jpg",
-      "updatedAt": "2026-11-21"
+      "url": "https://cn.bing.com/th?id=OHR.RedNice_ZH-CN3518429866_UHD.jpg",
+      "updatedAt": "2026-11-22"
     },
     "footer": {
-      "title": "从黄昏狩猎到黎明",
-      "copyright": "一对仓鸮 (© Zahoor Salmi/Getty Images)",
+      "title": "思想在此成形",
+      "copyright": "雕塑《知识之躯》，由豪梅·普兰萨创作，位于德国法兰克福的法兰克福歌德大学 (© Todamo/Shutterstock)",
       "file": "images/daily/footer.webp",
-      "url": "https://cn.bing.com/th?id=OHR.BarnOwlsUnite_ZH-CN2930153291_UHD.jpg",
-      "updatedAt": "2026-11-21"
+      "url": "https://cn.bing.com/th?id=OHR.KnowledgeSculpture_ZH-CN3168800853_UHD.jpg",
+      "updatedAt": "2026-11-22"
     },
     "about": {
-      "title": "历经岁月，屹立不倒",
-      "copyright": "美国新墨西哥州吉拉悬崖民居国家纪念地 (© Chiara Salvadori/Getty Images)",
+      "title": "走进广阔的大自然",
+      "copyright": "雪松林步道，冰川国家公园，蒙大拿州，美国 (© DBushue Photography/Getty Images)",
       "file": "images/daily/about.webp",
-      "url": "https://cn.bing.com/th?id=OHR.GilaCliff_ZH-CN2393001519_UHD.jpg",
-      "updatedAt": "2026-11-21"
+      "url": "https://cn.bing.com/th?id=OHR.TrailCedars_ZH-CN2670680285_UHD.jpg",
+      "updatedAt": "2026-11-22"
     },
     "banner": {
-      "title": "霜染枝叶",
-      "copyright": "覆霜的红叶杜鹃 (© avoferten/Shutterstock)",
+      "title": "历经岁月，屹立不倒",
+      "copyright": "美国新墨西哥州吉拉悬崖民居国家纪念地 (© Chiara Salvadori/Getty Images)",
       "file": "images/daily/banner.webp",
-      "url": "https://cn.bing.com/th?id=OHR.FirstFrost_ZH-CN2219029557_UHD.jpg",
-      "updatedAt": "2026-11-21"
+      "url": "https://cn.bing.com/th?id=OHR.GilaCliff_ZH-CN2393001519_UHD.jpg",
+      "updatedAt": "2026-11-22"
     }
   }
 }
