@@ -2,43 +2,52 @@
   "source": "网易云音乐",
   "playlistId": 3778678,
   "playlistName": "热歌榜",
-  "title": "海屿你",
-  "artist": "马也_Crabbit",
-  "album": "海屿你",
-  "currentTrack": "海屿你",
-  "jacket": "https://p2.music.126.net/Enhy6dPn4gpyqrKhVEQvgA==/109951170483249998.jpg",
-  "audioUrl": "https://music.163.com/song/media/outer/url?id=1973665667.mp3",
-  "songId": 1973665667,
-  "link": "https://music.163.com/#/song?id=1973665667",
+  "title": "降温",
+  "artist": "Zzh",
+  "album": "降温",
+  "currentTrack": "降温",
+  "jacket": "https://p1.music.126.net/pbHcu5WSuWqOYOMdpkKaPg==/109951174163337450.jpg",
+  "audioUrl": "https://music.163.com/song/media/outer/url?id=3453304463.mp3",
+  "songId": 3453304463,
+  "link": "https://music.163.com/#/song?id=3453304463",
   "vibe": "网易云音乐 · 每日精选",
-  "updatedAt": "2026-11-25",
+  "updatedAt": "2026-11-26",
   "tracks": [
+    {
+      "id": 3453304463,
+      "title": "降温",
+      "artist": "Zzh",
+      "album": "降温",
+      "jacket": "https://p1.music.126.net/pbHcu5WSuWqOYOMdpkKaPg==/109951174163337450.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=3453304463.mp3",
+      "link": "https://music.163.com/#/song?id=3453304463"
+    },
     {
       "id": 1973665667,
       "title": "海屿你",
       "artist": "马也_Crabbit",
       "album": "海屿你",
-      "jacket": "https://p2.music.126.net/Enhy6dPn4gpyqrKhVEQvgA==/109951170483249998.jpg",
+      "jacket": "https://p1.music.126.net/Enhy6dPn4gpyqrKhVEQvgA==/109951170483249998.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=1973665667.mp3",
       "link": "https://music.163.com/#/song?id=1973665667"
+    },
+    {
+      "id": 1456890009,
+      "title": "罗生门（Follow）",
+      "artist": "梨冻紧 / Wiz_H张子豪",
+      "album": "罗生门（Follow）",
+      "jacket": "https://p1.music.126.net/yN1ke1xYMJ718FiHaDWtYQ==/109951165076380471.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=1456890009.mp3",
+      "link": "https://music.163.com/#/song?id=1456890009"
     },
     {
       "id": 287398,
       "title": "我不难过",
       "artist": "孙燕姿",
       "album": "未完成",
-      "jacket": "https://p2.music.126.net/Pzxy6py26NgNmhJjYMf2RQ==/109951169724216323.jpg",
+      "jacket": "https://p1.music.126.net/Pzxy6py26NgNmhJjYMf2RQ==/109951169724216323.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=287398.mp3",
       "link": "https://music.163.com/#/song?id=287398"
-    },
-    {
-      "id": 1918576268,
-      "title": "红",
-      "artist": "罗言",
-      "album": "When the world is came，take it！",
-      "jacket": "https://p2.music.126.net/G-inyKjA-jO5MuOuV3g7Pg==/109951167027986653.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1918576268.mp3",
-      "link": "https://music.163.com/#/song?id=1918576268"
     },
     {
       "id": 2741144144,
@@ -50,6 +59,15 @@
       "link": "https://music.163.com/#/song?id=2741144144"
     },
     {
+      "id": 1827600686,
+      "title": "还是会想你",
+      "artist": "林达浪 / h3R3",
+      "album": "还是会想你",
+      "jacket": "https://p1.music.126.net/9FhSEQtMhP-JP3_U84YfWQ==/109951165798773745.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=1827600686.mp3",
+      "link": "https://music.163.com/#/song?id=1827600686"
+    },
+    {
       "id": 1379918404,
       "title": "time machine (feat. aren park)",
       "artist": "mj apanay / aren park",
@@ -57,15 +75,6 @@
       "jacket": "https://p1.music.126.net/b15pmn1qj28nyam8DdcCHA==/109951167480966719.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=1379918404.mp3",
       "link": "https://music.163.com/#/song?id=1379918404"
-    },
-    {
-      "id": 1851652156,
-      "title": "忘不掉的你",
-      "artist": "h3R3",
-      "album": "忘不掉的你",
-      "jacket": "https://p1.music.126.net/4BCskpY6Rmm-QReHnY8W6Q==/109951166071009318.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=1851652156.mp3",
-      "link": "https://music.163.com/#/song?id=1851652156"
     },
     {
       "id": 3448039922,
@@ -77,6 +86,15 @@
       "link": "https://music.163.com/#/song?id=3448039922"
     },
     {
+      "id": 27867073,
+      "title": "연애의 조건 (LOVE OPTIONS)",
+      "artist": "BESTie",
+      "album": "연애의 조건 (Love Options)",
+      "jacket": "https://p1.music.126.net/qQzg5t51Hqbv_oiyNcGT9Q==/109951174317388290.jpg",
+      "audioUrl": "https://music.163.com/song/media/outer/url?id=27867073.mp3",
+      "link": "https://music.163.com/#/song?id=27867073"
+    },
+    {
       "id": 167691,
       "title": "天龙八部之宿敌",
       "artist": "许嵩",
@@ -84,24 +102,6 @@
       "jacket": "https://p1.music.126.net/Ezo6K3rPFowvnkDtxf-w6Q==/109951172321459335.jpg",
       "audioUrl": "https://music.163.com/song/media/outer/url?id=167691.mp3",
       "link": "https://music.163.com/#/song?id=167691"
-    },
-    {
-      "id": 3460493895,
-      "title": "冬天又来临",
-      "artist": "罗言",
-      "album": "冬天又来临",
-      "jacket": "https://p1.music.126.net/TnaPKtQVBg_kT3OOpxtH0Q==/109951174269909108.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=3460493895.mp3",
-      "link": "https://music.163.com/#/song?id=3460493895"
-    },
-    {
-      "id": 2600493765,
-      "title": "恋人",
-      "artist": "李荣浩",
-      "album": "黑马",
-      "jacket": "https://p1.music.126.net/0bk3Iqe2OZGBH2Iuyx7RzA==/109951170045577565.jpg",
-      "audioUrl": "https://music.163.com/song/media/outer/url?id=2600493765.mp3",
-      "link": "https://music.163.com/#/song?id=2600493765"
     }
   ]
 }
